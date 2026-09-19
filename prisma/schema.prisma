@@ -1,0 +1,515 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// User Roles for System Access
+enum Role {
+  ADMIN
+  ACCOUNTANT
+  MANAGER
+  OPERATOR
+  DRIVER
+}
+
+// Party Roles (A party can hold multiple tags e.g. FARMER & SUPPLIER)
+enum PartyRole {
+  FARMER
+  CUSTOMER
+  RICE_MILL
+  SUPPLIER
+  VENDOR
+  OTHER
+}
+
+// Global Active Status
+enum Status {
+  ACTIVE
+  INACTIVE
+  ARCHIVED
+}
+
+// Transaction Status
+enum TransactionStatus {
+  DRAFT
+  POSTED
+  CANCELLED
+}
+
+// Employee Roles
+enum EmployeeRole {
+  DRIVER
+  LOADER
+  HELPER
+  ACCOUNTANT
+  MANAGER
+  MANDI_SUPERVISOR
+  LABOUR
+}
+
+// Attendance Status
+enum AttendanceStatus {
+  PRESENT
+  ABSENT
+  HALF_DAY
+  LEAVE
+}
+
+// 1. USER ENTITY (Authentication & Security)
+model User {
+  id           String     @id @default(uuid())
+  username     String     @unique
+  email        String?    @unique
+  passwordHash String
+  fullName     String
+  phone        String?
+  role         Role       @default(OPERATOR)
+  status       Status     @default(ACTIVE)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  auditLogs    AuditLog[]
+
+  @@map("users")
+}
+
+// 2. PARTY ENTITY (Farmers, Customers, Rice Mills, Suppliers, Vendors)
+model Party {
+  id             String        @id @default(uuid())
+  partyCode      String        @unique // e.g. PRT-0001
+  name           String
+  phone          String?
+  alternatePhone String?
+  address        String?
+  city           String?
+  state          String?
+  roles          PartyRole[]   @default([FARMER])
+  openingBalance Decimal       @default(0.00) @db.Decimal(15, 2)
+  balanceType    String        @default("RECEIVABLE") // RECEIVABLE or PAYABLE
+  status         Status        @default(ACTIVE)
+  avatarUrl      String?
+  notes          String?
+  // KYC, Bank & Land Documents
+  aadhaarNo      String?
+  aadhaarDocUrl  String?
+  bankName       String?
+  accountNo      String?
+  ifscCode       String?
+  bankDocUrl     String?
+  khatauniDocUrl String?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  // Relationships
+  ledgerEntries   PartyLedger[]
+  purchases       Purchase[]
+  sales           Sale[]
+  payments        Payment[]
+  fuelExpenses    FuelExpense[]    @relation("VendorFuelExpenses")
+  vehicleExpenses VehicleExpense[] @relation("VendorVehicleExpenses")
+
+  @@index([name])
+  @@index([phone])
+  @@map("parties")
+}
+
+// 3. PARTY LEDGER ENTITY (Financial transactions & running balances per party)
+model PartyLedger {
+  id            String            @id @default(uuid())
+  partyId       String
+  party         Party             @relation(fields: [partyId], references: [id], onDelete: Cascade)
+  date          DateTime          @default(now())
+  voucherNo     String            // e.g. PUR-2026-0001, PAY-2026-0001
+  voucherType   String            // PURCHASE, SALE, PAYMENT_MADE, PAYMENT_RECEIVED, OPENING_BALANCE
+  debit         Decimal           @default(0.00) @db.Decimal(15, 2)  // Money paid or receivable
+  credit        Decimal           @default(0.00) @db.Decimal(15, 2)  // Money received or payable
+  runningBalance Decimal          @db.Decimal(15, 2)
+  balanceType   String            @default("RECEIVABLE") // RECEIVABLE (DR) or PAYABLE (CR)
+  narration     String?
+  referenceId   String?           // Id of Purchase, Sale, or Payment
+  status        TransactionStatus @default(POSTED)
+  createdAt     DateTime          @default(now())
+
+  @@index([partyId, date])
+  @@map("party_ledgers")
+}
+
+// 4. COMMODITY ENTITY (Paddy/Dhan, Wheat/Gehu, Gram, Maize, Mustard)
+model Commodity {
+  id          String   @id @default(uuid())
+  code        String   @unique // e.g. CMD-PAD-01
+  name        String   // English Name e.g. Paddy (Dhan)
+  localName   String?  // Vernacular Name e.g. धान / गेहूँ
+  category    String?  // Grains, Pulses, Oilseeds
+  description String?
+  status      Status   @default(ACTIVE)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  purchaseItems PurchaseItem[]
+  saleItems     SaleItem[]
+  stockMovements StockMovement[]
+
+  @@map("commodities")
+}
+
+// 5. UNIT ENTITY (KG, Quintal, Tonne with conversion factor to base unit KG)
+model Unit {
+  id                   String   @id @default(uuid())
+  name                 String   @unique // e.g. Quintal, KG, Tonne
+  code                 String   @unique // e.g. QTL, KG, TON
+  baseConversionFactor Decimal  @db.Decimal(12, 4) // Ratio to Base Unit (KG). e.g. 1 Quintal = 100.0000 KG
+  isBaseUnit           Boolean  @default(false)   // true for KG
+  status               Status   @default(ACTIVE)
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  purchaseItems PurchaseItem[]
+  saleItems     SaleItem[]
+
+  @@map("units")
+}
+
+// 6. GODOWN ENTITY (Warehouses & Grain Storage Locations)
+model Godown {
+  id         String   @id @default(uuid())
+  code       String   @unique // e.g. GDN-01
+  name       String   // e.g. Main Mandi Shed #1
+  location   String?
+  capacity   Decimal? @db.Decimal(12, 3) // Capacity in Metric Tonnes or Quintals
+  supervisor String?
+  status     Status   @default(ACTIVE)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  purchases      Purchase[]
+  sales          Sale[]
+  stockMovements StockMovement[]
+
+  @@map("godowns")
+}
+
+// 7. VEHICLE ENTITY (Tractors, Trucks, Trailers owned or hired)
+model Vehicle {
+  id            String   @id @default(uuid())
+  vehicleNumber String   @unique // e.g. MP04AB1234
+  vehicleType   String   // Tractor, Truck 10-Wheeler, Trailer, Pickup
+  model         String?
+  ownership     String   @default("OWNED") // OWNED or HIRED
+  currentKm     Decimal? @default(0.00) @db.Decimal(10, 2)
+  status        Status   @default(ACTIVE)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relationships
+  employees       Employee[]
+  purchases       Purchase[]
+  sales           Sale[]
+  trips           Trip[]
+  fuelExpenses    FuelExpense[]
+  vehicleExpenses VehicleExpense[]
+
+  @@map("vehicles")
+}
+
+// 8. FUEL EXPENSE ENTITY (Diesel, Petrol fillings per vehicle)
+model FuelExpense {
+  id           String            @id @default(uuid())
+  expenseNo    String            @unique // e.g. FUL-2026-0001
+  date         DateTime          @default(now())
+  vehicleId    String
+  vehicle      Vehicle           @relation(fields: [vehicleId], references: [id])
+  driverId     String?
+  driver       Employee?         @relation(fields: [driverId], references: [id])
+  vendorId     String?           // Fuel Pump (Party)
+  vendor       Party?            @relation("VendorFuelExpenses", fields: [vendorId], references: [id])
+  fuelType     String            @default("DIESEL") // DIESEL, PETROL
+  quantityLtr  Decimal           @db.Decimal(10, 2) // Liters
+  ratePerLtr   Decimal           @db.Decimal(10, 2)
+  totalAmount  Decimal           @db.Decimal(15, 2)
+  odometerKm   Decimal?          @db.Decimal(10, 2)
+  receiptNo    String?
+  notes        String?
+  status       TransactionStatus @default(POSTED)
+  createdAt    DateTime          @default(now())
+
+  @@map("fuel_expenses")
+}
+
+// 9. VEHICLE REPAIR & MAINTENANCE ENTITY (Repairs, Tax, Service)
+model VehicleExpense {
+  id          String            @id @default(uuid())
+  expenseNo   String            @unique // e.g. VEX-2026-0001
+  date        DateTime          @default(now())
+  vehicleId   String
+  vehicle     Vehicle           @relation(fields: [vehicleId], references: [id])
+  vendorId    String?           // Workshop / Garage / Spare Parts Vendor
+  vendor      Party?            @relation("VendorVehicleExpenses", fields: [vendorId], references: [id])
+  category    String            // REPAIR, MAINTENANCE, ROAD_TAX, INSURANCE, PERMIT, TYRE
+  description String
+  partsCost   Decimal           @default(0.00) @db.Decimal(15, 2)
+  labourCost  Decimal           @default(0.00) @db.Decimal(15, 2)
+  totalAmount Decimal           @db.Decimal(15, 2)
+  odometerKm  Decimal?          @db.Decimal(10, 2)
+  receiptNo   String?
+  status      TransactionStatus @default(POSTED)
+  createdAt   DateTime          @default(now())
+
+  @@map("vehicle_expenses")
+}
+
+// 10. EMPLOYEE ENTITY (Drivers, Loaders, Helpers, Accountants, Managers, Labour)
+model Employee {
+  id                String        @id @default(uuid())
+  employeeCode      String        @unique // e.g. EMP-001
+  fullName          String
+  phone             String?
+  address           String?
+  role              EmployeeRole  @default(LABOUR)
+  salaryType        String        @default("MONTHLY") // MONTHLY, DAILY, PER_TRIP
+  baseSalary        Decimal       @default(0.00) @db.Decimal(15, 2)
+  joiningDate       DateTime?
+  status            Status        @default(ACTIVE)
+  avatarUrl         String?
+  assignedVehicleId String?
+  assignedVehicle   Vehicle?      @relation(fields: [assignedVehicleId], references: [id])
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  // Relationships
+  attendances      Attendance[]
+  employeeLedgers  EmployeeLedger[]
+  trips            Trip[]            @relation("DriverTrips")
+  fuelExpenses     FuelExpense[]
+  purchases        Purchase[]        @relation("DriverPurchases")
+  sales            Sale[]            @relation("DriverSales")
+
+  @@map("employees")
+}
+
+// 11. ATTENDANCE ENTITY (Daily attendance log per employee)
+model Attendance {
+  id         String           @id @default(uuid())
+  employeeId String
+  employee   Employee         @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  date       DateTime         @db.Date
+  status     AttendanceStatus @default(PRESENT)
+  overtimeHr Decimal          @default(0.00) @db.Decimal(5, 2)
+  notes      String?
+  createdAt  DateTime         @default(now())
+
+  @@unique([employeeId, date])
+  @@map("attendances")
+}
+
+// 12. EMPLOYEE LEDGER ENTITY (Salary credits, Advances given, Deductions, Remaining balance)
+model EmployeeLedger {
+  id             String            @id @default(uuid())
+  employeeId     String
+  employee       Employee          @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  date           DateTime          @default(now())
+  voucherNo      String            // e.g. ADV-2026-0001, SAL-2026-0001
+  type           String            // SALARY_CREDIT, ADVANCE_GIVEN, ADVANCE_ADJUSTED, BONUS, DEDUCTION
+  debit          Decimal           @default(0.00) @db.Decimal(15, 2)  // Money paid to employee (Advance/Salary)
+  credit         Decimal           @default(0.00) @db.Decimal(15, 2)  // Salary earned / Credit
+  runningBalance Decimal           @db.Decimal(15, 2)                 // Advance balance / Payable balance
+  narration      String?
+  status         TransactionStatus @default(POSTED)
+  createdAt      DateTime          @default(now())
+
+  @@index([employeeId, date])
+  @@map("employee_ledgers")
+}
+
+// 13. TRIP ENTITY (Transport trips linking Vehicle + Driver + Commodity + Purchase/Sale)
+model Trip {
+  id           String            @id @default(uuid())
+  tripNo       String            @unique // e.g. TRP-2026-0001
+  date         DateTime          @default(now())
+  vehicleId    String
+  vehicle      Vehicle           @relation(fields: [vehicleId], references: [id])
+  driverId     String?
+  driver       Employee?         @relation("DriverTrips", fields: [driverId], references: [id])
+  startLocation String
+  destination  String
+  purpose      String            // PURCHASE_FETCH, SALE_DELIVERY, STOCK_TRANSFER, GENERAL
+  fuelCost     Decimal           @default(0.00) @db.Decimal(15, 2)
+  labourCost   Decimal           @default(0.00) @db.Decimal(15, 2)
+  otherCost    Decimal           @default(0.00) @db.Decimal(15, 2)
+  totalTripCost Decimal          @db.Decimal(15, 2)
+  notes        String?
+  status       TransactionStatus @default(POSTED)
+  createdAt    DateTime          @default(now())
+
+  purchases    Purchase[]
+  sales        Sale[]
+
+  @@map("trips")
+}
+
+// 14. PURCHASE ENTITY (Procurement from Farmers)
+model Purchase {
+  id             String            @id @default(uuid())
+  purchaseNo     String            @unique // e.g. PUR-2026-0001
+  date           DateTime          @default(now())
+  partyId        String
+  party          Party             @relation(fields: [partyId], references: [id])
+  godownId       String
+  godown         Godown            @relation(fields: [godownId], references: [id])
+  vehicleId      String?
+  vehicle        Vehicle?          @relation(fields: [vehicleId], references: [id])
+  driverId       String?
+  driver         Employee?         @relation("DriverPurchases", fields: [driverId], references: [id])
+  tripId         String?
+  trip           Trip?             @relation(fields: [tripId], references: [id])
+  grossAmount    Decimal           @db.Decimal(15, 2)
+  labourCharges  Decimal           @default(0.00) @db.Decimal(15, 2) // Labour pay / Hamali
+  gstAmount      Decimal           @default(0.00) @db.Decimal(15, 2) // GST / Mandi Tax
+  otherExpenses  Decimal           @default(0.00) @db.Decimal(15, 2) // Freight / Other expenses
+  totalDeductions Decimal          @default(0.00) @db.Decimal(15, 2) // Moisture, Bag deductions
+  netAmount      Decimal           @db.Decimal(15, 2)
+  paidAmount     Decimal           @default(0.00) @db.Decimal(15, 2) // Advance paid
+  dueAmount      Decimal           @db.Decimal(15, 2)
+  promisedDate   DateTime?         // Promised payment due date
+  paymentStatus  String            @default("UNPAID") // UNPAID, PARTIAL, PAID
+  status         TransactionStatus @default(POSTED)
+  notes          String?
+  parchiUrl      String?           // Uploaded Parchi Scan / Photo
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+
+  items          PurchaseItem[]
+  stockMovements StockMovement[]
+
+  @@map("purchases")
+}
+
+model PurchaseItem {
+  id            String    @id @default(uuid())
+  purchaseId    String
+  purchase      Purchase  @relation(fields: [purchaseId], references: [id], onDelete: Cascade)
+  commodityId   String
+  commodity     Commodity @relation(fields: [commodityId], references: [id])
+  unitId        String
+  unit          Unit      @relation(fields: [unitId], references: [id])
+  grossWeightKg Decimal?  @db.Decimal(12, 3)
+  tareWeightKg  Decimal?  @db.Decimal(12, 3)
+  netWeightKg   Decimal   @db.Decimal(12, 3)
+  displayQuantity Decimal @db.Decimal(12, 3) // e.g. 150 Quintal
+  ratePerUnit   Decimal   @db.Decimal(12, 2) // e.g. 2200 per Quintal
+  amount        Decimal   @db.Decimal(15, 2)
+
+  @@map("purchase_items")
+}
+
+// 15. SALE ENTITY (Sales to Customers / Rice Mills)
+model Sale {
+  id             String            @id @default(uuid())
+  saleNo         String            @unique // e.g. SAL-2026-0001
+  date           DateTime          @default(now())
+  partyId        String
+  party          Party             @relation(fields: [partyId], references: [id])
+  godownId       String
+  godown         Godown            @relation(fields: [godownId], references: [id])
+  vehicleId      String?
+  vehicle        Vehicle?          @relation(fields: [vehicleId], references: [id])
+  driverId       String?
+  driver         Employee?         @relation("DriverSales", fields: [driverId], references: [id])
+  tripId         String?
+  trip           Trip?             @relation(fields: [tripId], references: [id])
+  grossAmount    Decimal           @db.Decimal(15, 2)
+  totalDeductions Decimal          @default(0.00) @db.Decimal(15, 2)
+  netAmount      Decimal           @db.Decimal(15, 2)
+  receivedAmount Decimal           @default(0.00) @db.Decimal(15, 2)
+  dueAmount      Decimal           @db.Decimal(15, 2)
+  paymentStatus  String            @default("UNPAID") // UNPAID, PARTIAL, PAID
+  status         TransactionStatus @default(POSTED)
+  notes          String?
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+
+  items          SaleItem[]
+  stockMovements StockMovement[]
+
+  @@map("sales")
+}
+
+model SaleItem {
+  id            String    @id @default(uuid())
+  saleId        String
+  sale          Sale      @relation(fields: [saleId], references: [id], onDelete: Cascade)
+  commodityId   String
+  commodity     Commodity @relation(fields: [commodityId], references: [id])
+  unitId        String
+  unit          Unit      @relation(fields: [unitId], references: [id])
+  grossWeightKg Decimal?  @db.Decimal(12, 3)
+  tareWeightKg  Decimal?  @db.Decimal(12, 3)
+  netWeightKg   Decimal   @db.Decimal(12, 3)
+  displayQuantity Decimal @db.Decimal(12, 3)
+  ratePerUnit   Decimal   @db.Decimal(12, 2)
+  amount        Decimal   @db.Decimal(15, 2)
+
+  @@map("sale_items")
+}
+
+// 16. PAYMENT ENTITY (Cash / Bank Vouchers for Parties)
+model Payment {
+  id            String            @id @default(uuid())
+  paymentNo     String            @unique // e.g. PAY-2026-0001
+  date          DateTime          @default(now())
+  partyId       String
+  party         Party             @relation(fields: [partyId], references: [id])
+  paymentType   String            // PAYMENT_MADE (to farmer/vendor) or PAYMENT_RECEIVED (from customer/mill)
+  paymentMode   String            @default("CASH") // CASH, BANK_TRANSFER, UPI, CHEQUE
+  amount        Decimal           @db.Decimal(15, 2)
+  accountName   String            @default("Main Cash Account") // Cash, HDFC Bank, SBI Bank
+  referenceNo   String?           // Cheque No / UPI Ref
+  notes         String?
+  status        TransactionStatus @default(POSTED)
+  createdAt     DateTime          @default(now())
+
+  @@map("payments")
+}
+
+// 17. STOCK MOVEMENT ENTITY (Immutable Stock Ledger)
+model StockMovement {
+  id             String   @id @default(uuid())
+  date           DateTime @default(now())
+  commodityId    String
+  commodity      Commodity @relation(fields: [commodityId], references: [id])
+  godownId       String
+  godown         Godown   @relation(fields: [godownId], references: [id])
+  movementType   String   // PURCHASE_IN, SALE_OUT, ADJUSTMENT_IN, ADJUSTMENT_OUT, TRANSFER_IN, TRANSFER_OUT
+  displayQuantity Decimal @db.Decimal(12, 3)
+  displayUnit    String   // QTL, KG, TON
+  baseQuantityKg Decimal  @db.Decimal(12, 3) // Positive for IN, Negative for OUT
+  referenceNo    String   // PUR-2026-0001 or SAL-2026-0001
+  purchaseId     String?
+  purchase       Purchase? @relation(fields: [purchaseId], references: [id])
+  saleId         String?
+  sale           Sale?     @relation(fields: [saleId], references: [id])
+  createdAt      DateTime @default(now())
+
+  @@index([commodityId, godownId])
+  @@map("stock_movements")
+}
+
+// 18. AUDIT LOG ENTITY (Security & Operational History)
+model AuditLog {
+  id        String   @id @default(uuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id])
+  action    String   // CREATE, UPDATE, DELETE, POST, CANCEL
+  entity    String   // Party, Purchase, Sale, Payment, etc.
+  entityId  String
+  details   Json?    // Stores changes { old: {...}, new: {...} }
+  ipAddress String?
+  createdAt DateTime @default(now())
+
+  @@index([entity, entityId])
+  @@map("audit_logs")
+}
