@@ -27,7 +27,7 @@ export default function RootLayout({ children }) {
           rel="stylesheet"
         />
       </head>
-      <body className="h-full antialiased bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col font-sans transition-colors duration-300">
+      <body className="h-full antialiased bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col font-sans">
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
           <Toaster
             position="top-right"
@@ -52,7 +52,7 @@ export default function RootLayout({ children }) {
             }}
           />
           <Navbar />
-          <div className="flex-1 bg-slate-50 dark:bg-gradient-to-b dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 transition-colors duration-300">
+          <div className="flex-1 pb-20 md:pb-6 bg-slate-50 dark:bg-gradient-to-b dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 transition-colors duration-300">
             {children}
           </div>
           <Footer />

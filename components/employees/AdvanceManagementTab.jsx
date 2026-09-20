@@ -176,7 +176,7 @@ export default function AdvanceManagementTab() {
           </div>
         ) : requests.length === 0 ? (
           <div className="p-12 text-center text-slate-500 dark:text-slate-400 text-xs">
-            No salary advance requests found under filter "<strong className="uppercase">{filterStatus}</strong>".
+            No salary advance requests found under filter &quot;<strong className="uppercase">{filterStatus}</strong>&quot;.
           </div>
         ) : (
           <div className="overflow-x-auto">

@@ -1,8 +1,12 @@
 import { NextResponse } from 'next/server';
 import { createSale, getSales } from '@/server/services/saleService';
+import { requireApiAuth } from '@/lib/auth/apiAuth';
 
 export async function GET(request) {
   try {
+    const { errorResponse } = await requireApiAuth(request);
+    if (errorResponse) return errorResponse;
+
     const { searchParams } = new URL(request.url);
     const partyId = searchParams.get('partyId') || '';
     const godownId = searchParams.get('godownId') || '';
@@ -25,6 +29,9 @@ export async function GET(request) {
 
 export async function POST(request) {
   try {
+    const { errorResponse } = await requireApiAuth(request);
+    if (errorResponse) return errorResponse;
+
     const body = await request.json();
 
     if (!body.partyId) {

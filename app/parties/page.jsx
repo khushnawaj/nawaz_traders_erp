@@ -33,8 +33,8 @@ export default function PartiesPage() {
   const [selectedRole, setSelectedRole] = useState('ALL');
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const fetchParties = async () => {
-    setLoading(true);
+  const fetchParties = async (isInitial = false) => {
+    if (isInitial) setLoading(true);
     try {
       const query = new URLSearchParams({ search, role: selectedRole });
       const res = await fetch(`/api/parties?${query.toString()}`);
@@ -51,7 +51,14 @@ export default function PartiesPage() {
   };
 
   useEffect(() => {
-    fetchParties();
+    fetchParties(true);
+  }, []);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      fetchParties(false);
+    }, 250);
+    return () => clearTimeout(timer);
   }, [search, selectedRole]);
 
   return (

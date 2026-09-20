@@ -124,7 +124,7 @@ export default function GlobalSearchModal({ isOpen, onClose }) {
               );
             })
           ) : query.trim() ? (
-            <div className="p-6 text-center text-xs text-slate-500 dark:text-slate-400">No records found matching "{query}"</div>
+            <div className="p-6 text-center text-xs text-slate-500 dark:text-slate-400">No records found matching &quot;{query}&quot;</div>
           ) : (
             <div className="p-4 text-xs text-slate-400 dark:text-slate-500 text-center">
               Type farmer name, code (e.g. PRT-0001), or mobile number to search

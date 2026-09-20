@@ -30,6 +30,11 @@ const VEHICLE_CATEGORIES = [
   { id: 'Pickup', label: 'Pickups & Trailers', iconComponent: Truck },
 ];
 
+const getVehicleIcon = (type) => {
+  if (type === 'Bike') return <BikeIcon className="w-5 h-5 text-emerald-500" />;
+  return <Truck className="w-5 h-5 text-emerald-500" />;
+};
+
 export default function VehiclesPage() {
   const [vehicles, setVehicles] = useState([]);
   const [fuelExpenses, setFuelExpenses] = useState([]);
@@ -288,7 +293,7 @@ export default function VehiclesPage() {
                 <Truck className="w-12 h-12 text-slate-300 dark:text-slate-700 mx-auto" />
                 <p className="text-sm font-semibold text-slate-900 dark:text-white">No vehicles found</p>
                 <p className="text-xs text-slate-500 dark:text-slate-400 font-normal">
-                  Try adjusting search filter or click "+ Add Vehicle" to register a tractor, truck, or bike.
+                  Try adjusting search filter or click &quot;+ Add Vehicle&quot; to register a tractor, truck, or bike.
                 </p>
               </div>
             ) : (

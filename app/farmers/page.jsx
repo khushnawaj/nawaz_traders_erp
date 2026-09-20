@@ -46,8 +46,8 @@ export default function FarmersPage() {
   const [isPurchaseModalOpen, setIsPurchaseModalOpen] = useState(false);
   const [selectedFarmerForPurchase, setSelectedFarmerForPurchase] = useState(null);
 
-  const fetchFarmers = async () => {
-    setLoading(true);
+  const fetchFarmers = async (isInitial = false) => {
+    if (isInitial) setLoading(true);
     try {
       const query = new URLSearchParams({ search, role: 'FARMER' });
       const res = await fetch(`/api/parties?${query.toString()}`);
@@ -70,7 +70,14 @@ export default function FarmersPage() {
   };
 
   useEffect(() => {
-    fetchFarmers();
+    fetchFarmers(true);
+  }, []);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      fetchFarmers(false);
+    }, 250);
+    return () => clearTimeout(timer);
   }, [search]);
 
   // Extract unique villages for filtering

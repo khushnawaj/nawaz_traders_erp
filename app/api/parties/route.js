@@ -14,8 +14,10 @@ export async function GET(request) {
       return NextResponse.json({ success: true, data: stats });
     }
 
-    const parties = await getAllParties({ search, role });
-    const stats = await getPartySummaryStats();
+    const [parties, stats] = await Promise.all([
+      getAllParties({ search, role }),
+      getPartySummaryStats(),
+    ]);
 
     return NextResponse.json({
       success: true,

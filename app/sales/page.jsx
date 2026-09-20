@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { exportToExcel } from '@/lib/utils/excelExport';
 import { 
   TrendingUp, 
   Plus, 
@@ -16,7 +17,8 @@ import {
   Clock,
   Trash2,
   FileText,
-  DollarSign
+  DollarSign,
+  Download
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import SaleFormModal from '@/components/sales/SaleFormModal';
@@ -27,6 +29,23 @@ export default function SalesPage() {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('ALL');
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleExportExcel = () => {
+    const columns = [
+      { label: 'Sale Invoice No', key: 'saleNo' },
+      { label: 'Date', key: 'date' },
+      { label: 'Customer / Rice Mill', key: 'party.name' },
+      { label: 'Phone', key: 'party.phone' },
+      { label: 'Godown', key: 'godown.name' },
+      { label: 'Net Amount (₹)', key: 'netAmount' },
+      { label: 'Received Amount (₹)', key: 'receivedAmount' },
+      { label: 'Due Amount (₹)', key: 'dueAmount' },
+      { label: 'Payment Status', key: 'paymentStatus' },
+      { label: 'Invoice Status', key: 'status' },
+    ];
+    exportToExcel('Sales_Register', columns, filteredSales);
+    toast.success('Sales register exported to CSV/Excel');
+  };
 
   const loadSales = async () => {
     setLoading(true);
@@ -109,12 +128,20 @@ export default function SalesPage() {
           </p>
         </div>
 
-        <button
-          onClick={() => setIsModalOpen(true)}
-          className="inline-flex items-center gap-2 bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-500 hover:to-purple-400 text-white font-extrabold px-4 py-2.5 rounded-2xl text-xs shadow-lg shadow-purple-950/20 transition-all transform hover:-translate-y-0.5 self-start sm:self-auto"
-        >
-          <Plus className="w-4 h-4 text-amber-300" /> New Sale Invoice
-        </button>
+        <div className="flex items-center gap-2 self-start sm:self-auto">
+          <button
+            onClick={handleExportExcel}
+            className="inline-flex items-center gap-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 font-extrabold px-3.5 py-2.5 rounded-2xl text-xs border border-slate-200 dark:border-slate-700 transition-all"
+          >
+            <Download className="w-4 h-4 text-purple-500" /> Export Excel
+          </button>
+          <button
+            onClick={() => setIsModalOpen(true)}
+            className="inline-flex items-center gap-2 bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-500 hover:to-purple-400 text-white font-extrabold px-4 py-2.5 rounded-2xl text-xs shadow-lg shadow-purple-950/20 transition-all transform hover:-translate-y-0.5"
+          >
+            <Plus className="w-4 h-4 text-amber-300" /> New Sale Invoice
+          </button>
+        </div>
       </div>
 
       {/* Metric Cards */}
@@ -237,7 +264,7 @@ export default function SalesPage() {
               ) : filteredSales.length === 0 ? (
                 <tr>
                   <td colSpan={9} className="px-4 py-8 text-center text-slate-500">
-                    No commercial sales recorded yet. Click "+ New Sale" to register one.
+                    No commercial sales recorded yet. Click &quot;+ New Sale&quot; to register one.
                   </td>
                 </tr>
               ) : (

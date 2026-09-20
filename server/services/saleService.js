@@ -1,22 +1,11 @@
 import { prisma } from '@/lib/db/prisma';
 import Decimal from 'decimal.js';
-
-/**
- * Generate Next Sale Number (e.g. SAL-2026-0001)
- */
-async function generateSaleNo() {
-  const count = await prisma.sale.count();
-  const year = new Date().getFullYear();
-  const nextNum = (count + 1).toString().padStart(4, '0');
-  return `SAL-${year}-${nextNum}`;
-}
+import { getNextVoucherNumber } from '@/server/services/sequenceService';
 
 /**
  * Create a new Grain Commercial Sale Transaction (to Customer / Rice Mill)
  */
 export async function createSale(data) {
-  const saleNo = await generateSaleNo();
-
   const partyId = data.partyId;
   if (!partyId) throw new Error('Customer / Rice Mill (Party) is required');
 
@@ -95,6 +84,9 @@ export async function createSale(data) {
 
   // Execute in DB Transaction
   const newSale = await prisma.$transaction(async (tx) => {
+    // Generate atomic sequence sale number
+    const saleNo = await getNextVoucherNumber(tx, 'SAL', 'sale', 'saleNo');
+
     // 1. Create Sale Entry
     const sale = await tx.sale.create({
       data: {
@@ -152,8 +144,7 @@ export async function createSale(data) {
 
     // 4. Record Received Payment if Received Amount > 0
     if (receivedAmount.greaterThan(0)) {
-      const payCount = await tx.payment.count();
-      const payNo = `PAY-${new Date().getFullYear()}-${(payCount + 1).toString().padStart(4, '0')}`;
+      const payNo = await getNextVoucherNumber(tx, 'PAY', 'payment', 'paymentNo');
 
       const payment = await tx.payment.create({
         data: {
@@ -233,4 +224,68 @@ export async function getSales({ partyId = '', godownId = '', paymentStatus = ''
   });
 
   return sales;
+}
+
+/**
+ * Soft Cancel Commercial Sale Transaction & Post Reversing Ledger Entry
+ */
+export async function cancelSale(saleId) {
+  return await prisma.$transaction(async (tx) => {
+    const sale = await tx.sale.findUnique({
+      where: { id: saleId },
+      include: { items: true },
+    });
+
+    if (!sale) throw new Error('Sale record not found');
+    if (sale.status === 'CANCELLED') throw new Error('Sale invoice is already cancelled');
+
+    // 1. Update sale status
+    await tx.sale.update({
+      where: { id: saleId },
+      data: { status: 'CANCELLED' },
+    });
+
+    // 2. Reverse stock movement (Re-inflow of returned sale stock)
+    for (const item of sale.items) {
+      await tx.stockMovement.create({
+        data: {
+          commodityId: item.commodityId,
+          godownId: sale.godownId,
+          movementType: 'ADJUSTMENT_IN',
+          displayQuantity: item.displayQuantity,
+          displayUnit: 'QTL',
+          baseQuantityKg: new Decimal(item.netWeightKg).toNumber(), // Positive to add back stock
+          referenceNo: `CANCEL-${sale.saleNo}`,
+          saleId: sale.id,
+        },
+      });
+    }
+
+    // 3. Post reversing entry in PartyLedger (Credit to reduce Customer Receivable)
+    const currentPartyLedger = await tx.partyLedger.findFirst({
+      where: { partyId: sale.partyId },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    const prevBal = new Decimal(currentPartyLedger ? currentPartyLedger.runningBalance : 0);
+    const cancelAmt = new Decimal(sale.netAmount);
+    const newBal = prevBal.minus(cancelAmt);
+
+    await tx.partyLedger.create({
+      data: {
+        partyId: sale.partyId,
+        voucherNo: `CNL-${sale.saleNo}`,
+        voucherType: 'SALE_CANCELLED',
+        debit: 0.0,
+        credit: cancelAmt.toNumber(),
+        runningBalance: newBal.toNumber(),
+        balanceType: newBal.greaterThanOrEqualTo(0) ? 'RECEIVABLE' : 'PAYABLE',
+        narration: `Reversal of Canceled Commercial Sale Invoice ${sale.saleNo}`,
+        referenceId: sale.id,
+        status: 'POSTED',
+      },
+    });
+
+    return { success: true, message: `Sale ${sale.saleNo} successfully cancelled.` };
+  });
 }
