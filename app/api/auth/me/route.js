@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { verifySessionToken } from '@/lib/auth/session';
+import { prisma } from '@/lib/db/prisma';
 
 export async function GET(request) {
   try {
@@ -20,14 +21,32 @@ export async function GET(request) {
       );
     }
 
+    const user = await prisma.user.findUnique({
+      where: { id: payload.userId },
+      select: {
+        id: true,
+        username: true,
+        fullName: true,
+        email: true,
+        phone: true,
+        role: true,
+        avatarUrl: true,
+        status: true,
+        employeeId: true,
+        partyId: true,
+      },
+    });
+
+    if (!user || user.status !== 'ACTIVE') {
+      return NextResponse.json(
+        { success: false, user: null },
+        { status: 401 }
+      );
+    }
+
     return NextResponse.json({
       success: true,
-      user: {
-        id: payload.userId,
-        username: payload.username,
-        fullName: payload.fullName,
-        role: payload.role,
-      },
+      user,
     });
   } catch (error) {
     return NextResponse.json(

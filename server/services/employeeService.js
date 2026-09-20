@@ -94,6 +94,17 @@ export async function createEmployee(data) {
       joiningDate: data.joiningDate ? new Date(data.joiningDate) : new Date(),
       assignedVehicleId: data.assignedVehicleId || null,
       status: data.status || 'ACTIVE',
+      avatarUrl: data.avatarUrl || null,
+      aadhaarNo: data.aadhaarNo || null,
+      aadhaarDocUrl: data.aadhaarDocUrl || null,
+      panNo: data.panNo || null,
+      panDocUrl: data.panDocUrl || null,
+      drivingLicenseNo: data.drivingLicenseNo || null,
+      drivingLicenseDocUrl: data.drivingLicenseDocUrl || null,
+      bankName: data.bankName || null,
+      accountNo: data.accountNo || null,
+      ifscCode: data.ifscCode || null,
+      bankDocUrl: data.bankDocUrl || null,
     },
   });
 

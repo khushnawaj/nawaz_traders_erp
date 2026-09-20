@@ -49,7 +49,7 @@ export default function FarmerPaymentModal({ isOpen, onClose, farmerId, farmerNa
         throw new Error(json.error || 'Failed to process payment');
       }
 
-      toast.success(`🎉 Payment voucher of ₹${formData.amount} issued to ${farmerName}!`);
+      toast.success(`Payment voucher of ₹${formData.amount} issued to ${farmerName}!`);
       onSuccess();
       onClose();
 
@@ -63,7 +63,7 @@ export default function FarmerPaymentModal({ isOpen, onClose, farmerId, farmerNa
         notes: '',
       });
     } catch (err) {
-      toast.error(`❌ ${err.message}`);
+      toast.error(err.message);
     } finally {
       setLoading(false);
     }
@@ -73,12 +73,12 @@ export default function FarmerPaymentModal({ isOpen, onClose, farmerId, farmerNa
     <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
       <div className="glass-modal rounded-3xl max-w-md w-full shadow-2xl overflow-hidden my-8 border border-slate-200/80 dark:border-slate-800 animate-in fade-in zoom-in duration-200 text-slate-900 dark:text-white">
         {/* Header */}
-        <div className="bg-gradient-to-r from-emerald-800 via-emerald-900 to-slate-900 text-white p-5 flex items-center justify-between border-b border-emerald-700/40">
+        <div className="bg-gradient-to-r from-emerald-800 via-emerald-900 to-slate-900 text-white p-4 sm:p-5 flex items-center justify-between border-b border-emerald-700/40">
           <div>
-            <h3 className="font-extrabold text-lg flex items-center gap-2">
+            <h3 className="font-semibold text-base sm:text-lg flex items-center gap-2">
               <DollarSign className="w-5 h-5 text-amber-400" /> Payment / Advance Voucher
             </h3>
-            <p className="text-xs text-emerald-200 mt-0.5">Farmer: <span className="font-bold text-white">{farmerName}</span></p>
+            <p className="text-xs text-emerald-200/80 font-normal mt-0.5">Farmer: <span className="font-semibold text-white">{farmerName}</span></p>
           </div>
           <button 
             onClick={onClose} 
@@ -89,7 +89,7 @@ export default function FarmerPaymentModal({ isOpen, onClose, farmerId, farmerNa
         </div>
 
         {/* Form Body */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-4 max-h-[85vh] overflow-y-auto">
+        <form onSubmit={handleSubmit} className="p-5 sm:p-6 space-y-4 max-h-[85vh] overflow-y-auto">
           {/* Voucher Date & Amount Row */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {/* Date Input */}
@@ -111,7 +111,7 @@ export default function FarmerPaymentModal({ isOpen, onClose, farmerId, farmerNa
             {/* Amount */}
             <div>
               <label className="app-label">
-                <DollarSign className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" /> Amount (रकम ₹) *
+                <DollarSign className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" /> Amount (₹) *
               </label>
               <div className="relative">
                 <input
@@ -122,9 +122,9 @@ export default function FarmerPaymentModal({ isOpen, onClose, farmerId, farmerNa
                   placeholder="e.g. 50000"
                   value={formData.amount}
                   onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
-                  className="app-input pl-8 font-black text-emerald-600 dark:text-emerald-400"
+                  className="app-input pl-8 font-semibold text-emerald-600 dark:text-emerald-400"
                 />
-                <span className="absolute left-3 top-2.5 font-black text-slate-400">₹</span>
+                <span className="absolute left-3 top-2.5 font-semibold text-slate-400">₹</span>
               </div>
             </div>
           </div>
@@ -138,8 +138,8 @@ export default function FarmerPaymentModal({ isOpen, onClose, farmerId, farmerNa
                 onChange={(e) => setFormData({ ...formData, paymentType: e.target.value })}
                 className="app-select"
               >
-                <option value="PAYMENT_MADE">CROP SETTLEMENT (फसल भुगतान)</option>
-                <option value="ADVANCE_GIVEN">KHET ADVANCE (खेत एडवांस)</option>
+                <option value="PAYMENT_MADE">CROP SETTLEMENT</option>
+                <option value="ADVANCE_GIVEN">ADVANCE PAYMENT</option>
               </select>
             </div>
 
@@ -150,10 +150,10 @@ export default function FarmerPaymentModal({ isOpen, onClose, farmerId, farmerNa
                 onChange={(e) => setFormData({ ...formData, paymentMode: e.target.value })}
                 className="app-select"
               >
-                <option value="CASH">CASH (नकद)</option>
+                <option value="CASH">CASH</option>
                 <option value="BANK_TRANSFER">BANK TRANSFER (RTGS/NEFT)</option>
                 <option value="UPI">UPI / PHONEPE / GPAY</option>
-                <option value="CHEQUE">CHEQUE (चेक)</option>
+                <option value="CHEQUE">CHEQUE</option>
               </select>
             </div>
           </div>
@@ -168,7 +168,7 @@ export default function FarmerPaymentModal({ isOpen, onClose, farmerId, farmerNa
               onChange={(e) => setFormData({ ...formData, accountName: e.target.value })}
               className="app-select"
             >
-              <option value="Main Cash Account">Main Cash Account (मंडी नकद खाता)</option>
+              <option value="Main Cash Account">Main Cash Account</option>
               <option value="SBI Current Account">SBI Mandi Branch Current Account</option>
               <option value="HDFC Bank Account">HDFC Main Account</option>
             </select>
@@ -207,14 +207,14 @@ export default function FarmerPaymentModal({ isOpen, onClose, farmerId, farmerNa
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2.5 text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition"
+              className="px-4 py-2 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-2xl transition"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="px-5 py-2.5 text-xs font-bold bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 text-white rounded-xl shadow-lg shadow-emerald-950/20 transition disabled:opacity-50 flex items-center gap-2"
+              className="px-5 py-2.5 text-xs font-semibold bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 text-white rounded-2xl shadow-md transition disabled:opacity-50 flex items-center gap-2"
             >
               {loading ? 'Processing...' : 'Issue Payment Voucher'}
             </button>

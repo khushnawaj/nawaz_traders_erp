@@ -80,7 +80,7 @@ export default function FuelExpenseModal({ isOpen, onClose, defaultVehicleId = n
         throw new Error(json.error || 'Failed to record fuel expense');
       }
 
-      toast.success(`⛽ Diesel Filling Slip of ${ltr} Ltr (₹${totalAmount.toFixed(2)}) Recorded!`);
+      toast.success(`Diesel Filling Slip of ${ltr} Ltr (₹${totalAmount.toFixed(2)}) Recorded!`);
       if (onSuccess) onSuccess();
       onClose();
 
@@ -97,7 +97,7 @@ export default function FuelExpenseModal({ isOpen, onClose, defaultVehicleId = n
         notes: '',
       });
     } catch (err) {
-      toast.error(`❌ ${err.message}`);
+      toast.error(err.message);
     } finally {
       setSubmitting(false);
     }
@@ -107,12 +107,12 @@ export default function FuelExpenseModal({ isOpen, onClose, defaultVehicleId = n
     <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
       <div className="glass-modal rounded-3xl max-w-lg w-full shadow-2xl overflow-hidden my-8 border border-slate-200/80 dark:border-slate-800 animate-in fade-in zoom-in duration-200 text-slate-900 dark:text-white">
         {/* Header */}
-        <div className="bg-gradient-to-r from-amber-600 via-amber-700 to-slate-900 text-white p-5 flex items-center justify-between border-b border-amber-600/40">
+        <div className="bg-gradient-to-r from-amber-600 via-amber-700 to-slate-900 text-white p-4 sm:p-5 flex items-center justify-between border-b border-amber-600/40">
           <div>
-            <h3 className="font-extrabold text-lg flex items-center gap-2">
-              <Fuel className="w-5 h-5 text-amber-300" /> Record Diesel Filling Slip (डीजल पर्ची)
+            <h3 className="font-semibold text-base sm:text-lg flex items-center gap-2">
+              <Fuel className="w-5 h-5 text-amber-300" /> Record Fuel Filling Slip
             </h3>
-            <p className="text-xs text-amber-100 mt-0.5">Tractor, Truck & Trailer Fuel Log Entry</p>
+            <p className="text-xs text-amber-100/80 font-normal mt-0.5">Tractor, Truck, Trailer & Bike Fuel Log Entry</p>
           </div>
           <button
             onClick={onClose}
@@ -123,7 +123,7 @@ export default function FuelExpenseModal({ isOpen, onClose, defaultVehicleId = n
         </div>
 
         {/* Form Body */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-4 max-h-[80vh] overflow-y-auto">
+        <form onSubmit={handleSubmit} className="p-5 sm:p-6 space-y-4 max-h-[80vh] overflow-y-auto">
           {/* Filling Date & Vehicle */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
@@ -146,11 +146,11 @@ export default function FuelExpenseModal({ isOpen, onClose, defaultVehicleId = n
               <select
                 value={formData.vehicleId}
                 onChange={(e) => setFormData({ ...formData, vehicleId: e.target.value })}
-                className="app-select font-black text-amber-600 dark:text-amber-400"
+                className="app-select font-semibold text-amber-600 dark:text-amber-400"
               >
                 {vehicles.map((v) => (
                   <option key={v.id} value={v.id}>
-                    🚛 {v.vehicleNumber} ({v.vehicleType})
+                    {v.vehicleNumber} ({v.vehicleType})
                   </option>
                 ))}
               </select>
@@ -161,7 +161,7 @@ export default function FuelExpenseModal({ isOpen, onClose, defaultVehicleId = n
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="app-label">
-                <User className="w-3.5 h-3.5 text-slate-500" /> Driver (ड्राइवर)
+                <User className="w-3.5 h-3.5 text-slate-500" /> Driver
               </label>
               <select
                 value={formData.driverId}
@@ -171,7 +171,7 @@ export default function FuelExpenseModal({ isOpen, onClose, defaultVehicleId = n
                 <option value="">Select Driver</option>
                 {drivers.map((d) => (
                   <option key={d.id} value={d.id}>
-                    👨‍✈️ {d.fullName}
+                    {d.fullName}
                   </option>
                 ))}
               </select>
@@ -179,17 +179,17 @@ export default function FuelExpenseModal({ isOpen, onClose, defaultVehicleId = n
 
             <div>
               <label className="app-label">
-                <Landmark className="w-3.5 h-3.5 text-slate-500" /> Diesel Pump Vendor
+                <Landmark className="w-3.5 h-3.5 text-slate-500" /> Fuel Pump Vendor
               </label>
               <select
                 value={formData.vendorId}
                 onChange={(e) => setFormData({ ...formData, vendorId: e.target.value })}
                 className="app-select"
               >
-                <option value="">Select Diesel Pump / Vendor</option>
+                <option value="">Select Fuel Pump / Vendor</option>
                 {vendors.map((v) => (
                   <option key={v.id} value={v.id}>
-                    ⛽ {v.name}
+                    {v.name}
                   </option>
                 ))}
               </select>
@@ -200,7 +200,7 @@ export default function FuelExpenseModal({ isOpen, onClose, defaultVehicleId = n
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="app-label">
-                <Fuel className="w-3.5 h-3.5 text-amber-500" /> Diesel Liters (लीटर) *
+                <Fuel className="w-3.5 h-3.5 text-amber-500" /> Fuel Quantity (Liters) *
               </label>
               <div className="relative">
                 <input
@@ -210,18 +210,18 @@ export default function FuelExpenseModal({ isOpen, onClose, defaultVehicleId = n
                   placeholder="e.g. 50.00"
                   value={formData.quantityLtr}
                   onChange={(e) => setFormData({ ...formData, quantityLtr: e.target.value })}
-                  className="app-input pr-12 font-black text-amber-600 dark:text-amber-400"
+                  className="app-input pr-12 font-semibold text-amber-600 dark:text-amber-400"
                 />
-                <span className="absolute right-3.5 top-2.5 text-xs font-black text-slate-400">LTR</span>
+                <span className="absolute right-3.5 top-2.5 text-xs font-semibold text-slate-400">LTR</span>
               </div>
             </div>
 
             <div>
               <label className="app-label">
-                <DollarSign className="w-3.5 h-3.5 text-emerald-500" /> Rate per Ltr (दर ₹/Ltr) *
+                <DollarSign className="w-3.5 h-3.5 text-emerald-500" /> Rate per Ltr (₹/Ltr) *
               </label>
               <div className="relative">
-                <span className="absolute left-3.5 top-2.5 text-xs font-black text-slate-400">₹</span>
+                <span className="absolute left-3.5 top-2.5 text-xs font-semibold text-slate-400">₹</span>
                 <input
                   type="number"
                   step="0.01"
@@ -229,21 +229,21 @@ export default function FuelExpenseModal({ isOpen, onClose, defaultVehicleId = n
                   placeholder="94.50"
                   value={formData.ratePerLtr}
                   onChange={(e) => setFormData({ ...formData, ratePerLtr: e.target.value })}
-                  className="app-input pl-8 font-black text-slate-900 dark:text-white"
+                  className="app-input pl-8 font-semibold text-slate-900 dark:text-white"
                 />
               </div>
             </div>
           </div>
 
           {/* Total Calculated Amount Display Box */}
-          <div className="p-3.5 rounded-2xl bg-gradient-to-r from-slate-900 via-amber-950 to-slate-900 text-white border border-amber-500/30 flex items-center justify-between shadow-lg">
+          <div className="p-3.5 rounded-2xl bg-slate-900 text-white border border-amber-500/30 flex items-center justify-between shadow-md">
             <div>
-              <div className="text-[11px] font-bold text-slate-400 uppercase">Calculated Total Fuel Cost</div>
-              <div className="text-xl font-black text-amber-400">
+              <div className="text-[11px] font-medium text-slate-400 uppercase">Calculated Total Fuel Cost</div>
+              <div className="text-lg font-bold text-amber-400">
                 ₹{totalAmount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </div>
             </div>
-            <div className="text-right text-xs text-amber-200/80 font-semibold">
+            <div className="text-right text-xs text-amber-200/80 font-medium">
               {ltr > 0 ? `${ltr.toFixed(2)} Ltr × ₹${rate.toFixed(2)}` : 'Enter Liters'}
             </div>
           </div>
@@ -260,7 +260,7 @@ export default function FuelExpenseModal({ isOpen, onClose, defaultVehicleId = n
                 placeholder="e.g. 45200"
                 value={formData.odometerKm}
                 onChange={(e) => setFormData({ ...formData, odometerKm: e.target.value })}
-                className="app-input font-bold"
+                className="app-input"
               />
             </div>
 
@@ -295,16 +295,16 @@ export default function FuelExpenseModal({ isOpen, onClose, defaultVehicleId = n
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2.5 text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition"
+              className="px-4 py-2 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-2xl transition"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={submitting}
-              className="px-5 py-2.5 text-xs font-bold bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-slate-950 font-black rounded-xl shadow-lg shadow-amber-950/20 transition disabled:opacity-50 flex items-center gap-2"
+              className="px-5 py-2.5 text-xs font-semibold bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-2xl shadow-md transition disabled:opacity-50 flex items-center gap-2"
             >
-              {submitting ? 'Recording...' : 'Record Diesel Slip (पर्ची दर्ज करें)'}
+              {submitting ? 'Recording...' : 'Record Fuel Slip'}
             </button>
           </div>
         </form>

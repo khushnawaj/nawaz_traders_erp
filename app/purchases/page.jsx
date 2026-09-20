@@ -56,7 +56,7 @@ export default function PurchasesPage() {
       toast.success('Purchase voucher deleted');
       loadPurchases();
     } catch (err) {
-      toast.error(`❌ ${err.message}`);
+      toast.error(err.message);
     }
   };
 
@@ -102,7 +102,7 @@ export default function PurchasesPage() {
             <ShoppingBag className="w-3.5 h-3.5" /> Grain Procurement & Purchases
           </div>
           <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
-            Crop Purchases & Vouchers (फसल खरीदी रजिस्टर)
+            Crop Purchases & Vouchers
           </h1>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
             Track Mandi procurement, Palledari / Labour pay, Farmer settlements & promised dates
@@ -113,7 +113,7 @@ export default function PurchasesPage() {
           onClick={() => setIsModalOpen(true)}
           className="inline-flex items-center gap-2 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white font-extrabold px-4 py-2.5 rounded-2xl text-xs shadow-lg shadow-emerald-950/20 transition-all transform hover:-translate-y-0.5 self-start sm:self-auto"
         >
-          <Plus className="w-4 h-4 text-amber-300" /> New Crop Purchase (फसल खरीदी)
+          <Plus className="w-4 h-4 text-amber-300" /> New Crop Purchase
         </button>
       </div>
 

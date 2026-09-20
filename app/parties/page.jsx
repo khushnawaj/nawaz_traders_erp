@@ -14,6 +14,7 @@ import {
   MapPin,
   ChevronRight
 } from 'lucide-react';
+import { CardGridSkeleton } from '@/components/common/SkeletonLoader';
 import PartyFormModal from '@/components/parties/PartyFormModal';
 import { formatCurrency } from '@/lib/utils';
 
@@ -59,7 +60,7 @@ export default function PartiesPage() {
       <div className="glass-card p-5 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <h1 className="font-extrabold text-2xl text-slate-900 dark:text-white flex items-center gap-2.5">
-            <Users className="w-6 h-6 text-emerald-600 dark:text-emerald-400" /> Party Directory (व्यापारी व राइस मिल)
+            <Users className="w-6 h-6 text-emerald-600 dark:text-emerald-400" /> Party Directory
           </h1>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Farmers, Rice Mills, Customers & Diesel Vendors</p>
         </div>
@@ -83,7 +84,7 @@ export default function PartiesPage() {
           <div className="text-xl font-extrabold text-emerald-600 dark:text-emerald-400">
             {formatCurrency(stats.totalReceivables)}
           </div>
-          <p className="text-[11px] text-slate-500 dark:text-slate-400">Lene hain (Receivables)</p>
+          <p className="text-[11px] text-slate-500 dark:text-slate-400">To Receive</p>
         </div>
 
         <div className="glass-card p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xl">
@@ -96,7 +97,7 @@ export default function PartiesPage() {
           <div className="text-xl font-extrabold text-rose-600 dark:text-rose-400">
             {formatCurrency(stats.totalPayables)}
           </div>
-          <p className="text-[11px] text-slate-500 dark:text-slate-400">Dene hain (Payables)</p>
+          <p className="text-[11px] text-slate-500 dark:text-slate-400">To Pay</p>
         </div>
 
         <div className="glass-card p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xl">
@@ -141,7 +142,7 @@ export default function PartiesPage() {
           <div className="flex items-center gap-1.5 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0">
             {[
               { id: 'ALL', label: 'All Parties' },
-              { id: 'FARMER', label: 'Farmers (किसान)' },
+              { id: 'FARMER', label: 'Farmers' },
               { id: 'RICE_MILL', label: 'Rice Mills' },
               { id: 'CUSTOMER', label: 'Customers' },
               { id: 'VENDOR', label: 'Vendors' },
@@ -163,7 +164,7 @@ export default function PartiesPage() {
 
         {/* Party Cards List */}
         {loading ? (
-          <div className="py-12 text-center text-slate-500 dark:text-slate-400 text-sm">Loading parties...</div>
+          <CardGridSkeleton count={6} />
         ) : parties.length === 0 ? (
           <div className="py-12 text-center text-slate-500 dark:text-slate-400 space-y-2">
             <Users className="w-10 h-10 text-emerald-500/30 mx-auto" />

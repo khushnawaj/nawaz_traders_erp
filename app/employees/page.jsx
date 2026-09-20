@@ -14,10 +14,13 @@ import {
   Calendar,
   ShieldCheck
 } from 'lucide-react';
+import { CardGridSkeleton } from '@/components/common/SkeletonLoader';
 import EmployeeFormModal from '@/components/employees/EmployeeFormModal';
+import AdvanceManagementTab from '@/components/employees/AdvanceManagementTab';
 import { formatCurrency } from '@/lib/utils';
 
 export default function EmployeesPage() {
+  const [activeTab, setActiveTab] = useState('directory');
   const [employees, setEmployees] = useState([]);
   const [stats, setStats] = useState({
     totalEmployees: 0,
@@ -59,7 +62,7 @@ export default function EmployeesPage() {
       <div className="glass-card p-5 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <h1 className="font-extrabold text-2xl text-slate-900 dark:text-white flex items-center gap-2.5">
-            <UserCheck className="w-6 h-6 text-purple-600 dark:text-purple-400" /> Employee & Staff Directory (कर्मचारी सूची)
+            <UserCheck className="w-6 h-6 text-purple-600 dark:text-purple-400" /> Employee & Staff Directory
           </h1>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Drivers, Loaders, Labour, Accountants & Mandi Managers</p>
         </div>
@@ -67,7 +70,7 @@ export default function EmployeesPage() {
           onClick={() => setIsModalOpen(true)}
           className="inline-flex items-center gap-2 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white font-extrabold px-5 py-2.5 rounded-2xl text-xs shadow-lg shadow-emerald-950/20 transition-all transform hover:-translate-y-0.5"
         >
-          <UserPlus className="w-4 h-4 text-amber-300" /> Add Staff (कर्मचारी जोड़ें)
+          <UserPlus className="w-4 h-4 text-amber-300" /> Add Staff
         </button>
       </div>
 
@@ -86,7 +89,7 @@ export default function EmployeesPage() {
 
         <div className="glass-card p-5 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xl">
           <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-2">
-            <span className="text-[11px] font-bold uppercase tracking-wider">Drivers (ड्राइवर)</span>
+            <span className="text-[11px] font-bold uppercase tracking-wider">Drivers</span>
             <div className="p-2 bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 rounded-xl border border-indigo-500/20">
               <Truck className="w-4 h-4" />
             </div>
@@ -120,8 +123,36 @@ export default function EmployeesPage() {
         </div>
       </div>
 
-      {/* Filter Tabs & Search */}
-      <div className="glass-card p-5 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl space-y-4">
+      {/* Main Tabs Navigation */}
+      <div className="border-b border-slate-200/60 dark:border-slate-800/60 flex items-center gap-2 pb-0.5 overflow-x-auto">
+        <button
+          onClick={() => setActiveTab('directory')}
+          className={`flex items-center gap-2 px-5 py-2.5 rounded-2xl text-xs font-extrabold transition whitespace-nowrap ${
+            activeTab === 'directory'
+              ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-md'
+              : 'bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800'
+          }`}
+        >
+          <Users className="w-4 h-4" /> Staff Directory & Profiles
+        </button>
+        <button
+          onClick={() => setActiveTab('advances')}
+          className={`flex items-center gap-2 px-5 py-2.5 rounded-2xl text-xs font-extrabold transition whitespace-nowrap ${
+            activeTab === 'advances'
+              ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md'
+              : 'bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800'
+          }`}
+        >
+          <ShieldCheck className="w-4 h-4" /> Salary Advances & Disbursals
+        </button>
+      </div>
+
+      {activeTab === 'advances' ? (
+        <AdvanceManagementTab />
+      ) : (
+        <div className="space-y-4">
+          {/* Filter Tabs & Search */}
+          <div className="glass-card p-5 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl space-y-4">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="relative w-full sm:w-80">
             <input
@@ -138,8 +169,8 @@ export default function EmployeesPage() {
           <div className="flex items-center gap-1.5 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0">
             {[
               { id: 'ALL', label: 'All Staff' },
-              { id: 'DRIVER', label: 'Drivers (ड्राइवर)' },
-              { id: 'LOADER', label: 'Loaders (हम्माल)' },
+              { id: 'DRIVER', label: 'Drivers' },
+              { id: 'LOADER', label: 'Loaders' },
               { id: 'MANAGER', label: 'Managers' },
               { id: 'LABOUR', label: 'Labours' },
             ].map((tab) => (
@@ -160,7 +191,7 @@ export default function EmployeesPage() {
 
         {/* Employee Cards Grid */}
         {loading ? (
-          <div className="py-16 text-center text-slate-500 dark:text-slate-400 text-xs">Loading staff directory...</div>
+          <CardGridSkeleton count={6} />
         ) : employees.length === 0 ? (
           <div className="py-16 text-center text-slate-500 dark:text-slate-400 space-y-3">
             <UserCheck className="w-12 h-12 text-slate-400 dark:text-slate-600 mx-auto" />
@@ -240,6 +271,8 @@ export default function EmployeesPage() {
           </div>
         )}
       </div>
+      </div>
+      )}
 
       <EmployeeFormModal
         isOpen={isModalOpen}

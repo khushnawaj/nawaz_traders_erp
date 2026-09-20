@@ -47,6 +47,8 @@ export async function POST(request) {
       username: user.username,
       fullName: user.fullName,
       role: user.role,
+      employeeId: user.employeeId,
+      partyId: user.partyId,
     };
 
     const token = await signSessionToken(payload);
@@ -60,6 +62,8 @@ export async function POST(request) {
         username: user.username,
         fullName: user.fullName,
         role: user.role,
+        employeeId: user.employeeId,
+        partyId: user.partyId,
       },
     });
 

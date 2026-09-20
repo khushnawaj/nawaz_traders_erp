@@ -56,7 +56,7 @@ export default function SalesPage() {
       toast.success('Sale invoice deleted & stock reverted');
       loadSales();
     } catch (err) {
-      toast.error(`❌ ${err.message}`);
+      toast.error(err.message);
     }
   };
 
@@ -102,7 +102,7 @@ export default function SalesPage() {
             <TrendingUp className="w-3.5 h-3.5" /> Grain Sales & Outflow
           </div>
           <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
-            Sales & Invoices (अनाज बिक्री पर्ची / चालान)
+            Sales & Invoices
           </h1>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
             Track Commercial Grain dispatches to Rice Mills, Buyers & Payment collections
@@ -113,7 +113,7 @@ export default function SalesPage() {
           onClick={() => setIsModalOpen(true)}
           className="inline-flex items-center gap-2 bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-500 hover:to-purple-400 text-white font-extrabold px-4 py-2.5 rounded-2xl text-xs shadow-lg shadow-purple-950/20 transition-all transform hover:-translate-y-0.5 self-start sm:self-auto"
         >
-          <Plus className="w-4 h-4 text-amber-300" /> New Sale (बिक्री पर्ची)
+          <Plus className="w-4 h-4 text-amber-300" /> New Sale Invoice
         </button>
       </div>
 
@@ -263,7 +263,10 @@ export default function SalesPage() {
                       </td>
 
                       <td className="px-4 py-3 text-slate-600 dark:text-slate-300">
-                        🏛️ {s.godown?.name || 'Main Godown'}
+                        <div className="flex items-center gap-1.5">
+                          <Warehouse className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                          <span>{s.godown?.name || 'Main Godown'}</span>
+                        </div>
                       </td>
 
                       <td className="px-4 py-3 text-right">

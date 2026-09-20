@@ -6,13 +6,6 @@ import { useRouter } from 'next/navigation';
 import { User, Lock, Mail, Phone, Shield, ArrowRight, Eye, EyeOff, Wheat } from 'lucide-react';
 import toast from 'react-hot-toast';
 
-const ROLES = [
-  { id: 'OPERATOR', label: 'Operator (कम्प्यूटर ऑपरेटर)', desc: 'Data entry for purchases, weighments & sales' },
-  { id: 'ACCOUNTANT', label: 'Accountant (अकाउंटेंट)', desc: 'Manages party ledgers & cash/bank vouchers' },
-  { id: 'MANAGER', label: 'Manager (मैनेजर)', desc: 'Oversees godowns, vehicles & reports' },
-  { id: 'ADMIN', label: 'Admin (एडमिन)', desc: 'Full system control & settings' },
-];
-
 export default function SignupPage() {
   const router = useRouter();
   const [formData, setFormData] = useState({
@@ -20,7 +13,6 @@ export default function SignupPage() {
     username: '',
     email: '',
     phone: '',
-    role: 'OPERATOR',
     password: '',
     confirmPassword: '',
   });
@@ -51,9 +43,11 @@ export default function SignupPage() {
         throw new Error(json.error || 'Registration failed');
       }
 
-      toast.success(`🎉 Account created for ${json.user?.fullName}!`);
-      router.push('/');
-      router.refresh();
+      toast.success(
+        `🎉 Signup submitted for ${json.user?.fullName}! Account is pending activation by Owner/Admin.`,
+        { duration: 5000 }
+      );
+      router.push('/login');
     } catch (err) {
       toast.error(`❌ ${err.message}`);
     } finally {
@@ -81,10 +75,10 @@ export default function SignupPage() {
         </div>
 
         {/* Signup Card */}
-        <div className="glass-card p-6 sm:p-8 rounded-3xl border border-slate-200 dark:border-emerald-500/20 shadow-2xl space-y-6">
+        <div className="glass-card p-6 sm:p-8 rounded-3xl border border-slate-200/80 dark:border-emerald-500/20 shadow-2xl space-y-6">
           <div className="space-y-1">
-            <h2 className="text-lg font-bold text-slate-900 dark:text-white">Create Staff Account</h2>
-            <p className="text-xs text-slate-500 dark:text-slate-400">Register new team member for Nawaz Traders ERP</p>
+            <h2 className="text-xl font-extrabold text-slate-900 dark:text-white font-outfit">Create New Account</h2>
+            <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Enter your basic details. Account will be activated by Owner or Admin.</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -92,13 +86,13 @@ export default function SignupPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className="app-label">
-                  Full Name (पूरा नाम) *
+                  Full Name *
                 </label>
                 <div className="relative">
                   <input
                     type="text"
                     required
-                    placeholder="e.g. Salim Khan"
+                    placeholder="e.g. Ramesh Kumar"
                     value={formData.fullName}
                     onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
                     className="app-input app-input-with-icon"
@@ -114,7 +108,7 @@ export default function SignupPage() {
                 <input
                   type="text"
                   required
-                  placeholder="salim_khan"
+                  placeholder="ramesh_kumar"
                   value={formData.username}
                   onChange={(e) => setFormData({ ...formData, username: e.target.value })}
                   className="app-input"
@@ -131,7 +125,7 @@ export default function SignupPage() {
                 <div className="relative">
                   <input
                     type="email"
-                    placeholder="salim@gmail.com"
+                    placeholder="ramesh@gmail.com"
                     value={formData.email}
                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                     className="app-input app-input-with-icon"
@@ -142,11 +136,12 @@ export default function SignupPage() {
 
               <div>
                 <label className="app-label">
-                  Mobile Number
+                  Mobile Number *
                 </label>
                 <div className="relative">
                   <input
                     type="tel"
+                    required
                     placeholder="98260XXXXX"
                     value={formData.phone}
                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
@@ -157,23 +152,7 @@ export default function SignupPage() {
               </div>
             </div>
 
-            {/* Role Selection */}
-            <div>
-              <label className="app-label">
-                <Shield className="w-3.5 h-3.5 text-amber-500 dark:text-amber-400" /> Staff Role *
-              </label>
-              <select
-                value={formData.role}
-                onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-                className="app-select"
-              >
-                {ROLES.map((r) => (
-                  <option key={r.id} value={r.id} className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white">
-                    {r.label} — {r.desc}
-                  </option>
-                ))}
-              </select>
-            </div>
+
 
             {/* Passwords */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -214,7 +193,7 @@ export default function SignupPage() {
 
             {/* Toggle show password */}
             <div className="flex items-center justify-between text-xs">
-              <label className="flex items-center gap-2 cursor-pointer text-slate-500 dark:text-slate-400">
+              <label className="flex items-center gap-2 cursor-pointer text-slate-500 dark:text-slate-400 font-medium">
                 <input
                   type="checkbox"
                   checked={showPassword}
@@ -229,13 +208,13 @@ export default function SignupPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white font-bold text-sm rounded-xl shadow-lg shadow-emerald-950/20 transition flex items-center justify-center gap-2 disabled:opacity-50 mt-2"
+              className="bahi-btn-primary w-full py-3 text-sm mt-2 font-outfit"
             >
               {loading ? (
-                'Creating Account...'
+                'Submitting Account Registration...'
               ) : (
                 <>
-                  <span>Create Account</span>
+                  <span>Submit Account Registration</span>
                   <ArrowRight className="w-4 h-4" />
                 </>
               )}
@@ -244,8 +223,8 @@ export default function SignupPage() {
 
           {/* Footer Navigation */}
           <div className="text-center pt-2 border-t border-slate-200 dark:border-slate-800/80">
-            <p className="text-xs text-slate-500 dark:text-slate-400">
-              Already have an account?{' '}
+            <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+              Already have an active account?{' '}
               <Link href="/login" className="text-amber-600 dark:text-amber-400 hover:underline font-bold">
                 Sign In
               </Link>

@@ -5,11 +5,12 @@ import { X, Truck, User, Gauge, Shield, Check } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 const VEHICLE_TYPES = [
-  { id: 'Tractor', label: 'Tractor (ट्रैक्टर / ट्रॉली)', icon: '🚜' },
-  { id: 'Truck 10-Wheeler', label: 'Truck 10-Wheeler (ट्रक 10 व्हीलर)', icon: '🚛' },
-  { id: 'Truck 6-Wheeler', label: 'Truck 6-Wheeler (हाफ बॉडी ट्रक)', icon: '🚚' },
-  { id: 'Trailer 14-Wheeler', label: 'Trailer 14-Wheeler (ट्रेलर)', icon: '🚛' },
-  { id: 'Pickup', label: 'Bolero Pickup (पिकअप)', icon: '🛻' },
+  { id: 'Tractor', label: 'Tractor / Trolley' },
+  { id: 'Truck 10-Wheeler', label: 'Truck 10-Wheeler' },
+  { id: 'Truck 6-Wheeler', label: 'Truck 6-Wheeler (Half Body)' },
+  { id: 'Trailer 14-Wheeler', label: 'Trailer 14-Wheeler' },
+  { id: 'Pickup', label: 'Bolero Pickup' },
+  { id: 'Bike', label: 'Bike / Scooter' },
 ];
 
 export default function VehicleFormModal({ isOpen, onClose, onSuccess }) {
@@ -62,7 +63,7 @@ export default function VehicleFormModal({ isOpen, onClose, onSuccess }) {
         throw new Error(json.error || 'Failed to register vehicle');
       }
 
-      toast.success(`🎉 Vehicle "${json.data?.vehicleNumber}" registered!`);
+      toast.success(`Vehicle "${json.data?.vehicleNumber}" registered!`);
       onSuccess();
       onClose();
 
@@ -75,7 +76,7 @@ export default function VehicleFormModal({ isOpen, onClose, onSuccess }) {
         assignedDriverId: '',
       });
     } catch (err) {
-      toast.error(`❌ ${err.message}`);
+      toast.error(err.message);
     } finally {
       setLoading(false);
     }
@@ -85,12 +86,12 @@ export default function VehicleFormModal({ isOpen, onClose, onSuccess }) {
     <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
       <div className="glass-modal rounded-3xl max-w-lg w-full shadow-2xl overflow-hidden my-8 border border-slate-200/80 dark:border-slate-800 animate-in fade-in zoom-in duration-200 text-slate-900 dark:text-white">
         {/* Header */}
-        <div className="bg-gradient-to-r from-emerald-800 via-emerald-900 to-slate-900 text-white p-5 flex items-center justify-between border-b border-emerald-700/40">
+        <div className="bg-gradient-to-r from-emerald-800 via-emerald-900 to-slate-900 text-white p-4 sm:p-5 flex items-center justify-between border-b border-emerald-700/40">
           <div>
-            <h3 className="font-extrabold text-lg flex items-center gap-2">
-              <Truck className="w-5 h-5 text-amber-400" /> New Vehicle Registry (वाहन पंजीकरण)
+            <h3 className="font-semibold text-base sm:text-lg flex items-center gap-2">
+              <Truck className="w-5 h-5 text-amber-400" /> New Vehicle Registry
             </h3>
-            <p className="text-xs text-emerald-200 mt-0.5">Register Tractors, Trucks, Trailers & Pickups</p>
+            <p className="text-xs text-emerald-200/80 font-normal mt-0.5">Register Tractors, Trucks, Trailers, Pickups & Bikes</p>
           </div>
           <button
             onClick={onClose}
@@ -101,12 +102,12 @@ export default function VehicleFormModal({ isOpen, onClose, onSuccess }) {
         </div>
 
         {/* Form Body */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-4 max-h-[80vh] overflow-y-auto">
+        <form onSubmit={handleSubmit} className="p-5 sm:p-6 space-y-4 max-h-[80vh] overflow-y-auto">
           {/* Vehicle Reg Number & Type */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="app-label">
-                <Truck className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" /> Registration No. (गाड़ी नंबर) *
+                <Truck className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" /> Registration No. *
               </label>
               <input
                 type="text"
@@ -114,7 +115,7 @@ export default function VehicleFormModal({ isOpen, onClose, onSuccess }) {
                 placeholder="e.g. MP04AB1234"
                 value={formData.vehicleNumber}
                 onChange={(e) => setFormData({ ...formData, vehicleNumber: e.target.value })}
-                className="app-input font-black uppercase text-emerald-700 dark:text-emerald-300"
+                className="app-input uppercase font-mono text-emerald-700 dark:text-emerald-300"
               />
             </div>
 
@@ -127,7 +128,7 @@ export default function VehicleFormModal({ isOpen, onClose, onSuccess }) {
               >
                 {VEHICLE_TYPES.map((v) => (
                   <option key={v.id} value={v.id}>
-                    {v.icon} {v.label}
+                    {v.label}
                   </option>
                 ))}
               </select>
@@ -137,7 +138,7 @@ export default function VehicleFormModal({ isOpen, onClose, onSuccess }) {
           {/* Model / Make & Ownership */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="app-label">Model / Make (मॉडल / नाम)</label>
+              <label className="app-label">Model / Make</label>
               <input
                 type="text"
                 placeholder="e.g. Mahindra 575 DI / Tata 1613"
@@ -154,8 +155,8 @@ export default function VehicleFormModal({ isOpen, onClose, onSuccess }) {
                 onChange={(e) => setFormData({ ...formData, ownership: e.target.value })}
                 className="app-select"
               >
-                <option value="OWNED">OWNED (कंपनी का खुद का)</option>
-                <option value="HIRED">HIRED (किराये की गाड़ी)</option>
+                <option value="OWNED">OWNED (Company Fleet)</option>
+                <option value="HIRED">HIRED (Contract Vehicle)</option>
               </select>
             </div>
           </div>
@@ -164,7 +165,7 @@ export default function VehicleFormModal({ isOpen, onClose, onSuccess }) {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="app-label">
-                <Gauge className="w-3.5 h-3.5 text-amber-500" /> Current Odometer (KM / मीटर)
+                <Gauge className="w-3.5 h-3.5 text-amber-500" /> Current Odometer (KM)
               </label>
               <input
                 type="number"
@@ -173,7 +174,7 @@ export default function VehicleFormModal({ isOpen, onClose, onSuccess }) {
                 placeholder="e.g. 45000"
                 value={formData.currentKm}
                 onChange={(e) => setFormData({ ...formData, currentKm: e.target.value })}
-                className="app-input font-bold"
+                className="app-input"
               />
             </div>
 
@@ -186,10 +187,10 @@ export default function VehicleFormModal({ isOpen, onClose, onSuccess }) {
                 onChange={(e) => setFormData({ ...formData, assignedDriverId: e.target.value })}
                 className="app-select"
               >
-                <option value="">No Driver Assigned (कोई नहीं)</option>
+                <option value="">No Driver Assigned</option>
                 {drivers.map((d) => (
                   <option key={d.id} value={d.id}>
-                    👨‍✈️ {d.fullName} {d.phone ? `— 📞 ${d.phone}` : ''}
+                    {d.fullName} {d.phone ? `— ${d.phone}` : ''}
                   </option>
                 ))}
               </select>
@@ -201,16 +202,16 @@ export default function VehicleFormModal({ isOpen, onClose, onSuccess }) {
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2.5 text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition"
+              className="px-4 py-2 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-2xl transition"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="px-5 py-2.5 text-xs font-bold bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 text-white rounded-xl shadow-lg shadow-emerald-950/20 transition disabled:opacity-50 flex items-center gap-2"
+              className="px-5 py-2.5 text-xs font-semibold bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-500 hover:to-emerald-600 text-white rounded-2xl shadow-md transition disabled:opacity-50 flex items-center gap-2"
             >
-              {loading ? 'Saving Vehicle...' : 'Save Vehicle (गाड़ी दर्ज करें)'}
+              {loading ? 'Saving Vehicle...' : 'Save Vehicle'}
             </button>
           </div>
         </form>

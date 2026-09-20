@@ -56,7 +56,7 @@ export default function GodownsPage() {
       toast.success('Godown deleted successfully');
       loadGodowns();
     } catch (err) {
-      toast.error(`❌ ${err.message}`);
+      toast.error(err.message);
     }
   };
 
@@ -87,7 +87,7 @@ export default function GodownsPage() {
             <Warehouse className="w-3.5 h-3.5" /> Warehouses & Grain Storage
           </div>
           <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
-            Godowns & Stock Inventory (गोदाम एवं अनाज स्टॉक)
+            Godowns & Stock Inventory
           </h1>
           <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
             Track Paddy, Wheat, Gram & Oilseeds live storage across Mandi sheds & warehouses
@@ -101,7 +101,7 @@ export default function GodownsPage() {
           }}
           className="inline-flex items-center gap-2 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white font-extrabold px-4 py-2.5 rounded-2xl text-xs shadow-lg shadow-emerald-950/20 transition-all transform hover:-translate-y-0.5 self-start sm:self-auto"
         >
-          <Plus className="w-4 h-4 text-amber-300" /> Add Godown (गोदाम जोड़ें)
+          <Plus className="w-4 h-4 text-amber-300" /> Add Godown
         </button>
       </div>
 
@@ -204,14 +204,14 @@ export default function GodownsPage() {
                   <div className="flex items-start justify-between">
                     <div className="flex items-center gap-3">
                       <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-black text-xl border border-emerald-500/20 group-hover:scale-105 transition-transform">
-                        🏛️
+                        <Warehouse className="w-6 h-6" />
                       </div>
                       <div>
                         <span className="text-base font-black text-slate-900 dark:text-white block uppercase tracking-tight">
                           {g.name}
                         </span>
                         <span className="text-xs text-emerald-600 dark:text-emerald-400 font-extrabold block">
-                          {g.code} {g.location ? `• 📍 ${g.location}` : ''}
+                          {g.code} {g.location ? `• ${g.location}` : ''}
                         </span>
                       </div>
                     </div>
@@ -272,9 +272,10 @@ export default function GodownsPage() {
                         {g.stockBreakdown?.map((stk, idx) => (
                           <span
                             key={idx}
-                            className="px-2.5 py-1 rounded-xl text-xs font-extrabold bg-amber-500/10 text-amber-700 dark:text-amber-300 border border-amber-500/20"
+                            className="px-2.5 py-1 rounded-xl text-xs font-extrabold bg-amber-500/10 text-amber-700 dark:text-amber-300 border border-amber-500/20 flex items-center gap-1"
                           >
-                            🌾 {stk.commodityName}: <strong className="text-slate-900 dark:text-white">{stk.stockQtl.toFixed(1)} Qtl</strong>
+                            <Wheat className="w-3 h-3 text-amber-500" />
+                            <span>{stk.commodityName}: <strong className="text-slate-900 dark:text-white">{stk.stockQtl.toFixed(1)} Qtl</strong></span>
                           </span>
                         ))}
                       </div>

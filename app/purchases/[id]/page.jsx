@@ -20,6 +20,8 @@ import {
   Phone,
   Scale
 } from 'lucide-react';
+import Breadcrumb from '@/components/layout/Breadcrumb';
+import Loader from '@/components/common/Loader';
 import toast from 'react-hot-toast';
 
 export default function PurchaseDetailPage() {
@@ -38,7 +40,7 @@ export default function PurchaseDetailPage() {
 
       setPurchase(json.data);
     } catch (err) {
-      toast.error(`❌ ${err.message}`);
+      toast.error(err.message);
     } finally {
       setLoading(false);
     }
@@ -59,7 +61,7 @@ export default function PurchaseDetailPage() {
       toast.success('Purchase voucher deleted');
       router.push('/purchases');
     } catch (err) {
-      toast.error(`❌ ${err.message}`);
+      toast.error(err.message);
     }
   };
 
@@ -77,8 +79,8 @@ export default function PurchaseDetailPage() {
 
   if (loading) {
     return (
-      <div className="max-w-5xl mx-auto px-4 py-16 text-center text-slate-500 font-bold">
-        Loading crop purchase voucher...
+      <div className="min-h-[75vh] flex items-center justify-center p-4">
+        <Loader text="Loading Purchase Voucher..." subtext="Syncing crop weights and mandi charges" size="lg" />
       </div>
     );
   }
@@ -112,10 +114,22 @@ export default function PurchaseDetailPage() {
 
         <div className="flex items-center gap-3">
           <button
+            onClick={() => {
+              document.body.classList.add('thermal-print-body');
+              window.print();
+              setTimeout(() => document.body.classList.remove('thermal-print-body'), 1000);
+            }}
+            className="px-4 py-2.5 rounded-2xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-black flex items-center gap-1.5 shadow-md transition"
+            title="Print 3-inch Weighbridge Receipt"
+          >
+            <Printer className="w-4 h-4" /> 3-Inch Thermal Slip
+          </button>
+
+          <button
             onClick={handlePrint}
             className="px-5 py-2.5 rounded-2xl bg-gradient-to-r from-emerald-700 via-emerald-600 to-emerald-700 hover:from-emerald-600 hover:to-emerald-500 text-white text-xs font-black flex items-center gap-2 shadow-lg shadow-emerald-950/20 transition-all transform hover:-translate-y-0.5"
           >
-            <Printer className="w-4 h-4 text-amber-300" /> Print Purchase Slip (प्रिंट करें)
+            <Printer className="w-4 h-4 text-amber-300" /> Print A4 Invoice
           </button>
 
           <button
@@ -184,7 +198,7 @@ export default function PurchaseDetailPage() {
             <div className="p-5 rounded-2xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200/80 dark:border-slate-800 space-y-2 text-xs print:bg-gray-50 print:border-gray-300">
               <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-2 mb-2 print:border-gray-300">
                 <span className="text-[10px] font-extrabold uppercase text-emerald-700 dark:text-emerald-400 tracking-wider flex items-center gap-1">
-                  <User className="w-3.5 h-3.5 text-amber-500" /> Farmer Information (किसान विवरण)
+                  <User className="w-3.5 h-3.5 text-amber-500" /> Farmer Information
                 </span>
                 <span className="text-[10px] font-bold text-slate-400">Code: {purchase.party?.partyCode}</span>
               </div>
@@ -220,7 +234,7 @@ export default function PurchaseDetailPage() {
 
               {purchase.promisedDate && (
                 <div className="text-amber-600 dark:text-amber-400 font-bold flex items-center gap-1.5 pt-1">
-                  📅 Promised Payment Date: {new Date(purchase.promisedDate).toLocaleDateString('en-IN')}
+                  <Calendar className="w-3.5 h-3.5" /> Promised Payment Date: {new Date(purchase.promisedDate).toLocaleDateString('en-IN')}
                 </div>
               )}
             </div>

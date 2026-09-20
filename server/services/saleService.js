@@ -71,6 +71,28 @@ export async function createSale(data) {
     paymentStatus = 'PARTIAL';
   }
 
+  // STOCK VALIDATION: Verify available stock in Godown for Commodity
+  const stockAgg = await prisma.stockMovement.aggregate({
+    where: { godownId, commodityId },
+    _sum: { baseQuantityKg: true },
+  });
+
+  const availableStockKg = new Decimal(stockAgg._sum.baseQuantityKg || 0);
+
+  if (availableStockKg.lessThan(baseWeightKg)) {
+    const godown = await prisma.godown.findUnique({ where: { id: godownId } });
+    const commodity = await prisma.commodity.findUnique({ where: { id: commodityId } });
+    const availableQty = availableStockKg.dividedBy(conversionFactor).toNumber();
+    const requestedQty = displayQty.toNumber();
+
+    const godownName = godown?.name || 'selected Godown';
+    const commodityName = commodity?.localName || commodity?.name || 'selected Commodity';
+
+    throw new Error(
+      `Insufficient stock in ${godownName}! Available ${commodityName}: ${availableQty.toFixed(2)} ${unit?.code || 'QTL'} (${availableStockKg.toNumber()} KG). Requested sale: ${requestedQty.toFixed(2)} ${unit?.code || 'QTL'}.`
+    );
+  }
+
   // Execute in DB Transaction
   const newSale = await prisma.$transaction(async (tx) => {
     // 1. Create Sale Entry

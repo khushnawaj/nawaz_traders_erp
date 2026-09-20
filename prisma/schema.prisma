@@ -9,11 +9,15 @@ generator client {
 
 // User Roles for System Access
 enum Role {
+  OWNER
+  CO_OWNER
   ADMIN
   ACCOUNTANT
   MANAGER
   OPERATOR
   DRIVER
+  EMPLOYEE
+  FARMER
 }
 
 // Party Roles (A party can hold multiple tags e.g. FARMER & SUPPLIER)
@@ -67,8 +71,13 @@ model User {
   passwordHash String
   fullName     String
   phone        String?
+  avatarUrl    String?
   role         Role       @default(OPERATOR)
   status       Status     @default(ACTIVE)
+  employeeId   String?    @unique
+  employee     Employee?  @relation(fields: [employeeId], references: [id])
+  partyId      String?    @unique
+  party        Party?     @relation(fields: [partyId], references: [id])
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
 
@@ -96,6 +105,8 @@ model Party {
   // KYC, Bank & Land Documents
   aadhaarNo      String?
   aadhaarDocUrl  String?
+  panNo          String?
+  panDocUrl      String?
   bankName       String?
   accountNo      String?
   ifscCode       String?
@@ -105,6 +116,7 @@ model Party {
   updatedAt      DateTime      @updatedAt
 
   // Relationships
+  user            User?
   ledgerEntries   PartyLedger[]
   purchases       Purchase[]
   sales           Sale[]
@@ -277,12 +289,25 @@ model Employee {
   avatarUrl         String?
   assignedVehicleId String?
   assignedVehicle   Vehicle?      @relation(fields: [assignedVehicleId], references: [id])
+  // KYC, Bank & Driving License Documents
+  aadhaarNo             String?
+  aadhaarDocUrl         String?
+  panNo                 String?
+  panDocUrl             String?
+  drivingLicenseNo      String?
+  drivingLicenseDocUrl  String?
+  bankName              String?
+  accountNo             String?
+  ifscCode              String?
+  bankDocUrl            String?
   createdAt         DateTime      @default(now())
   updatedAt         DateTime      @updatedAt
 
   // Relationships
+  user             User?
   attendances      Attendance[]
   employeeLedgers  EmployeeLedger[]
+  advanceRequests  AdvanceRequest[]
   trips            Trip[]            @relation("DriverTrips")
   fuelExpenses     FuelExpense[]
   purchases        Purchase[]        @relation("DriverPurchases")
@@ -512,4 +537,24 @@ model AuditLog {
 
   @@index([entity, entityId])
   @@map("audit_logs")
+}
+
+// 19. SALARY ADVANCE REQUEST ENTITY (Staff Advance Requests & Approvals)
+model AdvanceRequest {
+  id            String   @id @default(uuid())
+  requestNo     String   @unique // e.g. REQ-2026-0001
+  employeeId    String
+  employee      Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  amount        Decimal  @db.Decimal(15, 2)
+  reason        String
+  status        String   @default("PENDING") // PENDING, APPROVED, REJECTED
+  approvedById  String?
+  disbursedMode String?  @default("CASH") // CASH, BANK_TRANSFER
+  accountName   String?  @default("Main Cash Account")
+  notes         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([employeeId])
+  @@map("advance_requests")
 }

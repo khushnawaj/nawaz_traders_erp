@@ -5,12 +5,12 @@ import { X, Camera, Upload, Trash2, Check, User, Sparkles } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 const PRESET_AVATARS = [
-  { id: 'p0', label: 'NT Stamp 🏢', url: '/images/nawaz-traders-circular.png' },
-  { id: 'p1', label: 'Farmer 👨‍🌾', url: 'https://images.unsplash.com/photo-1595273670150-bd0c3c392e46?w=200&auto=format&fit=crop&q=80' },
-  { id: 'p2', label: 'Mill Owner 🏢', url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&auto=format&fit=crop&q=80' },
-  { id: 'p3', label: 'Mandi Trader 🌾', url: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&auto=format&fit=crop&q=80' },
-  { id: 'p4', label: 'Driver 🚜', url: 'https://images.unsplash.com/photo-1628157582853-a796fa650a6a?w=200&auto=format&fit=crop&q=80' },
-  { id: 'p5', label: 'Accountant 💼', url: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=200&auto=format&fit=crop&q=80' },
+  { id: 'p0', label: 'NT Stamp', url: '/images/nawaz-traders-circular.png' },
+  { id: 'p1', label: 'Farmer', url: 'https://images.unsplash.com/photo-1595273670150-bd0c3c392e46?w=200&auto=format&fit=crop&q=80' },
+  { id: 'p2', label: 'Mill Owner', url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&auto=format&fit=crop&q=80' },
+  { id: 'p3', label: 'Mandi Trader', url: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&auto=format&fit=crop&q=80' },
+  { id: 'p4', label: 'Driver', url: 'https://images.unsplash.com/photo-1628157582853-a796fa650a6a?w=200&auto=format&fit=crop&q=80' },
+  { id: 'p5', label: 'Accountant', url: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=200&auto=format&fit=crop&q=80' },
 ];
 
 export default function ProfileAvatarModal({
@@ -55,11 +55,11 @@ export default function ProfileAvatarModal({
       const json = await res.json();
       if (!res.ok) throw new Error(json.error || 'Failed to update photo');
 
-      toast.success('🎉 Profile picture updated successfully!');
+      toast.success('Profile picture updated successfully!');
       if (onSuccess) onSuccess(json.data);
       onClose();
     } catch (err) {
-      toast.error(`❌ ${err.message}`);
+      toast.error(err.message);
     } finally {
       setSaving(false);
     }
@@ -79,7 +79,7 @@ export default function ProfileAvatarModal({
       if (onSuccess) onSuccess(json.data);
       onClose();
     } catch (err) {
-      toast.error(`❌ ${err.message}`);
+      toast.error(err.message);
     } finally {
       setSaving(false);
     }
@@ -126,7 +126,7 @@ export default function ProfileAvatarModal({
         {/* File Upload Button */}
         <div>
           <label className="app-label">
-            Upload From Device (गैलरी से फोटो चुनें)
+            Upload From Device
           </label>
           <label className="w-full border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-emerald-500 dark:hover:border-emerald-500 bg-slate-50 dark:bg-slate-950/60 p-3.5 rounded-2xl flex items-center justify-center gap-2 cursor-pointer transition text-xs font-extrabold text-slate-700 dark:text-slate-300 hover:shadow-md">
             <Upload className="w-4 h-4 text-emerald-500" />
@@ -138,7 +138,7 @@ export default function ProfileAvatarModal({
         {/* Quick Avatar Presets */}
         <div className="space-y-2">
           <label className="app-label">
-            Or Pick Preset Avatar (प्रारूप चुनें)
+            Or Pick Preset Avatar
           </label>
           <div className="flex items-center justify-between gap-2 overflow-x-auto pb-1">
             {PRESET_AVATARS.map((preset) => (

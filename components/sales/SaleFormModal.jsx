@@ -14,6 +14,9 @@ export default function SaleFormModal({ isOpen, onClose, defaultCustomer = null,
   const [loadingData, setLoadingData] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
+  // Live Stock State
+  const [liveStock, setLiveStock] = useState({ stockKg: 0, loading: false });
+
   const [formData, setFormData] = useState({
     date: new Date().toISOString().split('T')[0],
     partyId: '',
@@ -30,6 +33,22 @@ export default function SaleFormModal({ isOpen, onClose, defaultCustomer = null,
     notes: '',
   });
 
+  const fetchLiveStock = async (gdnId, cmdId) => {
+    if (!gdnId || !cmdId) return;
+    setLiveStock((prev) => ({ ...prev, loading: true }));
+    try {
+      const res = await fetch(`/api/godowns/stock?godownId=${gdnId}&commodityId=${cmdId}`);
+      const json = await res.json();
+      if (json.success && json.data) {
+        setLiveStock({ stockKg: json.data.stockKg || 0, loading: false });
+      } else {
+        setLiveStock({ stockKg: 0, loading: false });
+      }
+    } catch (err) {
+      setLiveStock({ stockKg: 0, loading: false });
+    }
+  };
+
   const loadInitialData = async () => {
     setLoadingData(true);
     try {
@@ -42,7 +61,6 @@ export default function SaleFormModal({ isOpen, onClose, defaultCustomer = null,
       ]);
 
       if (partiesRes.success) {
-        // Filter Parties with CUSTOMER, RICE_MILL, or SUPPLIER role
         const customerList = (partiesRes.data || []).filter((p) =>
           p.roles?.some((r) => ['CUSTOMER', 'RICE_MILL', 'SUPPLIER', 'OTHER'].includes(r))
         );
@@ -56,14 +74,21 @@ export default function SaleFormModal({ isOpen, onClose, defaultCustomer = null,
       if (vehRes.success) setVehicles(vehRes.data || []);
       if (empRes.success) setDrivers((empRes.data || []).filter((e) => e.role === 'DRIVER'));
 
+      const initCommodityId = cmdRes.data?.commodities?.[0]?.id || '';
+      const initGodownId = gdnRes.data?.[0]?.id || '';
+
       setFormData((prev) => ({
         ...prev,
         partyId: defaultCustomer?.id || (customers[0]?.id || ''),
-        commodityId: cmdRes.data?.commodities?.[0]?.id || '',
+        commodityId: initCommodityId,
         unitId: cmdRes.data?.units?.find((u) => u.code === 'QTL')?.id || cmdRes.data?.units?.[0]?.id || '',
-        godownId: gdnRes.data?.[0]?.id || '',
+        godownId: initGodownId,
         date: new Date().toISOString().split('T')[0],
       }));
+
+      if (initGodownId && initCommodityId) {
+        fetchLiveStock(initGodownId, initCommodityId);
+      }
     } catch (err) {
       console.error('Error loading dropdowns:', err);
     } finally {
@@ -76,6 +101,12 @@ export default function SaleFormModal({ isOpen, onClose, defaultCustomer = null,
       loadInitialData();
     }
   }, [isOpen, defaultCustomer]);
+
+  useEffect(() => {
+    if (formData.godownId && formData.commodityId) {
+      fetchLiveStock(formData.godownId, formData.commodityId);
+    }
+  }, [formData.godownId, formData.commodityId]);
 
   if (!isOpen) return null;
 
@@ -90,7 +121,12 @@ export default function SaleFormModal({ isOpen, onClose, defaultCustomer = null,
   const received = parseFloat(formData.receivedAmount) || 0;
   const dueAmount = netAmount - received;
 
-  const selectedUnit = units.find((u) => u.id === formData.unitId)?.code || 'QTL';
+  const currentUnitObj = units.find((u) => u.id === formData.unitId);
+  const selectedUnit = currentUnitObj?.code || 'QTL';
+  const conversionFactor = parseFloat(currentUnitObj?.baseConversionFactor) || 100;
+
+  const availableStockInUnit = liveStock.stockKg / conversionFactor;
+  const isStockExceeded = qty > availableStockInUnit;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -109,6 +145,12 @@ export default function SaleFormModal({ isOpen, onClose, defaultCustomer = null,
     }
     if (rate <= 0) {
       toast.error('Please enter a valid sale rate!');
+      return;
+    }
+    if (isStockExceeded) {
+      toast.error(
+        `Insufficient stock! Only ${availableStockInUnit.toFixed(2)} ${selectedUnit} available in selected Godown.`
+      );
       return;
     }
 
@@ -132,11 +174,11 @@ export default function SaleFormModal({ isOpen, onClose, defaultCustomer = null,
         throw new Error(json.error || 'Failed to record sale');
       }
 
-      toast.success('🎉 Grain Sale Invoice (बिक्री पर्ची) Recorded Successfully!');
+      toast.success('Grain Sale Invoice Recorded Successfully!');
       if (onSuccess) onSuccess(json.data);
       onClose();
     } catch (err) {
-      toast.error(`❌ ${err.message}`);
+      toast.error(err.message);
     } finally {
       setSubmitting(false);
     }
@@ -146,14 +188,14 @@ export default function SaleFormModal({ isOpen, onClose, defaultCustomer = null,
     <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
       <div className="glass-modal rounded-3xl max-w-2xl w-full shadow-2xl overflow-hidden border border-slate-200/80 dark:border-slate-800 animate-in fade-in zoom-in duration-200 text-slate-900 dark:text-white my-8 max-h-[90vh] flex flex-col">
         {/* Header */}
-        <div className="p-5 border-b border-purple-700/40 bg-gradient-to-r from-purple-900 via-purple-800 to-slate-900 text-white flex items-center justify-between">
+        <div className="p-4 sm:p-5 border-b border-purple-700/40 bg-gradient-to-r from-purple-900 via-purple-800 to-slate-900 text-white flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-amber-400 text-slate-950 flex items-center justify-center font-bold shadow-lg shadow-amber-500/30">
+            <div className="w-9 h-9 rounded-2xl bg-amber-400 text-slate-950 flex items-center justify-center font-semibold shadow-md">
               <TrendingUp className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="font-extrabold text-lg text-white">Record Grain Sale (बिक्री पर्ची / चालान)</h2>
-              <p className="text-xs text-purple-200">Commercial Sales to Rice Mills & Grain Buyers</p>
+              <h2 className="font-semibold text-base sm:text-lg text-white">Record Grain Sale Invoice</h2>
+              <p className="text-xs text-purple-200/80 font-normal">Commercial Sales to Rice Mills & Grain Buyers</p>
             </div>
           </div>
           <button onClick={onClose} className="p-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white transition hover:scale-105">
@@ -162,12 +204,12 @@ export default function SaleFormModal({ isOpen, onClose, defaultCustomer = null,
         </div>
 
         {/* Form Body */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-5 overflow-y-auto flex-1">
+        <form onSubmit={handleSubmit} className="p-5 sm:p-6 space-y-4 overflow-y-auto flex-1">
           {/* Sale Date & Customer / Rice Mill Selection */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="app-label">
-                <Calendar className="w-3.5 h-3.5 text-purple-500" /> Sale Date (बिक्री तिथि) *
+                <Calendar className="w-3.5 h-3.5 text-purple-500" /> Sale Date *
               </label>
               <input
                 type="date"
@@ -184,12 +226,12 @@ export default function SaleFormModal({ isOpen, onClose, defaultCustomer = null,
                 value={formData.partyId}
                 onChange={(e) => setFormData({ ...formData, partyId: e.target.value })}
                 disabled={Boolean(defaultCustomer)}
-                className="app-select font-extrabold text-purple-600 dark:text-purple-300 disabled:opacity-70"
+                className="app-select font-semibold text-purple-600 dark:text-purple-300 disabled:opacity-70"
               >
                 <option value="">Select Buyer / Rice Mill</option>
                 {customers.map((c) => (
                   <option key={c.id} value={c.id} className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white">
-                    🏢 {c.name} ({c.roles?.join(', ') || 'Customer'}) {c.phone ? `— 📞 ${c.phone}` : ''}
+                    {c.name} ({c.roles?.join(', ') || 'Customer'}) {c.phone ? `— ${c.phone}` : ''}
                   </option>
                 ))}
               </select>
@@ -198,13 +240,41 @@ export default function SaleFormModal({ isOpen, onClose, defaultCustomer = null,
 
           {/* Commodity & Source Godown */}
           <div className="bg-purple-500/5 p-4 rounded-2xl border border-purple-500/15 space-y-3">
-            <label className="app-label mb-0 text-purple-800 dark:text-purple-300">
-              Grain & Warehouse Outflow Source
-            </label>
+            <div className="flex items-center justify-between">
+              <label className="app-label mb-0 text-purple-800 dark:text-purple-300 font-semibold">
+                Grain & Warehouse Outflow Source
+              </label>
+
+              {/* Live Stock Indicator Badge */}
+              <div className={`px-2.5 py-1 rounded-xl text-[11px] font-extrabold flex items-center gap-1.5 border font-mono ${
+                liveStock.loading
+                  ? 'bg-slate-100 text-slate-500 border-slate-300'
+                  : availableStockInUnit > 0
+                  ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30'
+                  : 'bg-rose-500/15 text-rose-700 dark:text-rose-300 border-rose-500/30 animate-pulse'
+              }`}>
+                {liveStock.loading ? (
+                  <span>Checking Stock...</span>
+                ) : availableStockInUnit > 0 ? (
+                  <>
+                    <span>🟢 Live Stock:</span>
+                    <strong className="text-emerald-800 dark:text-emerald-200">
+                      {availableStockInUnit.toFixed(2)} {selectedUnit}
+                    </strong>
+                    <span className="text-[10px] text-slate-500">({liveStock.stockKg.toFixed(0)} KG)</span>
+                  </>
+                ) : (
+                  <>
+                    <span>🔴 Out of Stock:</span>
+                    <strong>0.00 {selectedUnit} Available</strong>
+                  </>
+                )}
+              </div>
+            </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div>
-                <label className="app-label text-[10px]">Commodity (अनाज)</label>
+                <label className="app-label text-[10px]">Commodity</label>
                 <select
                   value={formData.commodityId}
                   onChange={(e) => setFormData({ ...formData, commodityId: e.target.value })}
@@ -212,29 +282,29 @@ export default function SaleFormModal({ isOpen, onClose, defaultCustomer = null,
                 >
                   {commodities.map((c) => (
                     <option key={c.id} value={c.id} className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white">
-                      🌾 {c.localName || c.name}
+                      {c.name}
                     </option>
                   ))}
                 </select>
               </div>
 
               <div>
-                <label className="app-label text-[10px]">Source Godown (निकासी गोदाम)</label>
+                <label className="app-label text-[10px]">Source Godown</label>
                 <select
                   value={formData.godownId}
                   onChange={(e) => setFormData({ ...formData, godownId: e.target.value })}
-                  className="app-select font-bold"
+                  className="app-select"
                 >
                   {godowns.map((g) => (
                     <option key={g.id} value={g.id} className="bg-white dark:bg-slate-900 text-slate-900 dark:text-white">
-                      🏛️ {g.name}
+                      {g.name}
                     </option>
                   ))}
                 </select>
               </div>
 
               <div>
-                <label className="app-label text-[10px]">Unit (इकाई)</label>
+                <label className="app-label text-[10px]">Unit</label>
                 <select
                   value={formData.unitId}
                   onChange={(e) => setFormData({ ...formData, unitId: e.target.value })}
@@ -251,11 +321,16 @@ export default function SaleFormModal({ isOpen, onClose, defaultCustomer = null,
           </div>
 
           {/* Quantity & Sale Rate */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="app-label">
-                <Scale className="w-3.5 h-3.5 text-amber-500" /> Sale Quantity (मात्रा - {selectedUnit}) *
-              </label>
+              <div className="flex items-center justify-between">
+                <label className="app-label">
+                  <Scale className="w-3.5 h-3.5 text-amber-500" /> Sale Quantity ({selectedUnit}) *
+                </label>
+                <span className="text-[10px] font-bold text-slate-500">
+                  Max: {availableStockInUnit.toFixed(2)} {selectedUnit}
+                </span>
+              </div>
               <div className="relative">
                 <input
                   type="number"
@@ -264,18 +339,27 @@ export default function SaleFormModal({ isOpen, onClose, defaultCustomer = null,
                   placeholder="e.g. 250.00"
                   value={formData.quantity}
                   onChange={(e) => setFormData({ ...formData, quantity: e.target.value })}
-                  className="app-input pr-12 font-black text-slate-900 dark:text-white"
+                  className={`app-input pr-12 font-semibold ${
+                    isStockExceeded
+                      ? 'border-rose-500 focus:border-rose-500 focus:ring-rose-500 text-rose-600 bg-rose-500/5'
+                      : 'text-slate-900 dark:text-white'
+                  }`}
                 />
-                <span className="absolute right-3.5 top-2.5 text-xs font-black text-slate-400">{selectedUnit}</span>
+                <span className="absolute right-3.5 top-2.5 text-xs font-medium text-slate-400">{selectedUnit}</span>
               </div>
+              {isStockExceeded && (
+                <p className="text-[11px] text-rose-600 dark:text-rose-400 font-bold mt-1 animate-pulse">
+                  ⚠️ Requested sale ({qty.toFixed(2)} {selectedUnit}) exceeds available godown stock ({availableStockInUnit.toFixed(2)} {selectedUnit})!
+                </p>
+              )}
             </div>
 
             <div>
               <label className="app-label">
-                <DollarSign className="w-3.5 h-3.5 text-purple-500" /> Sale Rate per {selectedUnit} (दर ₹/{selectedUnit}) *
+                <DollarSign className="w-3.5 h-3.5 text-purple-500" /> Sale Rate per {selectedUnit} (₹/{selectedUnit}) *
               </label>
               <div className="relative">
-                <span className="absolute left-3.5 top-2.5 text-xs font-black text-slate-400">₹</span>
+                <span className="absolute left-3.5 top-2.5 text-xs font-semibold text-slate-400">₹</span>
                 <input
                   type="number"
                   step="0.01"
@@ -283,7 +367,7 @@ export default function SaleFormModal({ isOpen, onClose, defaultCustomer = null,
                   placeholder="e.g. 2450.00"
                   value={formData.rate}
                   onChange={(e) => setFormData({ ...formData, rate: e.target.value })}
-                  className="app-input pl-8 font-black text-slate-900 dark:text-white"
+                  className="app-input pl-8 font-semibold text-slate-900 dark:text-white"
                 />
               </div>
             </div>
@@ -293,7 +377,7 @@ export default function SaleFormModal({ isOpen, onClose, defaultCustomer = null,
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="app-label">
-                <Truck className="w-3.5 h-3.5 text-slate-500" /> Transport Vehicle (गाड़ी)
+                <Truck className="w-3.5 h-3.5 text-slate-500" /> Transport Vehicle
               </label>
               <select
                 value={formData.vehicleId}
@@ -303,7 +387,7 @@ export default function SaleFormModal({ isOpen, onClose, defaultCustomer = null,
                 <option value="">Select Transport Vehicle</option>
                 {vehicles.map((v) => (
                   <option key={v.id} value={v.id}>
-                    🚛 {v.vehicleNumber} ({v.vehicleType})
+                    {v.vehicleNumber} ({v.vehicleType})
                   </option>
                 ))}
               </select>
@@ -311,7 +395,7 @@ export default function SaleFormModal({ isOpen, onClose, defaultCustomer = null,
 
             <div>
               <label className="app-label">
-                <User className="w-3.5 h-3.5 text-slate-500" /> Driver (ड्राइवर)
+                <User className="w-3.5 h-3.5 text-slate-500" /> Driver
               </label>
               <select
                 value={formData.driverId}
@@ -321,7 +405,7 @@ export default function SaleFormModal({ isOpen, onClose, defaultCustomer = null,
                 <option value="">Select Driver</option>
                 {drivers.map((d) => (
                   <option key={d.id} value={d.id}>
-                    👨‍✈️ {d.fullName}
+                    {d.fullName}
                   </option>
                 ))}
               </select>
@@ -331,7 +415,7 @@ export default function SaleFormModal({ isOpen, onClose, defaultCustomer = null,
           {/* Deductions / Discounts */}
           <div>
             <label className="app-label text-rose-600 dark:text-rose-400">
-              Freight Discount / Deductions (कटौती/छूट ₹)
+              Freight Discount / Deductions (₹)
             </label>
             <input
               type="number"
@@ -347,7 +431,7 @@ export default function SaleFormModal({ isOpen, onClose, defaultCustomer = null,
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="app-label text-emerald-700 dark:text-emerald-400">
-                <CreditCard className="w-3.5 h-3.5" /> Payment Received (प्राप्त राशि ₹)
+                <CreditCard className="w-3.5 h-3.5" /> Payment Received (₹)
               </label>
               <input
                 type="number"
@@ -355,7 +439,7 @@ export default function SaleFormModal({ isOpen, onClose, defaultCustomer = null,
                 placeholder="0.00"
                 value={formData.receivedAmount}
                 onChange={(e) => setFormData({ ...formData, receivedAmount: e.target.value })}
-                className="app-input font-black text-emerald-600 dark:text-emerald-400"
+                className="app-input font-semibold text-emerald-600 dark:text-emerald-400"
               />
             </div>
 
@@ -367,38 +451,38 @@ export default function SaleFormModal({ isOpen, onClose, defaultCustomer = null,
                 className="app-select"
               >
                 <option value="BANK_TRANSFER">BANK TRANSFER / RTGS / NEFT</option>
-                <option value="CASH">CASH (नकद)</option>
-                <option value="CHEQUE">CHEQUE (चेक)</option>
+                <option value="CASH">CASH</option>
+                <option value="CHEQUE">CHEQUE</option>
                 <option value="UPI">UPI / GPay / PhonePe</option>
               </select>
             </div>
           </div>
 
           {/* Summary Box */}
-          <div className="p-4 rounded-2xl bg-gradient-to-r from-slate-900 via-purple-950 to-slate-900 text-white border border-purple-500/30 space-y-2 shadow-xl">
-            <div className="flex items-center justify-between text-xs text-slate-300">
+          <div className="p-4 rounded-2xl bg-slate-900 text-white border border-purple-500/30 space-y-2 shadow-md">
+            <div className="flex items-center justify-between text-xs text-slate-300 font-normal">
               <span>Gross Sale Value ({qty.toFixed(2)} {selectedUnit} × ₹{rate.toFixed(2)}):</span>
-              <span className="font-bold text-white">₹{grossValue.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
+              <span className="font-semibold text-white">₹{grossValue.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
             </div>
 
             {deductions > 0 && (
-              <div className="flex items-center justify-between text-xs text-rose-300">
+              <div className="flex items-center justify-between text-xs text-rose-300 font-normal">
                 <span>- Discounts / Freight Deduction:</span>
-                <span className="font-bold text-rose-400">-₹{deductions.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
+                <span className="font-semibold text-rose-400">-₹{deductions.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
               </div>
             )}
 
             <div className="pt-2 border-t border-slate-800 flex items-center justify-between">
               <div>
-                <div className="text-xs font-bold text-slate-400 uppercase">Total Invoice Amount</div>
-                <div className="text-lg font-black text-purple-400">
+                <div className="text-[11px] font-medium text-slate-400 uppercase">Total Invoice Amount</div>
+                <div className="text-base font-bold text-purple-400">
                   ₹{netAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                 </div>
               </div>
 
               <div className="text-right">
-                <div className="text-xs font-bold text-amber-400 uppercase">Balance Receivable</div>
-                <div className="text-lg font-black text-amber-400">
+                <div className="text-[11px] font-medium text-amber-400 uppercase">Balance Receivable</div>
+                <div className="text-base font-bold text-amber-400">
                   ₹{dueAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                 </div>
               </div>
@@ -422,16 +506,16 @@ export default function SaleFormModal({ isOpen, onClose, defaultCustomer = null,
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 text-xs font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+              className="px-4 py-2 text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-2xl transition"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={submitting}
-              className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-500 hover:to-purple-400 text-white font-extrabold text-xs shadow-lg shadow-purple-950/20 transition flex items-center gap-2 disabled:opacity-50"
+              className="px-5 py-2.5 rounded-2xl bg-gradient-to-r from-purple-600 to-purple-500 hover:from-purple-500 hover:to-purple-400 text-white font-semibold text-xs shadow-md transition flex items-center gap-2 disabled:opacity-50"
             >
-              {submitting ? 'Saving Sale...' : 'Save Grain Sale (बिक्री पर्ची दर्ज करें)'}
+              {submitting ? 'Saving Sale...' : 'Save Grain Sale Invoice'}
             </button>
           </div>
         </form>

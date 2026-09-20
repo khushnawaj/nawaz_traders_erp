@@ -128,21 +128,76 @@ async function main() {
   });
   console.log('✅ Parties seeded (Farmer, Rice Mill, Fuel Vendor)');
 
-  // 7. Seed Admin User
-  const passwordHash = await bcrypt.hash('admin123', 10);
+  // 7. Seed Owner, Admin & Linked Portal Users
+  const passwordHashOwner = await bcrypt.hash('owner123', 10);
+  await prisma.user.upsert({
+    where: { username: 'owner' },
+    update: { role: 'OWNER' },
+    create: {
+      username: 'owner',
+      email: 'owner@nawaztraders.com',
+      passwordHash: passwordHashOwner,
+      fullName: 'Nawaz Traders Owner',
+      role: 'OWNER',
+      status: 'ACTIVE',
+    },
+  });
+  console.log('✅ Owner User seeded (username: owner, password: owner123)');
+
+  const passwordHashAdmin = await bcrypt.hash('admin123', 10);
   await prisma.user.upsert({
     where: { username: 'admin' },
     update: {},
     create: {
       username: 'admin',
       email: 'admin@nawaztraders.com',
-      passwordHash,
-      fullName: 'System Administrator (Nawaz Traders)',
+      passwordHash: passwordHashAdmin,
+      fullName: 'System Administrator',
       role: 'ADMIN',
       status: 'ACTIVE',
     },
   });
   console.log('✅ Admin User seeded (username: admin, password: admin123)');
+
+  // Seed Driver Employee User
+  const driverEmp = await prisma.employee.findUnique({ where: { employeeCode: 'EMP-001' } });
+  if (driverEmp) {
+    const passwordHashDriver = await bcrypt.hash('driver123', 10);
+    await prisma.user.upsert({
+      where: { username: 'driver_santosh' },
+      update: { employeeId: driverEmp.id },
+      create: {
+        username: 'driver_santosh',
+        email: 'santosh@nawaztraders.com',
+        passwordHash: passwordHashDriver,
+        fullName: 'Santosh Kumar (Driver)',
+        role: 'EMPLOYEE',
+        employeeId: driverEmp.id,
+        status: 'ACTIVE',
+      },
+    });
+    console.log('✅ Employee Portal User seeded (username: driver_santosh, password: driver123)');
+  }
+
+  // Seed Farmer Party User
+  const farmerParty = await prisma.party.findUnique({ where: { partyCode: 'PRT-0001' } });
+  if (farmerParty) {
+    const passwordHashFarmer = await bcrypt.hash('farmer123', 10);
+    await prisma.user.upsert({
+      where: { username: 'farmer_ramesh' },
+      update: { partyId: farmerParty.id },
+      create: {
+        username: 'farmer_ramesh',
+        email: 'ramesh.farmer@nawaztraders.com',
+        passwordHash: passwordHashFarmer,
+        fullName: 'Ramesh Patel (Farmer)',
+        role: 'FARMER',
+        partyId: farmerParty.id,
+        status: 'ACTIVE',
+      },
+    });
+    console.log('✅ Farmer Portal User seeded (username: farmer_ramesh, password: farmer123)');
+  }
 
   console.log('🎉 Nawaz Traders seeding completed successfully!');
 }

@@ -28,7 +28,7 @@ export async function POST(request) {
     // Hash password
     const passwordHash = await hashPassword(validatedData.password);
 
-    // Create user
+    // Create user with INACTIVE status (Pending Owner/Admin activation)
     const newUser = await prisma.user.create({
       data: {
         fullName: validatedData.fullName,
@@ -36,43 +36,25 @@ export async function POST(request) {
         email: validatedData.email || null,
         phone: validatedData.phone || null,
         role: validatedData.role || 'OPERATOR',
+        employeeId: validatedData.employeeId || null,
+        partyId: validatedData.partyId || null,
         passwordHash,
-        status: 'ACTIVE',
+        status: 'INACTIVE', // Pending approval by Owner/Admin
       },
     });
 
-    // Create JWT Session token
-    const payload = {
-      userId: newUser.id,
-      username: newUser.username,
-      fullName: newUser.fullName,
-      role: newUser.role,
-    };
-
-    const token = await signSessionToken(payload);
-
-    const response = NextResponse.json({
+    return NextResponse.json({
       success: true,
-      message: 'Account created successfully',
+      pendingApproval: true,
+      message: 'Registration submitted successfully! Your account is pending activation by Owner/Admin.',
       user: {
         id: newUser.id,
         username: newUser.username,
         fullName: newUser.fullName,
         role: newUser.role,
+        status: newUser.status,
       },
     }, { status: 201 });
-
-    response.cookies.set({
-      name: 'auth_token',
-      value: token,
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      path: '/',
-      maxAge: 60 * 60 * 24, // 24 hours
-    });
-
-    return response;
   } catch (error) {
     console.error('Register API error:', error);
     if (error.name === 'ZodError') {
