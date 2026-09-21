@@ -23,11 +23,14 @@ import {
   Plus,
   PieChart,
   Settings,
-  User
+  User,
+  Landmark
 } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import toast from 'react-hot-toast';
 import GlobalSearchModal from './GlobalSearchModal';
+import { useAppDispatch, useAppSelector } from '@/lib/redux/hooks';
+import { fetchCurrentUser, logoutUser } from '@/lib/redux/slices/authSlice';
 
 const CATEGORIZED_NAV = [
   {
@@ -42,6 +45,7 @@ const CATEGORIZED_NAV = [
     items: [
       { href: '/parties', label: 'Parties & Rice Mills', icon: Users },
       { href: '/sales', label: 'Sales & Invoices', icon: TrendingUp },
+      { href: '/investors', label: 'Capital & Investors', icon: Landmark },
       { href: '/reports/profit-loss', label: 'Profit & Loss Statement', icon: PieChart },
     ],
   },
@@ -58,24 +62,19 @@ const CATEGORIZED_NAV = [
 export default function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
+  const dispatch = useAppDispatch();
+  const { user, loading: authLoading } = useAppSelector((state) => state.auth);
+
   const { theme, setTheme, resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchModalOpen, setSearchModalOpen] = useState(false);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const [fabOpen, setFabOpen] = useState(false);
-  const [authLoaded, setAuthLoaded] = useState(false);
-  const [user, setUser] = useState(null);
 
   useEffect(() => {
     setMounted(true);
-    fetch('/api/auth/me')
-      .then((res) => res.json())
-      .then((json) => {
-        if (json.success) setUser(json.user);
-      })
-      .catch(() => {})
-      .finally(() => setAuthLoaded(true));
+    dispatch(fetchCurrentUser());
 
     const handleKeyDown = (e) => {
       if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
@@ -85,11 +84,11 @@ export default function Navbar() {
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
+  }, [dispatch]);
 
   const handleLogout = async () => {
     try {
-      await fetch('/api/auth/logout', { method: 'POST' });
+      await dispatch(logoutUser()).unwrap();
       toast.success('Signed out successfully');
       router.push('/login');
       router.refresh();
@@ -165,7 +164,7 @@ export default function Navbar() {
                 {CATEGORIZED_NAV.map((cat) => {
                   const filteredItems = cat.items.filter((item) => {
                     if (['OWNER', 'CO_OWNER', 'ADMIN'].includes(role)) return true;
-                    if (role === 'ACCOUNTANT') return ['/parties', '/sales', '/reports/profit-loss', '/purchases', '/employees'].includes(item.href);
+                    if (role === 'ACCOUNTANT') return ['/parties', '/sales', '/investors', '/reports/profit-loss', '/purchases', '/employees'].includes(item.href);
                     if (role === 'MANAGER') return ['/godowns', '/vehicles', '/employees', '/purchases', '/farmers'].includes(item.href);
                     if (role === 'OPERATOR') return ['/farmers', '/purchases', '/parties', '/sales'].includes(item.href);
                     return true;
@@ -228,7 +227,7 @@ export default function Navbar() {
             )}
 
             {/* User Profile Badge (Logged In) OR Single Sign In Button (Logged Out) */}
-            {!mounted || !authLoaded ? (
+            {!mounted || authLoading ? (
               <div className="w-24 h-8 rounded-2xl bg-slate-200 dark:bg-slate-800 animate-pulse" />
             ) : user ? (
               /* Logged In: Show ONLY User Profile Badge with dropdown */

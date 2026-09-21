@@ -313,7 +313,7 @@ export default function EmployeeFormModal({ isOpen, onClose, onSuccess, initialD
               <span className="text-xs font-medium text-slate-700 dark:text-slate-300">
                 Passbook / Chequebook Upload
               </span>
-              <label className="cursor-pointer px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-semibold transition flex items-center gap-1.5 shadow-sm">
+              <label className="cursor-pointer px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-2xl text-xs font-semibold transition flex items-center gap-1.5 shadow-sm active:scale-95">
                 <Upload className="w-3.5 h-3.5" />
                 {uploadingField === 'bankDocUrl' ? 'Uploading...' : formData.bankDocUrl ? 'Uploaded ✓' : 'Upload Passbook'}
                 <input
@@ -349,7 +349,7 @@ export default function EmployeeFormModal({ isOpen, onClose, onSuccess, initialD
                   onChange={(e) => setFormData({ ...formData, aadhaarNo: e.target.value })}
                   className="app-input font-mono"
                 />
-                <label className="cursor-pointer w-full py-1.5 bg-amber-600 hover:bg-amber-500 text-slate-950 rounded-xl text-[11px] font-semibold transition flex items-center justify-center gap-1">
+                <label className="cursor-pointer w-full py-1.5 bg-amber-600 hover:bg-amber-500 text-slate-950 rounded-2xl text-[11px] font-semibold transition flex items-center justify-center gap-1 active:scale-95">
                   <Upload className="w-3 h-3" />
                   {uploadingField === 'aadhaarDocUrl' ? 'Uploading...' : formData.aadhaarDocUrl ? 'Aadhaar Uploaded ✓' : 'Upload Aadhaar'}
                   <input
@@ -371,7 +371,7 @@ export default function EmployeeFormModal({ isOpen, onClose, onSuccess, initialD
                   onChange={(e) => setFormData({ ...formData, panNo: e.target.value })}
                   className="app-input uppercase font-mono"
                 />
-                <label className="cursor-pointer w-full py-1.5 bg-amber-600 hover:bg-amber-500 text-slate-950 rounded-xl text-[11px] font-semibold transition flex items-center justify-center gap-1">
+                <label className="cursor-pointer w-full py-1.5 bg-amber-600 hover:bg-amber-500 text-slate-950 rounded-2xl text-[11px] font-semibold transition flex items-center justify-center gap-1 active:scale-95">
                   <Upload className="w-3 h-3" />
                   {uploadingField === 'panDocUrl' ? 'Uploading...' : formData.panDocUrl ? 'PAN Uploaded ✓' : 'Upload PAN'}
                   <input
@@ -393,7 +393,7 @@ export default function EmployeeFormModal({ isOpen, onClose, onSuccess, initialD
                   onChange={(e) => setFormData({ ...formData, drivingLicenseNo: e.target.value })}
                   className="app-input uppercase font-mono"
                 />
-                <label className="cursor-pointer w-full py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-[11px] font-semibold transition flex items-center justify-center gap-1">
+                <label className="cursor-pointer w-full py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-2xl text-[11px] font-semibold transition flex items-center justify-center gap-1 active:scale-95">
                   <Upload className="w-3 h-3" />
                   {uploadingField === 'drivingLicenseDocUrl' ? 'Uploading...' : formData.drivingLicenseDocUrl ? 'DL Uploaded ✓' : 'Upload DL Scan'}
                   <input

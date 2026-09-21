@@ -469,7 +469,7 @@ export default function FarmerProfilePage() {
           </div>
           {!farmer.purchases || farmer.purchases.length === 0 ? (
             <div className="p-8 text-center text-slate-500 dark:text-slate-400 text-xs font-normal">
-              No grain purchases recorded for this farmer yet. Click "+ Record New Purchase" to buy crop.
+              No grain purchases recorded for this farmer yet. Click &quot;+ Record New Purchase&quot; to buy crop.
             </div>
           ) : (
             <div className="overflow-x-auto">

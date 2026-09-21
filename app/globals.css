@@ -156,7 +156,7 @@
   }
 
   .app-input {
-    @apply w-full px-4 py-2.5 bg-slate-50/90 dark:bg-slate-950/90 backdrop-blur-md border border-slate-200 dark:border-slate-800 rounded-xl text-xs sm:text-sm font-medium text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 outline-none transition-all hover:border-slate-400 dark:hover:border-slate-700 shadow-sm font-outfit;
+    @apply w-full px-4 py-2.5 bg-slate-50/90 dark:bg-slate-950/90 backdrop-blur-md border border-slate-200 dark:border-slate-800 rounded-2xl text-xs sm:text-sm font-medium text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 outline-none transition-all hover:border-slate-400 dark:hover:border-slate-700 shadow-sm font-outfit;
   }
 
   .app-input-with-icon {
@@ -164,32 +164,99 @@
   }
 
   .app-select {
-    @apply w-full px-4 py-2.5 bg-slate-50/90 dark:bg-slate-950/90 backdrop-blur-md border border-slate-200 dark:border-slate-800 rounded-xl text-xs sm:text-sm font-medium text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 outline-none transition-all cursor-pointer hover:border-slate-400 dark:hover:border-slate-700 shadow-sm font-outfit;
+    @apply w-full px-4 py-2.5 bg-slate-50/90 dark:bg-slate-950/90 backdrop-blur-md border border-slate-200 dark:border-slate-800 rounded-2xl text-xs sm:text-sm font-medium text-slate-900 dark:text-white focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 outline-none transition-all cursor-pointer hover:border-slate-400 dark:hover:border-slate-700 shadow-sm font-outfit;
   }
 
   .app-textarea {
-    @apply w-full px-4 py-2.5 bg-slate-50/90 dark:bg-slate-950/90 backdrop-blur-md border border-slate-200 dark:border-slate-800 rounded-xl text-xs sm:text-sm font-medium text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 outline-none transition-all hover:border-slate-400 dark:hover:border-slate-700 shadow-sm font-outfit;
+    @apply w-full px-4 py-2.5 bg-slate-50/90 dark:bg-slate-950/90 backdrop-blur-md border border-slate-200 dark:border-slate-800 rounded-2xl text-xs sm:text-sm font-medium text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 outline-none transition-all hover:border-slate-400 dark:hover:border-slate-700 shadow-sm font-outfit;
   }
 
-  /* Button Styles directly structured like reference image */
+  /* Standardized Button System */
   .bahi-btn-primary {
-    @apply inline-flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-600 via-emerald-500 to-amber-500 hover:from-emerald-500 hover:to-amber-400 text-white font-extrabold px-5 py-2.5 rounded-xl text-xs sm:text-sm shadow-md shadow-emerald-950/20 transition-all duration-200 transform hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] font-outfit tracking-wide;
+    @apply inline-flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-600 via-emerald-500 to-amber-500 hover:from-emerald-500 hover:to-amber-400 text-white font-extrabold px-5 py-2.5 rounded-2xl text-xs sm:text-sm shadow-md shadow-emerald-950/20 transition-all duration-200 transform hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] font-outfit tracking-wide cursor-pointer;
   }
 
   .bahi-btn-secondary {
-    @apply inline-flex items-center justify-center gap-2 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-800 dark:text-slate-100 font-bold px-4 py-2.5 rounded-xl text-xs sm:text-sm border border-slate-200 dark:border-slate-700/80 transition-all duration-200 shadow-sm font-outfit hover:border-slate-300 dark:hover:border-slate-600 active:scale-[0.98];
+    @apply inline-flex items-center justify-center gap-2 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-800 dark:text-slate-100 font-bold px-4 py-2.5 rounded-2xl text-xs sm:text-sm border border-slate-200 dark:border-slate-700/80 transition-all duration-200 shadow-sm font-outfit hover:border-slate-300 dark:hover:border-slate-600 active:scale-[0.98] cursor-pointer;
+  }
+
+  .bahi-btn-emerald {
+    @apply inline-flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold px-5 py-2.5 rounded-2xl text-xs sm:text-sm shadow-md transition-all duration-200 transform hover:-translate-y-0.5 active:translate-y-0 font-outfit tracking-wide active:scale-[0.98] cursor-pointer;
+  }
+
+  .bahi-btn-purple {
+    @apply inline-flex items-center justify-center gap-2 bg-purple-600 hover:bg-purple-500 text-white font-extrabold px-5 py-2.5 rounded-2xl text-xs sm:text-sm shadow-md transition-all duration-200 transform hover:-translate-y-0.5 active:translate-y-0 font-outfit tracking-wide active:scale-[0.98] cursor-pointer;
+  }
+
+  .bahi-btn-rose {
+    @apply inline-flex items-center justify-center gap-2 bg-rose-600 hover:bg-rose-500 text-white font-extrabold px-5 py-2.5 rounded-2xl text-xs sm:text-sm shadow-md transition-all duration-200 transform hover:-translate-y-0.5 active:translate-y-0 font-outfit tracking-wide active:scale-[0.98] cursor-pointer;
   }
 
   .bahi-btn-white {
-    @apply inline-flex items-center justify-center gap-2 bg-white hover:bg-emerald-50 text-emerald-800 dark:text-emerald-700 font-extrabold px-5 py-2.5 rounded-xl text-xs sm:text-sm shadow-md transition-all duration-200 transform hover:-translate-y-0.5 active:translate-y-0 font-outfit tracking-wide active:scale-[0.98];
+    @apply inline-flex items-center justify-center gap-2 bg-white hover:bg-emerald-50 text-emerald-800 dark:text-emerald-700 font-extrabold px-5 py-2.5 rounded-2xl text-xs sm:text-sm shadow-md transition-all duration-200 transform hover:-translate-y-0.5 active:translate-y-0 font-outfit tracking-wide active:scale-[0.98] cursor-pointer;
   }
 
   .bahi-btn-glass {
-    @apply inline-flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 text-white font-semibold border border-white/25 hover:border-white/40 px-5 py-2.5 rounded-xl text-xs sm:text-sm transition-all duration-200 backdrop-blur-md font-outfit tracking-wide active:scale-[0.98];
+    @apply inline-flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 text-white font-semibold border border-white/25 hover:border-white/40 px-5 py-2.5 rounded-2xl text-xs sm:text-sm transition-all duration-200 backdrop-blur-md font-outfit tracking-wide active:scale-[0.98] cursor-pointer;
   }
 
   .bahi-badge {
-    @apply inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-extrabold uppercase tracking-wider bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 border border-emerald-200/60 dark:border-emerald-800/50 font-outfit;
+    @apply inline-flex items-center gap-1.5 px-3 py-1 rounded-2xl text-[11px] font-extrabold uppercase tracking-wider bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 border border-emerald-200/60 dark:border-emerald-800/50 font-outfit;
+  }
+}
+
+/* ==========================================================================
+   Print & PDF Export Optimization
+   ========================================================================== */
+@media print {
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Hide background elements during print */
+  nav, header, sidebar, .print\:hidden, [role="banner"], [role="navigation"] {
+    display: none !important;
+  }
+
+  /* Expand print container to full printable width */
+  .printable-modal-overlay {
+    position: absolute !important;
+    inset: 0 !important;
+    background: #ffffff !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    overflow: visible !important;
+    z-index: 9999 !important;
+    display: block !important;
+  }
+
+  .printable-modal-card {
+    box-shadow: none !important;
+    border: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    border-radius: 0 !important;
+    background: #ffffff !important;
+  }
+
+  .printable-content-area {
+    padding: 1.5rem !important;
+    overflow: visible !important;
+    width: 100% !important;
+    color: #0f172a !important;
+    background: #ffffff !important;
+  }
+
+  @page {
+    size: A4 portrait;
+    margin: 12mm 10mm;
   }
 }
 

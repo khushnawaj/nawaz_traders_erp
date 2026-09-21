@@ -31,6 +31,7 @@ export default function FarmerPurchaseModal({ isOpen, onClose, defaultFarmer = n
     quantity: '',
     rate: '',
     labourCharges: '0',
+    labourPaidBy: 'FARMER', // 'FARMER' (deduct from farmer) or 'BUYER' (borne by buyer)
     gstAmount: '0',
     otherExpenses: '0',
     totalDeductions: '0',
@@ -161,12 +162,18 @@ export default function FarmerPurchaseModal({ isOpen, onClose, defaultFarmer = n
   const grossCropValue = qty * rate;
 
   const labour = parseFloat(formData.labourCharges) || 0;
+  const isLabourDeductedFromFarmer = formData.labourPaidBy === 'FARMER';
+  const labourDeduction = isLabourDeductedFromFarmer ? labour : 0;
+  const labourAddition = !isLabourDeductedFromFarmer ? labour : 0;
+
   const gst = parseFloat(formData.gstAmount) || 0;
   const other = parseFloat(formData.otherExpenses) || 0;
-  const totalCharges = labour + gst + other;
-
   const deductions = parseFloat(formData.totalDeductions) || 0;
-  const netAmount = grossCropValue + totalCharges - deductions;
+
+  const totalDeductions = deductions + labourDeduction;
+  const totalAdditions = gst + other + labourAddition;
+
+  const netAmount = grossCropValue + totalAdditions - totalDeductions;
 
   const advance = parseFloat(formData.advancePaid) || 0;
   const dueAmount = netAmount - advance;
@@ -461,7 +468,7 @@ export default function FarmerPurchaseModal({ isOpen, onClose, defaultFarmer = n
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
               {palledariMode === 'PER_BAG' && (
                 <div>
                   <label className="app-label">No. of Bags</label>
@@ -482,11 +489,23 @@ export default function FarmerPurchaseModal({ isOpen, onClose, defaultFarmer = n
                 <input
                   type="number"
                   step="0.01"
-                  placeholder="e.g. 12"
+                  placeholder="e.g. 20"
                   value={palledariRate}
                   onChange={(e) => setPalledariRate(e.target.value)}
                   className="app-input"
                 />
+              </div>
+
+              <div>
+                <label className="app-label">Palledari Borne By</label>
+                <select
+                  value={formData.labourPaidBy}
+                  onChange={(e) => setFormData({ ...formData, labourPaidBy: e.target.value })}
+                  className="app-select text-xs font-semibold font-outfit"
+                >
+                  <option value="FARMER">Deduct from Farmer Payable (Mandi Standard)</option>
+                  <option value="BUYER">Borne by Trader / Buyer</option>
+                </select>
               </div>
 
               <div>
@@ -532,7 +551,7 @@ export default function FarmerPurchaseModal({ isOpen, onClose, defaultFarmer = n
 
             <div>
               <label className="app-label text-rose-600 dark:text-rose-400">
-                Deductions (₹)
+                Other Deductions (Moisture/Bags) (₹)
               </label>
               <input
                 type="number"
@@ -589,37 +608,44 @@ export default function FarmerPurchaseModal({ isOpen, onClose, defaultFarmer = n
           </div>
 
           {/* Live Summary Calculation Box */}
-          <div className="p-4 rounded-2xl bg-slate-900 text-white border border-emerald-500/30 space-y-2 shadow-md">
+          <div className="p-4 rounded-2xl bg-slate-900 text-white border border-emerald-500/30 space-y-2 shadow-md font-outfit">
             <div className="flex items-center justify-between text-xs text-slate-300 font-normal">
-              <span>Gross Value ({qty.toFixed(2)} {selectedUnit} × ₹{rate.toFixed(2)}):</span>
+              <span>Gross Crop Value ({qty.toFixed(2)} {selectedUnit} × ₹{rate.toFixed(2)}):</span>
               <span className="font-semibold text-white">₹{grossCropValue.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
             </div>
 
-            {totalCharges > 0 && (
-              <div className="flex items-center justify-between text-xs text-slate-300 font-normal">
-                <span>+ Charges (Palledari + GST + Freight):</span>
-                <span className="font-semibold text-emerald-400">+₹{totalCharges.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
+            {isLabourDeductedFromFarmer && labour > 0 && (
+              <div className="flex items-center justify-between text-xs text-rose-300 font-normal">
+                <span>- Palledari / Labour Deduction (₹{palledariRate || 0}/{palledariMode === 'PER_BAG' ? 'bag' : 'qtl'}):</span>
+                <span className="font-semibold text-rose-400">-₹{labour.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
               </div>
             )}
 
             {deductions > 0 && (
               <div className="flex items-center justify-between text-xs text-rose-300 font-normal">
-                <span>- Deductions (Moisture/Bags):</span>
+                <span>- Other Deductions (Moisture/Bag):</span>
                 <span className="font-semibold text-rose-400">-₹{deductions.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
+              </div>
+            )}
+
+            {totalAdditions > 0 && (
+              <div className="flex items-center justify-between text-xs text-slate-300 font-normal">
+                <span>+ Taxes / Additions:</span>
+                <span className="font-semibold text-emerald-400">+₹{totalAdditions.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
               </div>
             )}
 
             <div className="pt-2 border-t border-slate-800 flex items-center justify-between">
               <div>
-                <div className="text-[11px] font-medium text-slate-400 uppercase">Total Bill Amount</div>
-                <div className="text-base font-bold text-emerald-400">
+                <div className="text-[11px] font-medium text-slate-400 uppercase">Net Payable to Farmer</div>
+                <div className="text-base font-extrabold text-emerald-400 font-mono">
                   ₹{netAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                 </div>
               </div>
 
               <div className="text-right">
-                <div className="text-[11px] font-medium text-amber-400 uppercase">Net Payable Remaining</div>
-                <div className="text-base font-bold text-amber-400">
+                <div className="text-[11px] font-medium text-amber-400 uppercase">Remaining Due Amount</div>
+                <div className="text-base font-extrabold text-amber-400 font-mono">
                   ₹{dueAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                 </div>
               </div>

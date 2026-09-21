@@ -18,20 +18,10 @@ import {
   Calendar
 } from 'lucide-react';
 
+import { useAppSelector } from '@/lib/redux/hooks';
+
 export default function Footer() {
-  const [user, setUser] = useState(null);
-
-  useEffect(() => {
-    fetch('/api/auth/me')
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.success && data.user) {
-          setUser(data.user);
-        }
-      })
-      .catch(() => {});
-  }, []);
-
+  const user = useAppSelector((state) => state.auth.user);
   const role = user?.role;
 
   return (

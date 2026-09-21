@@ -186,7 +186,7 @@ export default function GodownsPage() {
           <div className="py-16 text-center text-slate-500 space-y-3">
             <Warehouse className="w-12 h-12 text-emerald-500/30 mx-auto" />
             <p className="text-base font-extrabold text-slate-900 dark:text-white">No Godowns found</p>
-            <p className="text-xs">Click "+ Add Godown" to create your first warehouse.</p>
+            <p className="text-xs">Click &quot;+ Add Godown&quot; to create your first warehouse.</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">

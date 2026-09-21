@@ -72,6 +72,7 @@ export default function AdvanceManagementTab() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           requestId: selectedRequest.id,
+          action: actionType, // 'APPROVE' or 'REJECT'
           status: actionType === 'APPROVE' ? 'APPROVED' : 'REJECTED',
           disbursedMode: actionType === 'APPROVE' ? disbursedMode : undefined,
           accountName: actionType === 'APPROVE' ? accountName : undefined,
@@ -158,7 +159,7 @@ export default function AdvanceManagementTab() {
               <button
                 key={st}
                 onClick={() => setFilterStatus(st)}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold transition ${
+                className={`px-3.5 py-1.5 rounded-2xl text-xs font-bold transition cursor-pointer active:scale-95 ${
                   filterStatus === st
                     ? 'bg-emerald-600 text-white shadow-sm'
                     : 'bg-slate-200/70 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-300 dark:hover:bg-slate-700'
@@ -213,7 +214,7 @@ export default function AdvanceManagementTab() {
                       {req.notes && <div className="text-[11px] text-slate-500 italic mt-0.5">{req.notes}</div>}
                     </td>
                     <td className="p-3.5 text-center">
-                      <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase border ${
+                      <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-2xl text-[10px] font-extrabold uppercase border ${
                         req.status === 'APPROVED' ? 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20' :
                         req.status === 'PENDING' ? 'bg-amber-500/10 text-amber-600 border-amber-500/20' :
                         'bg-rose-500/10 text-rose-600 border-rose-500/20'
@@ -227,13 +228,13 @@ export default function AdvanceManagementTab() {
                         <div className="flex items-center justify-end gap-2">
                           <button
                             onClick={() => handleOpenAction(req, 'APPROVE')}
-                            className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-3 py-1.5 rounded-xl text-xs flex items-center gap-1 shadow-sm transition"
+                            className="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-3.5 py-1.5 rounded-2xl text-xs flex items-center gap-1 shadow-sm transition cursor-pointer active:scale-95"
                           >
                             <Check className="w-3.5 h-3.5" /> Disburse
                           </button>
                           <button
                             onClick={() => handleOpenAction(req, 'REJECT')}
-                            className="bg-rose-600 hover:bg-rose-500 text-white font-bold px-3 py-1.5 rounded-xl text-xs flex items-center gap-1 shadow-sm transition"
+                            className="bg-rose-600 hover:bg-rose-500 text-white font-bold px-3.5 py-1.5 rounded-2xl text-xs flex items-center gap-1 shadow-sm transition cursor-pointer active:scale-95"
                           >
                             <X className="w-3.5 h-3.5" /> Reject
                           </button>
@@ -254,122 +255,136 @@ export default function AdvanceManagementTab() {
 
       {/* Disbursal & Action Modal */}
       {actionModalOpen && selectedRequest && (
-        <div className="fixed inset-0 bg-slate-950/70 backdrop-blur-md z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
-          <div className="bahi-card-emerald max-w-md w-full p-6 border border-slate-200/60 dark:border-slate-800/60 shadow-2xl relative space-y-5">
-            <div className="flex items-center justify-between border-b border-slate-200/60 dark:border-slate-800/60 pb-3">
-              <div>
-                <h3 className="font-bold text-base text-slate-900 dark:text-white font-outfit">
-                  {actionType === 'APPROVE' ? 'Approve & Disburse Salary Advance' : 'Reject Advance Request'}
-                </h3>
-                <p className="text-[11px] text-slate-500">Req: {selectedRequest.requestNo} • {selectedRequest.employee?.fullName}</p>
+        <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
+          <div className="glass-modal rounded-3xl max-w-lg w-full shadow-2xl overflow-hidden my-8 border border-slate-200/80 dark:border-slate-800 animate-in fade-in zoom-in duration-200 text-slate-900 dark:text-white flex flex-col">
+            {/* Modal Header */}
+            <div className="bg-gradient-to-r from-emerald-800 via-emerald-900 to-slate-900 text-white p-4 sm:p-5 flex items-center justify-between border-b border-emerald-700/40">
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 rounded-2xl bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                  <DollarSign className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-base sm:text-lg font-outfit text-white">
+                    {actionType === 'APPROVE' ? 'Approve & Disburse Salary Advance' : 'Reject Advance Request'}
+                  </h3>
+                  <p className="text-xs text-emerald-200/80 font-normal">Req: {selectedRequest.requestNo} • {selectedRequest.employee?.fullName}</p>
+                </div>
               </div>
               <button
                 onClick={() => setActionModalOpen(false)}
-                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 text-sm"
+                className="p-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white transition hover:scale-105"
               >
-                ✕
+                <X className="w-5 h-5" />
               </button>
             </div>
 
-            <div className="p-3 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-xs space-y-1">
-              <div className="flex justify-between font-extrabold text-slate-900 dark:text-white font-outfit">
-                <span>Requested Amount:</span>
-                <span className="text-emerald-600 dark:text-emerald-400 font-bahi text-sm">{formatCurrency(selectedRequest.amount)}</span>
+            {/* Request Summary Card */}
+            <div className="p-5 sm:p-6 space-y-4">
+              <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-xs space-y-1.5">
+                <div className="flex justify-between items-center font-bold text-slate-900 dark:text-white font-outfit">
+                  <span className="text-slate-500 font-normal">Requested Amount:</span>
+                  <span className="text-emerald-600 dark:text-emerald-400 font-bold text-base">{formatCurrency(selectedRequest.amount)}</span>
+                </div>
+                <div className="text-xs text-slate-600 dark:text-slate-300 pt-1 border-t border-amber-500/15">
+                  <strong className="text-slate-900 dark:text-white">Reason:</strong> {selectedRequest.reason}
+                </div>
+                {selectedRequest.notes && (
+                  <div className="text-[11px] text-slate-500 italic">
+                    &ldquo;{selectedRequest.notes}&rdquo;
+                  </div>
+                )}
               </div>
-              <div className="text-[11px] text-slate-600 dark:text-slate-400">
-                <strong>Reason:</strong> {selectedRequest.reason}
-              </div>
-            </div>
 
-            <form onSubmit={handleProcessAdvance} className="space-y-4">
-              {actionType === 'APPROVE' && (
-                <>
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                      Payment Payout Mode
-                    </label>
-                    <div className="grid grid-cols-2 gap-2">
-                      <button
-                        type="button"
-                        onClick={() => { setDisbursedMode('CASH'); setAccountName('Petty Cash Drawer'); }}
-                        className={`py-2 px-3 rounded-xl border text-xs font-bold flex items-center justify-center gap-2 transition ${
-                          disbursedMode === 'CASH'
-                            ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm'
-                            : 'bg-slate-100 dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300'
-                        }`}
-                      >
-                        <DollarSign className="w-4 h-4" /> Cash Disbursal
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => { setDisbursedMode('BANK'); setAccountName('HDFC Main Operational Account'); }}
-                        className={`py-2 px-3 rounded-xl border text-xs font-bold flex items-center justify-center gap-2 transition ${
-                          disbursedMode === 'BANK'
-                            ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm'
-                            : 'bg-slate-100 dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300'
-                        }`}
-                      >
-                        <Building2 className="w-4 h-4" /> Bank Online / UPI
-                      </button>
+              <form onSubmit={handleProcessAdvance} className="space-y-4">
+                {actionType === 'APPROVE' && (
+                  <>
+                    <div>
+                      <label className="app-label">
+                        Payment Payout Mode
+                      </label>
+                      <div className="grid grid-cols-2 gap-2.5">
+                        <button
+                          type="button"
+                          onClick={() => { setDisbursedMode('CASH'); setAccountName('Petty Cash Drawer'); }}
+                          className={`py-2.5 px-3 rounded-xl border text-xs font-bold flex items-center justify-center gap-2 transition ${
+                            disbursedMode === 'CASH'
+                              ? 'bg-emerald-600 text-white border-emerald-600 shadow-md'
+                              : 'bg-slate-100 dark:bg-slate-800/80 border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
+                          }`}
+                        >
+                          <DollarSign className="w-4 h-4 text-amber-300" /> Cash Disbursal
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => { setDisbursedMode('BANK'); setAccountName('HDFC Main Operational Account'); }}
+                          className={`py-2.5 px-3 rounded-xl border text-xs font-bold flex items-center justify-center gap-2 transition ${
+                            disbursedMode === 'BANK'
+                              ? 'bg-emerald-600 text-white border-emerald-600 shadow-md'
+                              : 'bg-slate-100 dark:bg-slate-800/80 border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
+                          }`}
+                        >
+                          <Building2 className="w-4 h-4 text-emerald-300" /> Bank Online / UPI
+                        </button>
+                      </div>
                     </div>
-                  </div>
 
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                      Account / Payment Source Name
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      value={accountName}
-                      onChange={(e) => setAccountName(e.target.value)}
-                      placeholder="e.g. Petty Cash / HDFC Bank"
-                      className="bahi-input text-xs"
-                    />
-                  </div>
-                </>
-              )}
+                    <div>
+                      <label className="app-label">
+                        Account / Payment Source Name
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={accountName}
+                        onChange={(e) => setAccountName(e.target.value)}
+                        placeholder="e.g. Petty Cash / HDFC Bank"
+                        className="app-input text-xs font-semibold"
+                      />
+                    </div>
+                  </>
+                )}
 
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
-                  Manager Remarks / Notes
-                </label>
-                <textarea
-                  rows="2"
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
-                  placeholder="Optional approval notes..."
-                  className="bahi-input text-xs"
-                ></textarea>
-              </div>
+                <div>
+                  <label className="app-label">
+                    Manager Remarks / Notes
+                  </label>
+                  <textarea
+                    rows="2"
+                    value={notes}
+                    onChange={(e) => setNotes(e.target.value)}
+                    placeholder="Optional approval notes..."
+                    className="app-input text-xs"
+                  ></textarea>
+                </div>
 
-              <div className="flex items-center justify-end gap-3 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setActionModalOpen(false)}
-                  className="px-4 py-2 text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={submitting}
-                  className={`py-2 px-5 text-xs font-bold text-white rounded-xl shadow-md transition flex items-center gap-1.5 ${
-                    actionType === 'APPROVE'
-                      ? 'bg-emerald-600 hover:bg-emerald-500'
-                      : 'bg-rose-600 hover:bg-rose-500'
-                  }`}
-                >
-                  {submitting ? (
-                    <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                  ) : actionType === 'APPROVE' ? (
-                    'Confirm Approval & Post to Khaata'
-                  ) : (
-                    'Confirm Rejection'
-                  )}
-                </button>
-              </div>
-            </form>
+                <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-200/60 dark:border-slate-800">
+                  <button
+                    type="button"
+                    onClick={() => setActionModalOpen(false)}
+                    className="px-4 py-2.5 text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={submitting}
+                    className={`py-2.5 px-6 text-xs font-bold text-white rounded-xl shadow-lg transition flex items-center gap-2 font-outfit disabled:opacity-50 ${
+                      actionType === 'APPROVE'
+                        ? 'bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400'
+                        : 'bg-gradient-to-r from-rose-600 to-rose-500 hover:from-rose-500 hover:to-rose-400'
+                    }`}
+                  >
+                    {submitting ? (
+                      <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                    ) : actionType === 'APPROVE' ? (
+                      'Confirm Approval & Post to Khaata'
+                    ) : (
+                      'Confirm Rejection'
+                    )}
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
         </div>
       )}

@@ -47,7 +47,8 @@ export async function createPurchase(data) {
   const grossAmount = displayQty.times(ratePerUnit);
 
   const labourCharges = new Decimal(data.labourCharges || 0);
-  
+  const labourPaidBy = data.labourPaidBy || 'FARMER'; // FARMER (deduct from farmer) or BUYER (borne by buyer)
+
   // Mandi Tax / GST calculation (default 1.5% Mandi Tax if mandiTaxPercent provided, else use gstAmount directly)
   let gstAmount = new Decimal(data.gstAmount || 0);
   if (data.mandiTaxPercent && parseFloat(data.mandiTaxPercent) > 0) {
@@ -56,10 +57,16 @@ export async function createPurchase(data) {
   }
 
   const otherExpenses = new Decimal(data.otherExpenses || 0);
-  const totalDeductions = new Decimal(data.totalDeductions || 0);
+  const baseDeductions = new Decimal(data.totalDeductions || 0);
 
-  // Net Amount = Gross Crop Value + Labour + Mandi Tax/GST + Other Expenses - Deductions
-  const totalCharges = labourCharges.plus(gstAmount).plus(otherExpenses);
+  // Palledari/Labour charged to farmer is deducted from Gross Crop Value to get Net Farmer Payable
+  const labourDeduction = labourPaidBy === 'FARMER' ? labourCharges : new Decimal(0);
+  const labourAddition = labourPaidBy === 'BUYER' ? labourCharges : new Decimal(0);
+
+  const totalDeductions = baseDeductions.plus(labourDeduction);
+  const totalCharges = gstAmount.plus(otherExpenses).plus(labourAddition);
+
+  // Net Amount Payable to Farmer = Gross Crop Value + Additions - Deductions (including Palledari)
   const netAmount = grossAmount.plus(totalCharges).minus(totalDeductions);
 
   const advancePaid = new Decimal(data.advancePaid || 0);

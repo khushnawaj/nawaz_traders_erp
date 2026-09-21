@@ -265,20 +265,22 @@ export default function AttendanceCalendar({ employeeId, employeeName, onAttenda
 
         {/* Compact Controls */}
         <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
-          <div className="flex items-center bg-slate-100 dark:bg-slate-900 p-0.5 rounded-xl border border-slate-200/60 dark:border-slate-800/60 text-xs">
+          <div className="flex items-center bg-slate-100 dark:bg-slate-900 p-1 rounded-2xl border border-slate-200/60 dark:border-slate-800/60 text-xs">
             <button
+              type="button"
               onClick={handlePrevMonth}
-              className="p-1 hover:bg-white dark:hover:bg-slate-800 rounded-lg transition text-slate-700 dark:text-slate-300"
+              className="p-1.5 hover:bg-white dark:hover:bg-slate-800 rounded-xl transition text-slate-700 dark:text-slate-300 cursor-pointer active:scale-95"
               title="Previous Month"
             >
               <ChevronLeft className="w-3.5 h-3.5" />
             </button>
-            <span className="px-2.5 font-bold font-mono text-slate-900 dark:text-white min-w-[110px] text-center text-xs">
+            <span className="px-3 font-bold font-mono text-slate-900 dark:text-white min-w-[110px] text-center text-xs">
               {MONTH_NAMES[month - 1].substring(0, 3)} {year}
             </span>
             <button
+              type="button"
               onClick={handleNextMonth}
-              className="p-1 hover:bg-white dark:hover:bg-slate-800 rounded-xl transition text-slate-700 dark:text-slate-300"
+              className="p-1.5 hover:bg-white dark:hover:bg-slate-800 rounded-xl transition text-slate-700 dark:text-slate-300 cursor-pointer active:scale-95"
               title="Next Month"
             >
               <ChevronRight className="w-3.5 h-3.5" />
@@ -286,27 +288,30 @@ export default function AttendanceCalendar({ employeeId, employeeName, onAttenda
           </div>
 
           <button
+            type="button"
             onClick={handleGoToday}
-            className="px-2 py-1 text-[11px] font-semibold text-purple-600 dark:text-purple-400 bg-purple-500/10 hover:bg-purple-500/20 rounded-lg transition"
+            className="px-3 py-1.5 text-[11px] font-bold text-purple-600 dark:text-purple-400 bg-purple-500/10 hover:bg-purple-500/20 rounded-2xl transition cursor-pointer active:scale-95"
           >
             Today
           </button>
 
-          <div className="flex items-center gap-1 pl-1 border-l border-slate-200/60 dark:border-slate-800/60">
+          <div className="flex items-center gap-1.5 pl-1 border-l border-slate-200/60 dark:border-slate-800/60">
             <button
+              type="button"
               onClick={handleBulkMarkPresent}
               disabled={bulkLoading}
               title="Mark all weekdays as Present"
-              className="p-1.5 text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg shadow-sm transition flex items-center gap-1 disabled:opacity-50"
+              className="p-2 text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white rounded-2xl shadow-sm transition flex items-center gap-1 disabled:opacity-50 cursor-pointer active:scale-95"
             >
               <CheckCheck className="w-3.5 h-3.5" />
               <span className="hidden md:inline">Fill Mon-Sat</span>
             </button>
             <button
+              type="button"
               onClick={handleBulkClearMonth}
               disabled={bulkLoading}
               title="Clear active month"
-              className="p-1.5 text-xs bg-slate-100 dark:bg-slate-800 hover:text-rose-600 rounded-lg transition text-slate-500 disabled:opacity-50"
+              className="p-2 text-xs bg-slate-100 dark:bg-slate-800 hover:text-rose-600 rounded-2xl transition text-slate-500 disabled:opacity-50 cursor-pointer active:scale-95"
             >
               <RotateCcw className="w-3.5 h-3.5" />
             </button>
@@ -413,6 +418,7 @@ export default function AttendanceCalendar({ employeeId, employeeName, onAttenda
 
               return (
                 <button
+                  type="button"
                   key={dateStr}
                   onClick={() => handleDayClick(dateStr, dayNum, isSunday)}
                   disabled={isSaving}

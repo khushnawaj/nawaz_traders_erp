@@ -25,10 +25,15 @@ import {
 } from 'lucide-react';
 import DashboardSlider from '@/components/dashboard/DashboardSlider';
 import GrainCommodityShowcase from '@/components/dashboard/GrainCommodityShowcase';
+import LandingHero from '@/components/landing/LandingHero';
+import LandingFeatures from '@/components/landing/LandingFeatures';
+import LandingMetrics from '@/components/landing/LandingMetrics';
+import LandingCTA from '@/components/landing/LandingCTA';
 import { formatCurrency } from '@/lib/utils';
+import { useAppSelector } from '@/lib/redux/hooks';
 
 export default function HomePage() {
-  const [user, setUser] = useState(null);
+  const { user, loading: authLoading } = useAppSelector((state) => state.auth);
   const [stats, setStats] = useState({
     purchasesTodayAmount: 0,
     purchasesTodayQuintal: 0,
@@ -46,19 +51,13 @@ export default function HomePage() {
   const [loadingStats, setLoadingStats] = useState(true);
 
   useEffect(() => {
-    fetch('/api/auth/me')
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.success && data.user) {
-          setUser(data.user);
-          if (data.user.role === 'FARMER') {
-            window.location.href = '/portal/farmer';
-          } else if (['EMPLOYEE', 'DRIVER'].includes(data.user.role)) {
-            window.location.href = '/portal/employee';
-          }
-        }
-      })
-      .catch(() => {});
+    if (user) {
+      if (user.role === 'FARMER') {
+        window.location.href = '/portal/farmer';
+      } else if (['EMPLOYEE', 'DRIVER'].includes(user.role)) {
+        window.location.href = '/portal/employee';
+      }
+    }
 
     fetch('/api/dashboard/stats')
       .then((res) => res.json())
@@ -69,13 +68,23 @@ export default function HomePage() {
       })
       .catch(() => {})
       .finally(() => setLoadingStats(false));
-  }, []);
+  }, [user]);
 
   const role = user?.role || 'OPERATOR';
 
   return (
-    <main className="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 animate-in fade-in duration-300">
-      {/* Welcome Banner */}
+    <main className="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-12 animate-in fade-in duration-200">
+      {/* PUBLIC LANDING PAGE EXPERIENCE FOR GUESTS / UNAUTHENTICATED VISITORS */}
+      {!user && (
+        <div className="space-y-16">
+          <LandingHero />
+          <LandingMetrics />
+          <LandingFeatures />
+          <LandingCTA />
+        </div>
+      )}
+
+      {/* Welcome Banner for Logged-In Staff */}
       {user && (
         <div className="bahi-card p-5 border border-slate-200/60 dark:border-slate-800/60 shadow-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3.5">
@@ -115,8 +124,8 @@ export default function HomePage() {
         </div>
       )}
 
-      {/* 1. HERO SLIDER SHOWCASE */}
-      <DashboardSlider />
+      {/* HERO SLIDER SHOWCASE (FOR LOGGED-IN USERS) */}
+      {user && <DashboardSlider />}
 
       {/* 2. EXECUTIVE DASHBOARD (OWNER / CO_OWNER / ADMIN) */}
       {['OWNER', 'CO_OWNER', 'ADMIN'].includes(role) && (
@@ -131,7 +140,7 @@ export default function HomePage() {
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="bahi-card-emerald p-4 border border-slate-200/60 dark:border-slate-800/60 shadow-sm relative overflow-hidden group hover:border-emerald-500/40 transition-all duration-300">
               <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-2">
-                <span className="text-[11px] font-bold uppercase tracking-wider font-outfit">Today's Procurement</span>
+                <span className="text-[11px] font-bold uppercase tracking-wider font-outfit">Today&apos;s Procurement</span>
                 <div className="p-2 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-xl border border-emerald-500/20">
                   <Wheat className="w-4 h-4" />
                 </div>
@@ -146,7 +155,7 @@ export default function HomePage() {
 
             <div className="glass-card p-4 rounded-3xl border-l-4 border-l-blue-500 border border-slate-200/60 dark:border-slate-800/60 shadow-sm relative overflow-hidden group hover:border-blue-500/40 transition-all duration-300">
               <div className="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-2">
-                <span className="text-[11px] font-bold uppercase tracking-wider font-outfit">Today's Sales</span>
+                <span className="text-[11px] font-bold uppercase tracking-wider font-outfit">Today&apos;s Sales</span>
                 <div className="p-2 bg-blue-500/10 text-blue-600 dark:text-blue-400 rounded-xl border border-blue-500/20">
                   <TrendingUp className="w-4 h-4" />
                 </div>

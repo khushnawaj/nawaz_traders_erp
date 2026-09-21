@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { 
   Wheat, 
@@ -27,58 +27,43 @@ import FarmerPurchaseModal from '@/components/farmers/FarmerPurchaseModal';
 import Breadcrumb from '@/components/layout/Breadcrumb';
 import { formatCurrency } from '@/lib/utils';
 import toast from 'react-hot-toast';
+import { useAppDispatch, useAppSelector } from '@/lib/redux/hooks';
+import {
+  fetchFarmers,
+  setSearch,
+  setBalanceFilter,
+  setSelectedVillage,
+  setFarmerViewMode,
+  setIsFarmerModalOpen,
+  setIsPurchaseModalOpen,
+  setSelectedFarmerForPurchase,
+} from '@/lib/redux/slices/farmersSlice';
 
 export default function FarmersPage() {
-  const [farmers, setFarmers] = useState([]);
-  const [stats, setStats] = useState({
-    totalPayables: '0',
-    totalReceivables: '0',
-    farmerCount: 0,
-  });
-
-  const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState('');
-  const [viewMode, setViewMode] = useState('grid'); // 'grid' | 'table'
-  const [balanceFilter, setBalanceFilter] = useState('ALL'); // 'ALL' | 'PAYABLE' | 'RECEIVABLE'
-  const [selectedVillage, setSelectedVillage] = useState('ALL');
-
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isPurchaseModalOpen, setIsPurchaseModalOpen] = useState(false);
-  const [selectedFarmerForPurchase, setSelectedFarmerForPurchase] = useState(null);
-
-  const fetchFarmers = async (isInitial = false) => {
-    if (isInitial) setLoading(true);
-    try {
-      const query = new URLSearchParams({ search, role: 'FARMER' });
-      const res = await fetch(`/api/parties?${query.toString()}`);
-      const json = await res.json();
-      if (json.success) {
-        setFarmers(json.data);
-        if (json.stats) {
-          setStats({
-            totalPayables: json.stats.totalPayables,
-            totalReceivables: json.stats.totalReceivables,
-            farmerCount: json.stats.farmerCount,
-          });
-        }
-      }
-    } catch (err) {
-      console.error('Failed to load farmers:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const dispatch = useAppDispatch();
+  const {
+    list: farmers,
+    stats,
+    loading,
+    search,
+    balanceFilter,
+    selectedVillage,
+    viewMode,
+    isModalOpen,
+    isPurchaseModalOpen,
+    selectedFarmerForPurchase,
+  } = useAppSelector((state) => state.farmers);
 
   useEffect(() => {
-    fetchFarmers(true);
-  }, []);
+    dispatch(fetchFarmers({ search }));
+  }, [dispatch]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      fetchFarmers(false);
+      dispatch(fetchFarmers({ search }));
     }, 250);
     return () => clearTimeout(timer);
-  }, [search]);
+  }, [dispatch, search]);
 
   // Extract unique villages for filtering
   const villages = useMemo(() => {
@@ -135,8 +120,8 @@ export default function FarmersPage() {
         <div className="flex flex-wrap items-center gap-2.5 relative z-10">
           <button
             onClick={() => {
-              setSelectedFarmerForPurchase(null);
-              setIsPurchaseModalOpen(true);
+              dispatch(setSelectedFarmerForPurchase(null));
+              dispatch(setIsPurchaseModalOpen(true));
             }}
             className="inline-flex items-center gap-2 bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 text-slate-950 font-semibold px-4 py-2.5 rounded-2xl text-xs shadow-md transition transform hover:-translate-y-0.5"
           >
@@ -144,7 +129,7 @@ export default function FarmersPage() {
           </button>
 
           <button
-            onClick={() => setIsModalOpen(true)}
+            onClick={() => dispatch(setIsFarmerModalOpen(true))}
             className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold px-4 py-2.5 rounded-2xl text-xs shadow-md transition transform hover:-translate-y-0.5"
           >
             <UserPlus className="w-4 h-4 text-amber-300" /> Add New Farmer
@@ -201,7 +186,7 @@ export default function FarmersPage() {
               type="text"
               placeholder="Search by name, village, mobile, code..."
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(e) => dispatch(setSearch(e.target.value))}
               className="app-input app-input-with-icon"
             />
             <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
@@ -212,7 +197,7 @@ export default function FarmersPage() {
             {/* Balance Filter */}
             <div className="flex items-center bg-slate-100 dark:bg-slate-900/80 p-1 rounded-xl border border-slate-200/60 dark:border-slate-800/60 text-xs font-medium">
               <button
-                onClick={() => setBalanceFilter('ALL')}
+                onClick={() => dispatch(setBalanceFilter('ALL'))}
                 className={`px-3 py-1 rounded-lg transition ${
                   balanceFilter === 'ALL'
                     ? 'bg-white dark:bg-slate-800 text-slate-900 dark:text-white shadow-sm font-semibold'
@@ -222,7 +207,7 @@ export default function FarmersPage() {
                 All
               </button>
               <button
-                onClick={() => setBalanceFilter('PAYABLE')}
+                onClick={() => dispatch(setBalanceFilter('PAYABLE'))}
                 className={`px-3 py-1 rounded-lg transition ${
                   balanceFilter === 'PAYABLE'
                     ? 'bg-rose-500 text-white font-semibold shadow-sm'
@@ -232,7 +217,7 @@ export default function FarmersPage() {
                 Payable (CR)
               </button>
               <button
-                onClick={() => setBalanceFilter('RECEIVABLE')}
+                onClick={() => dispatch(setBalanceFilter('RECEIVABLE'))}
                 className={`px-3 py-1 rounded-lg transition ${
                   balanceFilter === 'RECEIVABLE'
                     ? 'bg-emerald-600 text-white font-semibold shadow-sm'
@@ -247,7 +232,7 @@ export default function FarmersPage() {
             {villages.length > 0 && (
               <select
                 value={selectedVillage}
-                onChange={(e) => setSelectedVillage(e.target.value)}
+                onChange={(e) => dispatch(setSelectedVillage(e.target.value))}
                 className="app-select text-xs py-1.5 px-3 max-w-[150px]"
               >
                 <option value="ALL">All Villages ({villages.length})</option>
@@ -262,7 +247,7 @@ export default function FarmersPage() {
             {/* View Mode Switcher */}
             <div className="flex items-center bg-slate-100 dark:bg-slate-900/80 p-1 rounded-xl border border-slate-200/60 dark:border-slate-800/60 text-xs">
               <button
-                onClick={() => setViewMode('grid')}
+                onClick={() => dispatch(setFarmerViewMode('grid'))}
                 className={`p-1.5 rounded-lg transition ${
                   viewMode === 'grid'
                     ? 'bg-white dark:bg-slate-800 text-emerald-600 dark:text-emerald-400 shadow-sm'
@@ -273,7 +258,7 @@ export default function FarmersPage() {
                 <LayoutGrid className="w-4 h-4" />
               </button>
               <button
-                onClick={() => setViewMode('table')}
+                onClick={() => dispatch(setFarmerViewMode('table'))}
                 className={`p-1.5 rounded-lg transition ${
                   viewMode === 'table'
                     ? 'bg-white dark:bg-slate-800 text-emerald-600 dark:text-emerald-400 shadow-sm'
@@ -296,9 +281,9 @@ export default function FarmersPage() {
             <p className="text-xs font-semibold text-slate-900 dark:text-white">No farmers matching filters</p>
             <button
               onClick={() => {
-                setSearch('');
-                setBalanceFilter('ALL');
-                setSelectedVillage('ALL');
+                dispatch(setSearch(''));
+                dispatch(setBalanceFilter('ALL'));
+                dispatch(setSelectedVillage('ALL'));
               }}
               className="text-xs text-emerald-600 dark:text-emerald-400 font-medium underline"
             >
@@ -378,8 +363,8 @@ export default function FarmersPage() {
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => {
-                        setSelectedFarmerForPurchase(farmer);
-                        setIsPurchaseModalOpen(true);
+                        dispatch(setSelectedFarmerForPurchase(farmer));
+                        dispatch(setIsPurchaseModalOpen(true));
                       }}
                       className="w-full py-1.5 bg-amber-500/10 hover:bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/20 rounded-xl text-[11px] font-semibold flex items-center justify-center gap-1 transition"
                     >
@@ -439,8 +424,8 @@ export default function FarmersPage() {
                       <div className="flex items-center justify-center gap-1.5">
                         <button
                           onClick={() => {
-                            setSelectedFarmerForPurchase(farmer);
-                            setIsPurchaseModalOpen(true);
+                            dispatch(setSelectedFarmerForPurchase(farmer));
+                            dispatch(setIsPurchaseModalOpen(true));
                           }}
                           className="px-2.5 py-1 bg-amber-500/10 hover:bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/20 rounded-lg text-[11px] font-medium"
                         >
@@ -465,18 +450,18 @@ export default function FarmersPage() {
       {/* Form & Purchase Modals */}
       <FarmerFormModal
         isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onSuccess={() => fetchFarmers()}
+        onClose={() => dispatch(setIsFarmerModalOpen(false))}
+        onSuccess={() => dispatch(fetchFarmers({ search }))}
       />
 
       <FarmerPurchaseModal
         isOpen={isPurchaseModalOpen}
         onClose={() => {
-          setIsPurchaseModalOpen(false);
-          setSelectedFarmerForPurchase(null);
+          dispatch(setIsPurchaseModalOpen(false));
+          dispatch(setSelectedFarmerForPurchase(null));
         }}
         defaultFarmer={selectedFarmerForPurchase}
-        onSuccess={() => fetchFarmers()}
+        onSuccess={() => dispatch(fetchFarmers({ search }))}
       />
     </main>
   );

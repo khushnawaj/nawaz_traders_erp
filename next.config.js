@@ -4,4 +4,5 @@ const nextConfig = {
   swcMinify: true,
 };
 
+// Dev bundler route re-sync
 module.exports = nextConfig;

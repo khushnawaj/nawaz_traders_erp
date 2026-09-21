@@ -20,6 +20,7 @@ Welcome to the **Nawaz Traders ERP** developer & architectural documentation! Th
 | Tier | Technology | Purpose & Rationale |
 | :--- | :--- | :--- |
 | **Framework** | Next.js 14 (App Router, JS) | Server-side Rendering (SSR), Server Actions, API routes, fast page navigation. |
+| **State Management** | Redux Toolkit (`@reduxjs/toolkit`) + `react-redux` | Centralized global store (`lib/redux/store.js`), typed hooks, entity & UI slices (`uiSlice`, `farmersSlice`, `purchasesSlice`, `salesSlice`). |
 | **Database** | PostgreSQL | Robust transactional ACID database for financial ledgers & stock movements. |
 | **ORM** | Prisma ORM | Type-safe schema definition, multi-table transactions (`prisma.$transaction`), and migrations. |
 | **Styling System** | TailwindCSS + Glassmorphism | Custom design tokens (`.glass-card`, `.glass-modal`), dark mode support (`next-themes`). |

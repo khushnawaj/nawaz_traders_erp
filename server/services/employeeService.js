@@ -37,7 +37,7 @@ export async function getEmployeeSummaryStats() {
 /**
  * Get paginated & filtered list of employees
  */
-export async function getAllEmployees({ search = '', role = '', status = 'ACTIVE' } = {}) {
+export async function getAllEmployees({ search = '', role = '', status = 'ACTIVE', page = 1, limit = 10 } = {}) {
   const where = {
     status: status ? status : undefined,
   };
@@ -54,17 +54,37 @@ export async function getAllEmployees({ search = '', role = '', status = 'ACTIVE
     ];
   }
 
-  const employees = await prisma.employee.findMany({
-    where,
-    include: {
-      assignedVehicle: {
-        select: { id: true, vehicleNumber: true, vehicleType: true },
-      },
-    },
-    orderBy: { createdAt: 'desc' },
-  });
+  const isUnlimited = limit === 'all' || limit === 0 || limit === '0';
+  const pageNum = parseInt(page) || 1;
+  const limitNum = isUnlimited ? undefined : (parseInt(limit) || 10);
+  const skip = isUnlimited ? undefined : (pageNum - 1) * limitNum;
 
-  return employees;
+  const [totalCount, employees] = await Promise.all([
+    prisma.employee.count({ where }),
+    prisma.employee.findMany({
+      where,
+      include: {
+        assignedVehicle: {
+          select: { id: true, vehicleNumber: true, vehicleType: true },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+      skip,
+      take: limitNum,
+    }),
+  ]);
+
+  const totalPages = isUnlimited ? 1 : Math.ceil(totalCount / limitNum) || 1;
+
+  return {
+    employees,
+    pagination: {
+      totalCount,
+      totalPages,
+      page: pageNum,
+      limit: isUnlimited ? totalCount : limitNum,
+    },
+  };
 }
 
 /**

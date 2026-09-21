@@ -131,7 +131,8 @@ export async function PATCH(request) {
     }
 
     const body = await request.json();
-    const { requestId, action, disbursedMode, accountName, notes } = body;
+    const { requestId, disbursedMode, accountName, notes } = body;
+    const action = body.action || (body.status === 'APPROVED' ? 'APPROVE' : body.status === 'REJECTED' ? 'REJECT' : null);
 
     if (!requestId || !action) {
       return NextResponse.json(

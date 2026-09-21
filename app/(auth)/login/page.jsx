@@ -5,9 +5,12 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { User, Lock, Eye, EyeOff, ArrowRight, ShieldCheck, Wheat } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { useAppDispatch } from '@/lib/redux/hooks';
+import { setUser } from '@/lib/redux/slices/authSlice';
 
 export default function LoginPage() {
   const router = useRouter();
+  const dispatch = useAppDispatch();
   const [formData, setFormData] = useState({
     username: 'admin',
     password: 'admin123',
@@ -30,6 +33,10 @@ export default function LoginPage() {
 
       if (!res.ok) {
         throw new Error(json.error || 'Login failed');
+      }
+
+      if (json.user) {
+        dispatch(setUser(json.user));
       }
 
       toast.success(`Welcome back, ${json.user?.fullName || 'Admin'}! 👋`);
@@ -143,7 +150,7 @@ export default function LoginPage() {
           {/* Footer Navigation */}
           <div className="text-center pt-2 border-t border-slate-200 dark:border-slate-800/80">
             <p className="text-xs text-slate-500 dark:text-slate-400">
-              Don't have an account?{' '}
+              Don&apos;t have an account?{' '}
               <Link href="/signup" className="text-amber-600 dark:text-amber-400 hover:underline font-bold">
                 Create Staff Account
               </Link>

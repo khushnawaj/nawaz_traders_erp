@@ -3,6 +3,7 @@ import { Toaster } from 'react-hot-toast';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import { ThemeProvider } from '@/components/theme/ThemeProvider';
+import ReduxProvider from '@/components/providers/ReduxProvider';
 
 export const metadata = {
   title: 'Nawaz Traders — GRAINS TODAY • A STRONGER TOMORROW',
@@ -27,36 +28,38 @@ export default function RootLayout({ children }) {
           rel="stylesheet"
         />
       </head>
-      <body className="h-full antialiased bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col font-sans">
-        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
-          <Toaster
-            position="top-right"
-            toastOptions={{
-              duration: 3500,
-              style: {
-                background: '#022c22',
-                color: '#f0fdf4',
-                border: '1px solid rgba(16, 185, 129, 0.25)',
-                fontSize: '13px',
-                fontWeight: '600',
-                borderRadius: '16px',
-                padding: '12px 18px',
-                boxShadow: '0 20px 30px -10px rgba(0, 0, 0, 0.5)',
-              },
-              success: {
-                iconTheme: {
-                  primary: '#f59e0b',
-                  secondary: '#022c22',
+      <body suppressHydrationWarning className="h-full antialiased bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex flex-col font-sans">
+        <ReduxProvider>
+          <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
+            <Toaster
+              position="top-right"
+              toastOptions={{
+                duration: 3500,
+                style: {
+                  background: '#022c22',
+                  color: '#f0fdf4',
+                  border: '1px solid rgba(16, 185, 129, 0.25)',
+                  fontSize: '13px',
+                  fontWeight: '600',
+                  borderRadius: '16px',
+                  padding: '12px 18px',
+                  boxShadow: '0 20px 30px -10px rgba(0, 0, 0, 0.5)',
                 },
-              },
-            }}
-          />
-          <Navbar />
-          <div className="flex-1 pb-20 md:pb-6 bg-slate-50 dark:bg-gradient-to-b dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 transition-colors duration-300">
-            {children}
-          </div>
-          <Footer />
-        </ThemeProvider>
+                success: {
+                  iconTheme: {
+                    primary: '#f59e0b',
+                    secondary: '#022c22',
+                  },
+                },
+              }}
+            />
+            <Navbar />
+            <div className="flex-1 pb-20 md:pb-6 bg-slate-50 dark:bg-gradient-to-b dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 transition-colors duration-300">
+              {children}
+            </div>
+            <Footer />
+          </ThemeProvider>
+        </ReduxProvider>
       </body>
     </html>
   );

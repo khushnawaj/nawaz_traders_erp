@@ -3,7 +3,6 @@ import { verifySessionToken } from '@/lib/auth/session';
 
 // Protected ERP management pages
 const MANAGEMENT_PAGES = [
-  '/',
   '/farmers',
   '/parties',
   '/commodities',
@@ -12,6 +11,7 @@ const MANAGEMENT_PAGES = [
   '/employees',
   '/purchases',
   '/sales',
+  '/investors',
   '/expenses',
   '/reports',
 ];
@@ -30,12 +30,11 @@ export async function middleware(request) {
 
   const isAuthPage = AUTH_PAGES.some((path) => pathname.startsWith(path));
   const isProtectedPage = 
-    pathname === '/' || 
-    MANAGEMENT_PAGES.some((prefix) => prefix !== '/' && pathname.startsWith(prefix)) || 
+    MANAGEMENT_PAGES.some((prefix) => pathname.startsWith(prefix)) || 
     pathname.startsWith('/portal') || 
     pathname.startsWith('/settings');
 
-  // 1. Unauthenticated users: redirect to /login
+  // 1. Unauthenticated users: redirect to /login for protected pages (e.g. /farmers, /sales, /investors)
   if (isProtectedPage && !session) {
     const loginUrl = new URL('/login', request.url);
     loginUrl.searchParams.set('redirect', pathname);

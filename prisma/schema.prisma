@@ -18,6 +18,7 @@ enum Role {
   DRIVER
   EMPLOYEE
   FARMER
+  INVESTOR
 }
 
 // Party Roles (A party can hold multiple tags e.g. FARMER & SUPPLIER)
@@ -558,3 +559,67 @@ model AdvanceRequest {
   @@index([employeeId])
   @@map("advance_requests")
 }
+
+// 20. INVESTOR & LENDER ENTITY (Investors, Banks, Private Financiers & Loans)
+model Investor {
+  id                         String                @id @default(uuid())
+  investorCode               String                @unique // e.g. INV-001 or LND-001
+  name                       String
+  category                   String                @default("INVESTOR") // INVESTOR, BANK, PRIVATE_FINANCIER, INDIVIDUAL_LENDER
+  phone                      String?
+  email                      String?
+  address                    String?
+  city                       String?
+  state                      String?
+  principalAmount            Decimal               @default(0.00) @db.Decimal(15, 2) // Principal Amount Lend/Invested
+  profitSharePercentage      Decimal               @default(0.00) @db.Decimal(5, 2)  // Profit / Equity Share %
+  annualInterestRate         Decimal               @default(0.00) @db.Decimal(5, 2)  // Annual Interest Rate %
+  interestType               String                @default("SIMPLE") // SIMPLE, COMPOUND, FIXED_PROFIT
+  tenureMonths               Int?                  @default(12)       // Loan / Investment duration (months)
+  emiAmount                  Decimal               @default(0.00) @db.Decimal(15, 2) // Monthly EMI amount
+  emiDueDateDay              Int?                  @default(5)        // Day of month EMI is due (1-31)
+  promisedDate               DateTime?                                // Promised payoff date / maturity date
+  totalPaidPrincipal         Decimal               @default(0.00) @db.Decimal(15, 2) // Cumulative principal paid back
+  totalPaidInterest          Decimal               @default(0.00) @db.Decimal(15, 2) // Cumulative interest/profit paid
+  currentOutstandingBalance  Decimal               @default(0.00) @db.Decimal(15, 2) // Remaining balance
+  status                     Status                @default(ACTIVE)
+  notes                      String?
+  // Bank & KYC details
+  bankName                   String?
+  accountNo                  String?
+  ifscCode                   String?
+  panNo                      String?
+  aadhaarNo                  String?
+  createdAt                  DateTime              @default(now())
+  updatedAt                  DateTime              @updatedAt
+
+  transactions               InvestorTransaction[]
+
+  @@map("investors")
+}
+
+// 21. INVESTOR & LENDER TRANSACTION ENTITY (EMI Payments, Principal Repayments, Interest & Profit Distributions)
+model InvestorTransaction {
+  id                    String            @id @default(uuid())
+  voucherNo             String            @unique // e.g. INV-2026-0001
+  investorId            String
+  investor              Investor          @relation(fields: [investorId], references: [id], onDelete: Cascade)
+  date                  DateTime          @default(now())
+  type                  String            // PRINCIPAL_RECEIVED, EMI_PAYMENT, PRINCIPAL_REPAYMENT, INTEREST_PAYMENT, PROFIT_PAYOUT, CAPITAL_WITHDRAWAL
+  principalPaid         Decimal           @default(0.00) @db.Decimal(15, 2)
+  interestPaid          Decimal           @default(0.00) @db.Decimal(15, 2)
+  totalAmount           Decimal           @db.Decimal(15, 2)
+  paymentMode           String            @default("BANK_TRANSFER") // CASH, BANK_TRANSFER, UPI, CHEQUE
+  accountName           String?           @default("Main Cash Account")
+  referenceNo           String?
+  dueDate               DateTime?
+  narration             String?
+  runningBalance        Decimal           @db.Decimal(15, 2)
+  status                TransactionStatus @default(POSTED)
+  createdAt             DateTime          @default(now())
+
+  @@index([investorId, date])
+  @@map("investor_transactions")
+}
+
+

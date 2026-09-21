@@ -8,18 +8,21 @@ export async function GET(request) {
     const search = searchParams.get('search') || '';
     const role = searchParams.get('role') || '';
     const statsOnly = searchParams.get('statsOnly') === 'true';
+    const page = searchParams.get('page') || '1';
+    const limit = searchParams.get('limit') || '10';
 
     if (statsOnly) {
       const stats = await getEmployeeSummaryStats();
       return NextResponse.json({ success: true, data: stats });
     }
 
-    const employees = await getAllEmployees({ search, role });
+    const { employees, pagination } = await getAllEmployees({ search, role, page, limit });
     const stats = await getEmployeeSummaryStats();
 
     return NextResponse.json({
       success: true,
       data: employees,
+      pagination,
       stats,
     });
   } catch (error) {

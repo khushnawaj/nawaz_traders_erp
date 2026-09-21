@@ -28,6 +28,8 @@ import ProfileAvatarModal from '@/components/common/ProfileAvatarModal';
 import EmployeeFormModal from '@/components/employees/EmployeeFormModal';
 import DocumentPreviewModal from '@/components/common/DocumentPreviewModal';
 import AttendanceCalendar from '@/components/employees/AttendanceCalendar';
+import SalaryCalculatorModal from '@/components/employees/SalaryCalculatorModal';
+import PayslipReceiptModal from '@/components/employees/PayslipReceiptModal';
 import Loader from '@/components/common/Loader';
 import Breadcrumb from '@/components/layout/Breadcrumb';
 import { formatCurrency } from '@/lib/utils';
@@ -42,6 +44,11 @@ export default function EmployeeProfilePage() {
   const [activeTab, setActiveTab] = useState('overview');
   const [isAvatarModalOpen, setIsAvatarModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isSalaryModalOpen, setIsSalaryModalOpen] = useState(false);
+
+  // Payslip Receipt State
+  const [payrollData, setPayrollData] = useState(null);
+  const [isReceiptModalOpen, setIsReceiptModalOpen] = useState(false);
 
   // Document Lightbox Preview State
   const [previewDocUrl, setPreviewDocUrl] = useState(null);
@@ -54,9 +61,9 @@ export default function EmployeeProfilePage() {
     setIsPreviewModalOpen(true);
   };
 
-  const fetchProfile = async () => {
+  const fetchProfile = async (silent = false) => {
     if (!id) return;
-    setLoading(true);
+    if (!silent) setLoading(true);
     try {
       const res = await fetch(`/api/employees/${id}`);
       const json = await res.json();
@@ -66,7 +73,7 @@ export default function EmployeeProfilePage() {
     } catch (err) {
       console.error('Error fetching employee profile:', err);
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   };
 
@@ -113,7 +120,58 @@ export default function EmployeeProfilePage() {
   }
 
   const presentDays = employee.attendances?.filter((a) => a.status === 'PRESENT').length || 0;
-  const totalOvertime = employee.attendances?.reduce((acc, a) => acc + (parseFloat(a.overtimeHr) || 0), 0) || 0;
+  const absentDays = employee.attendances?.filter((a) => a.status === 'ABSENT').length || 0;
+  const totalOvertime = employee.attendances?.reduce((acc, a) => acc + (parseFloat(a.overtimeHr || a.overtimeHours) || 0), 0) || 0;
+
+  // Calculate Advance Balance from Ledgers (Absolute Owed Balance)
+  const latestLedger = employee.employeeLedgers && employee.employeeLedgers.length > 0
+    ? employee.employeeLedgers[employee.employeeLedgers.length - 1]
+    : null;
+  const advanceOwed = latestLedger ? Math.abs(parseFloat(latestLedger.runningBalance || 0)) : 0;
+  const advanceBalance = advanceOwed;
+
+  // Calculate Salary & Overtime Breakdown
+  const baseSalaryNum = parseFloat(employee.baseSalary || 0);
+  const monthDaysNum = 30; // 30 days standard month
+  const dailyRate = employee.salaryType === 'MONTHLY' ? (baseSalaryNum / monthDaysNum) : baseSalaryNum;
+  const otHourlyRate = dailyRate / 8;
+  const totalOtEarnings = totalOvertime * otHourlyRate;
+
+  const paidLeaveDays = 2; // Default 2 paid leaves per month
+  const totalPayableDays = presentDays + paidLeaveDays;
+  const earnedBaseSalary = employee.salaryType === 'MONTHLY' ? (dailyRate * totalPayableDays) : (baseSalaryNum * presentDays);
+  const netEstimatedEarnings = earnedBaseSalary + totalOtEarnings;
+  const advanceDeductionToApply = Math.min(netEstimatedEarnings, advanceOwed);
+  const netEstimatedPayable = Math.max(0, netEstimatedEarnings - advanceDeductionToApply);
+
+  // Calculate Detailed Tenure
+  const calculateDetailedTenure = (joiningDateStr) => {
+    if (!joiningDateStr) return 'N/A';
+    const joinDate = new Date(joiningDateStr);
+    const now = new Date();
+    let years = now.getFullYear() - joinDate.getFullYear();
+    let months = now.getMonth() - joinDate.getMonth();
+    let days = now.getDate() - joinDate.getDate();
+
+    if (days < 0) {
+      months--;
+      const prevMonthLastDay = new Date(now.getFullYear(), now.getMonth(), 0).getDate();
+      days += prevMonthLastDay;
+    }
+    if (months < 0) {
+      years--;
+      months += 12;
+    }
+
+    const parts = [];
+    if (years > 0) parts.push(`${years} yr${years > 1 ? 's' : ''}`);
+    if (months > 0) parts.push(`${months} mo${months > 1 ? 's' : ''}`);
+    if (days > 0 || parts.length === 0) parts.push(`${days} day${days !== 1 ? 's' : ''}`);
+
+    return parts.join(' ');
+  };
+
+  const detailedTenureStr = calculateDetailedTenure(employee.joiningDate);
 
   return (
     <main className="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6 animate-in fade-in duration-200">
@@ -124,16 +182,16 @@ export default function EmployeeProfilePage() {
         <div className="flex items-center gap-2 flex-wrap">
           <button
             onClick={handleShareWhatsApp}
-            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-medium shadow-sm transition"
+            className="inline-flex items-center gap-1.5 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-2xl text-xs font-bold shadow-sm transition cursor-pointer active:scale-95"
             title="Share Statement on WhatsApp"
           >
             <Share2 className="w-3.5 h-3.5" /> WhatsApp Share
           </button>
 
-          <span className="text-xs font-mono font-semibold text-emerald-700 dark:text-emerald-300 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1 rounded-lg uppercase">
+          <span className="text-xs font-mono font-semibold text-emerald-700 dark:text-emerald-300 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1.5 rounded-2xl uppercase">
             {employee.employeeCode}
           </span>
-          <span className="text-xs font-semibold text-white bg-slate-800 dark:bg-slate-700 px-2.5 py-1 rounded-lg uppercase border border-slate-700">
+          <span className="text-xs font-semibold text-white bg-slate-800 dark:bg-slate-700 px-3 py-1.5 rounded-2xl uppercase border border-slate-700">
             {employee.role}
           </span>
         </div>
@@ -160,7 +218,7 @@ export default function EmployeeProfilePage() {
               <div className="absolute inset-0 bg-slate-950/40 rounded-3xl opacity-0 group-hover:opacity-100 flex items-center justify-center transition">
                 <Camera className="w-6 h-6 text-white" />
               </div>
-              <span className="absolute -bottom-1 -right-1 p-1.5 bg-purple-600 text-white rounded-xl shadow-md">
+              <span className="absolute -bottom-1 -right-1 p-1.5 bg-purple-600 text-white rounded-2xl shadow-md">
                 <Camera className="w-3.5 h-3.5" />
               </span>
             </div>
@@ -172,7 +230,7 @@ export default function EmployeeProfilePage() {
                 </h1>
                 <button
                   onClick={() => setIsEditModalOpen(true)}
-                  className="inline-flex items-center gap-1 text-xs text-purple-600 dark:text-purple-400 hover:underline font-medium bg-purple-500/10 px-2.5 py-1 rounded-lg border border-purple-500/20"
+                  className="inline-flex items-center gap-1 text-xs text-purple-600 dark:text-purple-400 hover:underline font-semibold bg-purple-500/10 px-3 py-1.5 rounded-2xl border border-purple-500/20 cursor-pointer active:scale-95 transition"
                 >
                   <Edit className="w-3 h-3" /> Edit Profile & Docs
                 </button>
@@ -189,8 +247,8 @@ export default function EmployeeProfilePage() {
                     <MapPin className="w-3.5 h-3.5 text-amber-500" /> {employee.address}
                   </span>
                 )}
-                <span className="flex items-center gap-1">
-                  <Calendar className="w-3.5 h-3.5 text-slate-400" /> Joined: {employee.joiningDate ? new Date(employee.joiningDate).toLocaleDateString('en-IN') : 'N/A'}
+                <span className="flex items-center gap-1 font-medium text-purple-600 dark:text-purple-400">
+                  <Calendar className="w-3.5 h-3.5 text-purple-500" /> Joined: {employee.joiningDate ? new Date(employee.joiningDate).toLocaleDateString('en-IN') : 'N/A'} ({detailedTenureStr})
                 </span>
               </div>
             </div>
@@ -199,34 +257,39 @@ export default function EmployeeProfilePage() {
           <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto">
             <button
               onClick={handleCopyBankDetails}
-              className="flex-1 lg:flex-none bg-slate-900 dark:bg-slate-800 hover:bg-slate-800 text-white px-4 py-2.5 rounded-2xl text-xs font-semibold shadow-md transition flex items-center justify-center gap-2"
+              className="flex-1 lg:flex-none bg-slate-900 dark:bg-slate-800 hover:bg-slate-800 text-white px-5 py-2.5 rounded-2xl text-xs font-semibold shadow-md transition flex items-center justify-center gap-2 cursor-pointer active:scale-95"
             >
               <Copy className="w-4 h-4 text-purple-400" /> Copy Bank Details
             </button>
           </div>
         </div>
 
-        {/* Financial & Job Metrics Strip */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4 border-t border-slate-200/60 dark:border-slate-800/60">
+        {/* Financial & Job Metrics 4-Strip */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-4 border-t border-slate-200/60 dark:border-slate-800/60">
           <div className="p-3.5 bg-slate-50/80 dark:bg-slate-950/60 rounded-2xl border border-slate-200/50 dark:border-slate-800/50">
-            <span className="text-[10px] font-medium uppercase text-slate-500 dark:text-slate-400 block">Base Salary Structure</span>
-            <div className="text-lg font-semibold text-slate-900 dark:text-white mt-0.5">{formatCurrency(employee.baseSalary)}</div>
-            <span className="text-[10px] text-slate-400 uppercase font-medium">{employee.salaryType} Rate</span>
+            <span className="text-[10px] font-medium uppercase text-slate-500 dark:text-slate-400 block">Base Salary & Rate</span>
+            <div className="text-lg font-bold text-slate-900 dark:text-white mt-0.5">{formatCurrency(employee.baseSalary)}</div>
+            <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold uppercase">{employee.salaryType} (≈ {formatCurrency(dailyRate)}/day)</span>
           </div>
 
           <div className="p-3.5 bg-slate-50/80 dark:bg-slate-950/60 rounded-2xl border border-slate-200/50 dark:border-slate-800/50">
             <span className="text-[10px] font-medium uppercase text-slate-500 dark:text-slate-400 block">Attendance & Overtime Log</span>
-            <div className="text-lg font-semibold text-emerald-600 dark:text-emerald-400 mt-0.5">{presentDays} Days Present</div>
-            <span className="text-[10px] text-slate-400">{totalOvertime} Overtime Hours Logged</span>
+            <div className="text-lg font-bold text-emerald-600 dark:text-emerald-400 mt-0.5">{presentDays} Present / {absentDays} Absent</div>
+            <span className="text-[10px] text-indigo-600 dark:text-indigo-400 font-semibold">{totalOvertime} Overtime Hours Logged</span>
           </div>
 
           <div className="p-3.5 bg-slate-50/80 dark:bg-slate-950/60 rounded-2xl border border-slate-200/50 dark:border-slate-800/50">
-            <span className="text-[10px] font-medium uppercase text-slate-500 dark:text-slate-400 block">Assigned Fleet Vehicle</span>
-            <div className="text-lg font-semibold text-indigo-600 dark:text-indigo-400 mt-0.5 flex items-center gap-1.5">
-              <Truck className="w-4 h-4 text-indigo-500" />
-              {employee.assignedVehicle ? employee.assignedVehicle.vehicleNumber : 'No Vehicle Assigned'}
-            </div>
-            <span className="text-[10px] text-slate-400 font-normal">Active Fleet Duty</span>
+            <span className="text-[10px] font-medium uppercase text-slate-500 dark:text-slate-400 block">Est. Overtime Payout</span>
+            <div className="text-lg font-bold text-amber-600 dark:text-amber-400 mt-0.5">{formatCurrency(totalOtEarnings)}</div>
+            <span className="text-[10px] text-slate-400 font-medium">@ {formatCurrency(otHourlyRate)}/hour OT Rate</span>
+          </div>
+
+          <div className="p-3.5 bg-slate-50/80 dark:bg-slate-950/60 rounded-2xl border border-slate-200/50 dark:border-slate-800/50">
+            <span className="text-[10px] font-medium uppercase text-slate-500 dark:text-slate-400 block">Advance Balance / Duty</span>
+            <div className="text-lg font-bold text-purple-600 dark:text-purple-400 mt-0.5">{formatCurrency(advanceBalance)}</div>
+            <span className="text-[10px] text-indigo-600 dark:text-indigo-400 font-semibold truncate block">
+              Vehicle: {employee.assignedVehicle ? employee.assignedVehicle.vehicleNumber : 'None'}
+            </span>
           </div>
         </div>
       </div>
@@ -296,28 +359,76 @@ export default function EmployeeProfilePage() {
           </div>
 
           <div className="glass-card p-5 rounded-3xl border border-slate-200/60 dark:border-slate-800/60 shadow-lg space-y-4">
-            <h3 className="font-semibold text-slate-900 dark:text-white text-sm border-b border-slate-200/60 dark:border-slate-800/60 pb-2 flex items-center gap-2">
-              <DollarSign className="w-4 h-4 text-amber-500" /> Salary Structure & Duty
+            <h3 className="font-semibold text-slate-900 dark:text-white text-sm border-b border-slate-200/60 dark:border-slate-800/60 pb-2 flex items-center justify-between">
+              <span className="flex items-center gap-2">
+                <DollarSign className="w-4 h-4 text-amber-500" /> Salary Structure & Monthly Payslip Breakdown
+              </span>
+              <span className="text-[10px] uppercase font-mono px-2 py-0.5 bg-emerald-500/10 text-emerald-600 rounded">
+                Live Estimation
+              </span>
             </h3>
+
             <div className="grid grid-cols-2 gap-4 text-xs">
               <div>
-                <span className="text-slate-500 dark:text-slate-400 block font-normal">Salary Type</span>
-                <span className="font-semibold text-emerald-600 dark:text-emerald-400">{employee.salaryType}</span>
+                <span className="text-slate-500 dark:text-slate-400 block font-normal">Salary Structure</span>
+                <span className="font-semibold text-slate-900 dark:text-white">{formatCurrency(employee.baseSalary)} / {employee.salaryType}</span>
               </div>
               <div>
-                <span className="text-slate-500 dark:text-slate-400 block font-normal">Base Salary Amount</span>
-                <span className="font-semibold text-slate-900 dark:text-white">{formatCurrency(employee.baseSalary)}</span>
+                <span className="text-slate-500 dark:text-slate-400 block font-normal">Daily Base Rate</span>
+                <span className="font-semibold text-emerald-600 dark:text-emerald-400">≈ {formatCurrency(dailyRate)} / day</span>
               </div>
               <div>
-                <span className="text-slate-500 dark:text-slate-400 block font-normal">Assigned Vehicle</span>
-                <span className="font-semibold text-indigo-600 dark:text-indigo-400">
+                <span className="text-slate-500 dark:text-slate-400 block font-normal">Overtime Rate</span>
+                <span className="font-semibold text-indigo-600 dark:text-indigo-400">≈ {formatCurrency(otHourlyRate)} / hour</span>
+              </div>
+              <div>
+                <span className="text-slate-500 dark:text-slate-400 block font-normal">Assigned Fleet Vehicle</span>
+                <span className="font-semibold text-slate-900 dark:text-white">
                   {employee.assignedVehicle ? employee.assignedVehicle.vehicleNumber : 'Not Assigned'}
                 </span>
               </div>
-              <div>
-                <span className="text-slate-500 dark:text-slate-400 block font-normal">Current Status</span>
-                <span className="font-semibold text-emerald-600 dark:text-emerald-400">{employee.status}</span>
+            </div>
+
+            {/* Live Payslip Calculation Box */}
+            <div className="p-3.5 bg-slate-100/70 dark:bg-slate-950/80 rounded-2xl border border-slate-200/80 dark:border-slate-800 space-y-2.5 text-xs">
+              <div className="flex justify-between items-center text-[11px] font-semibold text-purple-600 dark:text-purple-400 uppercase tracking-wider">
+                <span>Current Month Salary Breakdown</span>
+                <button
+                  type="button"
+                  onClick={() => setIsSalaryModalOpen(true)}
+                  className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-[10px] font-bold shadow-sm transition flex items-center gap-1 cursor-pointer active:scale-95"
+                >
+                  <DollarSign className="w-3 h-3 text-amber-300" /> Disburse Final Salary
+                </button>
               </div>
+
+              <div className="flex justify-between items-center text-slate-600 dark:text-slate-400">
+                <span>Earned Base Pay ({presentDays} Present + {paidLeaveDays} Paid Leave = {totalPayableDays} Days):</span>
+                <span className="font-semibold text-slate-900 dark:text-white font-mono">{formatCurrency(earnedBaseSalary)}</span>
+              </div>
+
+              <div className="flex justify-between items-center text-slate-600 dark:text-slate-400">
+                <span>Overtime Pay ({totalOvertime} Hours Logged):</span>
+                <span className="font-semibold text-amber-600 dark:text-amber-400 font-mono">+{formatCurrency(totalOtEarnings)}</span>
+              </div>
+
+              <div className="flex justify-between items-center text-slate-600 dark:text-slate-400">
+                <span>Advance Recovery Deduction (Owed: {formatCurrency(advanceOwed)}):</span>
+                <span className="font-semibold text-rose-600 dark:text-rose-400 font-mono">-{formatCurrency(advanceDeductionToApply)}</span>
+              </div>
+
+              <div className="pt-2 border-t border-slate-200/80 dark:border-slate-800 flex justify-between items-center font-bold text-slate-900 dark:text-white text-sm">
+                <span>Est. Net Payable Payout:</span>
+                <span className="text-emerald-600 dark:text-emerald-400 font-mono font-extrabold">{formatCurrency(netEstimatedPayable)}</span>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setIsSalaryModalOpen(true)}
+                className="w-full py-2.5 mt-2 bg-gradient-to-r from-emerald-600 via-emerald-500 to-amber-500 hover:from-emerald-500 hover:to-amber-400 text-white font-extrabold rounded-2xl text-xs shadow-md transition flex items-center justify-center gap-2 cursor-pointer active:scale-95"
+              >
+                <DollarSign className="w-4 h-4 text-amber-300" /> Calculate & Process Final Salary Payout ↗
+              </button>
             </div>
           </div>
 
@@ -443,7 +554,7 @@ export default function EmployeeProfilePage() {
           <AttendanceCalendar
             employeeId={employee.id}
             employeeName={employee.fullName}
-            onAttendanceChange={() => fetchProfile()}
+            onAttendanceChange={() => fetchProfile(true)}
           />
 
           {/* Detailed Logs History Table */}
@@ -622,6 +733,28 @@ export default function EmployeeProfilePage() {
         onClose={() => setIsPreviewModalOpen(false)}
         docUrl={previewDocUrl}
         title={previewDocTitle}
+      />
+
+      {/* Salary Calculator & Disbursal Modal */}
+      <SalaryCalculatorModal
+        isOpen={isSalaryModalOpen}
+        onClose={() => setIsSalaryModalOpen(false)}
+        employee={employee}
+        onSuccess={(data) => {
+          fetchProfile(true);
+          if (data) {
+            setPayrollData(data);
+            setIsReceiptModalOpen(true);
+          }
+        }}
+      />
+
+      {/* Printable Monthly Salary Slip Receipt Modal */}
+      <PayslipReceiptModal
+        isOpen={isReceiptModalOpen}
+        onClose={() => setIsReceiptModalOpen(false)}
+        payrollData={payrollData}
+        employee={employee}
       />
     </main>
   );
