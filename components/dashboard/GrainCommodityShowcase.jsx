@@ -58,26 +58,24 @@ export default function GrainCommodityShowcase() {
         {COMMODITIES.map((c) => (
           <div
             key={c.id}
-            className="glass-card rounded-2xl overflow-hidden border border-slate-200/60 dark:border-slate-800/60 shadow-md flex flex-col justify-between group hover:border-emerald-500/30 transition-all duration-300"
+            className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm flex flex-col justify-between group hover:border-emerald-500/40 transition space-y-3"
           >
-            {/* Grain Image */}
-            <div className="relative h-40 overflow-hidden">
+            {/* Grain Banner Image with Clean Vignette */}
+            <div className="relative h-32 w-full rounded-xl overflow-hidden">
               <img
                 src={c.image}
                 alt={c.name}
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent" />
-              
-              <div className="absolute top-3 left-3">
-                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-normal text-slate-200 bg-slate-950/60 backdrop-blur-md border border-white/10">
+              <div className="absolute top-2.5 left-2.5">
+                <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold text-white bg-slate-950/60 backdrop-blur-md border border-white/10">
                   {c.unitsAvailable}
                 </span>
               </div>
-
-              <div className="absolute bottom-3 left-3 right-3">
-                <span className="text-[10px] text-amber-300 font-normal uppercase tracking-wider block">{c.hindiName}</span>
-                <h4 className="font-semibold text-white text-base">{c.name}</h4>
+              <div className="absolute bottom-2.5 left-2.5 right-2.5 text-white">
+                <span className="text-[10px] text-emerald-300 font-bold uppercase tracking-wider block">{c.hindiName}</span>
+                <h4 className="font-extrabold text-white text-base leading-tight font-outfit">{c.name}</h4>
               </div>
             </div>
 

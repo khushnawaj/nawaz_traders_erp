@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ArrowRight, ShieldCheck, Sparkles, Zap } from 'lucide-react';
+import { ArrowRight, ShieldCheck, Zap } from 'lucide-react';
 import { useAppDispatch } from '@/lib/redux/hooks';
 import { setUser } from '@/lib/redux/slices/authSlice';
 import toast from 'react-hot-toast';
@@ -25,11 +25,10 @@ export default function LandingCTA() {
       if (!res.ok) throw new Error(json.error || 'Demo login failed');
 
       dispatch(setUser(json.user));
-      toast.success('🎉 Welcome! Live ERP Demo Activated.');
+      toast.success('Live ERP Demo Activated.');
       router.push('/');
       router.refresh();
     } catch (err) {
-      toast.error('Redirecting to sign-in page...');
       router.push('/login');
     } finally {
       setLoggingInDemo(false);
@@ -37,40 +36,34 @@ export default function LandingCTA() {
   };
 
   return (
-    <section className="py-12 sm:py-16 relative">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="p-8 sm:p-12 rounded-3xl border-2 border-emerald-500/50 shadow-2xl bg-gradient-to-tr from-emerald-950 via-slate-900 to-slate-950 text-white flex flex-col md:flex-row items-center justify-between gap-8 relative overflow-hidden font-outfit">
-          <div className="absolute top-0 left-0 w-80 h-80 bg-amber-500/15 rounded-full blur-3xl pointer-events-none" />
-          
-          <div className="space-y-3 relative z-10 max-w-xl text-center md:text-left">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/20 border border-amber-500/30 text-amber-300 text-xs font-bold tracking-wider uppercase font-outfit">
-              <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-              <span>KRISHI UPAJ MANDI, SEHORE</span>
-            </div>
-            <h2 className="text-2xl sm:text-4xl font-black tracking-tight leading-tight text-white">
-              Ready to Modernize Your Grain Trading Operations?
+    <section className="py-8 font-outfit">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6">
+        <div className="p-8 sm:p-10 rounded-2xl bg-slate-900 text-white flex flex-col md:flex-row items-center justify-between gap-6 shadow-sm border border-slate-800">
+          <div className="space-y-2 text-center md:text-left">
+            <h2 className="text-2xl font-extrabold text-white tracking-tight">
+              Ready to Modernize Your Grain Trading?
             </h2>
-            <p className="text-xs sm:text-sm text-slate-200 font-semibold leading-relaxed">
-              Launch the interactive ERP demo desk instantly to explore live features without typing passwords, or sign in to your staff account.
+            <p className="text-xs sm:text-sm text-slate-400 font-normal max-w-lg">
+              Launch the interactive demo desk instantly or sign in with your staff credentials.
             </p>
           </div>
 
-          <div className="flex flex-col sm:flex-row items-center gap-3 relative z-10 w-full md:w-auto">
+          <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto shrink-0">
             <button
               onClick={handleLaunchDemo}
               disabled={loggingInDemo}
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl bg-gradient-to-r from-amber-500 via-amber-400 to-emerald-400 hover:from-amber-400 hover:to-emerald-300 text-slate-950 font-black text-sm shadow-xl shadow-amber-500/30 transition transform hover:-translate-y-0.5 disabled:opacity-50"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs sm:text-sm transition cursor-pointer"
             >
-              <Zap className="w-4 h-4 text-slate-950 fill-current" />
-              <span>{loggingInDemo ? 'Opening ERP Demo...' : 'Explore Live ERP (No Password)'}</span>
+              <Zap className="w-4 h-4 fill-current" />
+              <span>{loggingInDemo ? 'Opening Demo...' : 'Explore Live Demo'}</span>
             </button>
 
             <Link
               href="/login"
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl bg-slate-800 hover:bg-slate-700 text-white border border-slate-700 font-bold text-sm transition transform hover:-translate-y-0.5"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-semibold text-xs sm:text-sm border border-slate-700 transition"
             >
               <ShieldCheck className="w-4 h-4 text-emerald-400" />
-              <span>Sign In with Account</span>
+              <span>Sign In</span>
             </Link>
           </div>
         </div>

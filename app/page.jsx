@@ -76,7 +76,7 @@ export default function HomePage() {
     <main className="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-12 animate-in fade-in duration-200">
       {/* PUBLIC LANDING PAGE EXPERIENCE FOR GUESTS / UNAUTHENTICATED VISITORS */}
       {!user && (
-        <div className="space-y-16">
+        <div className="space-y-8 py-2">
           <LandingHero />
           <LandingMetrics />
           <LandingFeatures />

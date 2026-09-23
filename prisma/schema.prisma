@@ -122,6 +122,7 @@ model Party {
   purchases       Purchase[]
   sales           Sale[]
   payments        Payment[]
+  advanceRequests AdvanceRequest[]
   fuelExpenses    FuelExpense[]    @relation("VendorFuelExpenses")
   vehicleExpenses VehicleExpense[] @relation("VendorVehicleExpenses")
 
@@ -540,23 +541,27 @@ model AuditLog {
   @@map("audit_logs")
 }
 
-// 19. SALARY ADVANCE REQUEST ENTITY (Staff Advance Requests & Approvals)
+// 19. SALARY & FARMER ADVANCE REQUEST ENTITY (Staff & Farmer Advance Requests & Approvals)
 model AdvanceRequest {
-  id            String   @id @default(uuid())
-  requestNo     String   @unique // e.g. REQ-2026-0001
-  employeeId    String
-  employee      Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
-  amount        Decimal  @db.Decimal(15, 2)
+  id            String    @id @default(uuid())
+  requestNo     String    @unique // e.g. REQ-2026-0001
+  requestType   String    @default("STAFF") // STAFF, FARMER
+  employeeId    String?
+  employee      Employee? @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  partyId       String?
+  party         Party?    @relation(fields: [partyId], references: [id], onDelete: Cascade)
+  amount        Decimal   @db.Decimal(15, 2)
   reason        String
-  status        String   @default("PENDING") // PENDING, APPROVED, REJECTED
+  status        String    @default("PENDING") // PENDING, APPROVED, REJECTED
   approvedById  String?
-  disbursedMode String?  @default("CASH") // CASH, BANK_TRANSFER
-  accountName   String?  @default("Main Cash Account")
+  disbursedMode String?   @default("CASH") // CASH, BANK_TRANSFER
+  accountName   String?   @default("Main Cash Account")
   notes         String?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 
   @@index([employeeId])
+  @@index([partyId])
   @@map("advance_requests")
 }
 
@@ -622,4 +627,35 @@ model InvestorTransaction {
   @@map("investor_transactions")
 }
 
+// 22. FISCAL PERIOD ENTITY (Accounting Year Lock & Financial Period Closing)
+model FiscalPeriod {
+  id         String    @id @default(uuid())
+  name       String    @unique // e.g. FY-2025-26
+  startDate  DateTime  @db.Date
+  endDate    DateTime  @db.Date
+  isClosed   Boolean   @default(false)
+  closedAt   DateTime?
+  closedBy   String?
+  notes      String?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
 
+  @@map("fiscal_periods")
+}
+
+// 23. NOTIFICATION ENTITY (Real-Time Dynamic System Alerts & Notifications)
+model Notification {
+  id         String   @id @default(uuid())
+  userId     String?  // Target specific user ID
+  targetRole String?  // Target specific role (FARMER, ACCOUNTANT, MANAGER, ADMIN) or null for all management
+  title      String
+  message    String
+  type       String   // PURCHASE, PAYMENT, ADVANCE, DUE_DATE, RECONCILIATION, SYSTEM
+  link       String?
+  read       Boolean  @default(false)
+  createdAt  DateTime @default(now())
+
+  @@index([userId, read])
+  @@index([targetRole])
+  @@map("notifications")
+}

@@ -29,6 +29,7 @@ import {
 import { useTheme } from 'next-themes';
 import toast from 'react-hot-toast';
 import GlobalSearchModal from './GlobalSearchModal';
+import NotificationBell from './NotificationBell';
 import { useAppDispatch, useAppSelector } from '@/lib/redux/hooks';
 import { fetchCurrentUser, logoutUser } from '@/lib/redux/slices/authSlice';
 
@@ -118,17 +119,20 @@ export default function Navbar() {
               {mobileMenuOpen ? <X className="w-5 h-5 shrink-0" /> : <Menu className="w-5 h-5 shrink-0" />}
             </button>
 
-            <Link href="/" className="flex items-center gap-3 py-1">
+            <Link href="/" className="flex items-center gap-2.5 py-1 group">
               <img
-                src="/images/nawaz-traders-icon.png"
-                alt="Nawaz Traders Icon"
-                className="w-9 h-9 object-contain rounded-xl shadow-sm shrink-0 sm:hidden"
+                src="/images/nawaz-traders-brand-logo.jpg"
+                alt="Nawaz Traders Logo"
+                className="h-9 w-9 object-contain rounded-xl mix-blend-multiply dark:mix-blend-screen shrink-0"
               />
-              <img
-                src={currentTheme === 'dark' ? '/images/nawaz-traders-dark.png' : '/images/nawaz-traders-primary.png'}
-                alt="Nawaz Traders"
-                className="hidden sm:block h-9 object-contain max-w-[210px] transition-all"
-              />
+              <div className="flex flex-col">
+                <span className="font-extrabold text-sm text-slate-900 dark:text-white tracking-tight leading-none font-outfit">
+                  NAWAZ TRADERS
+                </span>
+                <span className="text-[9px] font-bold text-emerald-600 dark:text-emerald-400 tracking-wider uppercase leading-tight font-outfit mt-0.5">
+                  GRAIN ERP
+                </span>
+              </div>
             </Link>
           </div>
 
@@ -209,7 +213,7 @@ export default function Navbar() {
             )}
           </nav>
 
-          {/* Controls: Search & Profile */}
+          {/* Controls: Search, Notifications & Profile */}
           <div className="flex items-center gap-2 shrink-0">
             {/* Quick Search Button (Management Roles Only) */}
             {user && !['FARMER', 'EMPLOYEE', 'DRIVER'].includes(user.role) && (
@@ -225,6 +229,9 @@ export default function Navbar() {
                 </kbd>
               </button>
             )}
+
+            {/* Notification Bell Component */}
+            {user && <NotificationBell />}
 
             {/* User Profile Badge (Logged In) OR Single Sign In Button (Logged Out) */}
             {!mounted || authLoading ? (

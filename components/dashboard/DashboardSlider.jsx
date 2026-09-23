@@ -61,16 +61,16 @@ export default function DashboardSlider() {
       {SLIDES.map((slide, index) => (
         <div
           key={slide.id}
-          className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
+          className={`absolute inset-0 transition-opacity duration-1000 ease-in-out bg-slate-950 text-white ${
             index === currentSlide ? 'opacity-100 z-10' : 'opacity-0 z-0'
           }`}
         >
           {/* Subtle Dark Vignette & Glass Overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/40 to-slate-950/20 z-10" />
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/90 via-slate-950/60 to-slate-950/30 z-10" />
           <img
             src={slide.image}
             alt={slide.title}
-            className="w-full h-full object-cover transform scale-102 transition-transform duration-10000 ease-linear"
+            className="w-full h-full object-cover transform scale-105 transition-transform duration-10000 ease-linear"
           />
 
           {/* Slide Content */}

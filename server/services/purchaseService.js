@@ -1,6 +1,8 @@
 import { prisma } from '@/lib/db/prisma';
 import Decimal from 'decimal.js';
 import { getNextVoucherNumber } from '@/server/services/sequenceService';
+import { sendSmsNotification, sendWhatsAppNotification, NOTIFICATION_TEMPLATES } from '@/lib/notifications/messagingService';
+import { createNotification } from '@/server/services/notificationService';
 
 /**
  * Create a new Crop Purchase Transaction from a Farmer
@@ -195,6 +197,41 @@ export async function createPurchase(data) {
 
     return purchase;
   });
+
+  // Trigger Farmer SMS/WhatsApp Notification with Full Detailed Breakdown
+  if (party.phone) {
+    const commodityObj = await prisma.commodity.findUnique({ where: { id: commodityId } });
+    const commodityName = commodityObj?.localName || commodityObj?.name || 'धान / गेहूँ';
+
+    const breakdownMessage = NOTIFICATION_TEMPLATES.CROP_PURCHASE_DETAILED_BREAKDOWN_HINDI({
+      farmerName: party.name,
+      voucherNo: newPurchase.purchaseNo,
+      commodity: commodityName,
+      quantityQtl: displayQty.toString(),
+      ratePerQtl: ratePerUnit.toString(),
+      grossAmount: grossAmount.toString(),
+      labourCharges: labourCharges.toString(),
+      gstAmount: gstAmount.toString(),
+      deductions: totalDeductions.toString(),
+      netAmount: netAmount.toString(),
+      advancePaid: advancePaid.toString(),
+      dueAmount: dueAmount.toString(),
+      promisedDate: promisedDate ? promisedDate.toLocaleDateString('en-IN') : null,
+    });
+
+    sendSmsNotification({ phone: party.phone, message: breakdownMessage }).catch(console.error);
+    sendWhatsAppNotification({ phone: party.phone, message: breakdownMessage }).catch(console.error);
+  }
+
+  // Create persistent dynamic notification for management staff/accountants
+  createNotification({
+    userId: null,
+    targetRole: 'ACCOUNTANT',
+    title: 'New Crop Purchase Recorded',
+    message: `${newPurchase.purchaseNo}: ${displayQty.toString()} QTL Paddy procured from ${party.name}. Net: ₹${netAmount.toString()}`,
+    type: 'PURCHASE',
+    link: `/purchases/${newPurchase.id}`,
+  }).catch(console.error);
 
   return newPurchase;
 }

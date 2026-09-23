@@ -51,37 +51,38 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 flex items-center justify-center p-4 relative overflow-hidden transition-colors duration-300">
-      {/* Background Decorative Gradient Blobs */}
-      <div className="absolute top-[-10%] left-[-10%] w-[450px] h-[450px] bg-emerald-600/10 dark:bg-emerald-600/20 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-[-10%] right-[-10%] w-[450px] h-[450px] bg-amber-500/10 dark:bg-amber-500/15 rounded-full blur-[120px] pointer-events-none" />
-
       <div className="max-w-md w-full relative z-10 space-y-6">
         {/* Brand Logo & Header */}
-        <div className="text-center space-y-3 flex flex-col items-center justify-center">
+        <div className="text-center space-y-2 flex flex-col items-center justify-center">
           <img
-            src="/images/nawaz-traders-stacked.png"
-            alt="Nawaz Traders Logo — Grains Today, A Stronger Tomorrow"
-            className="w-48 h-auto object-contain drop-shadow-xl"
+            src="/images/nawaz-traders-brand-logo.jpg"
+            alt="Nawaz Traders Logo"
+            className="w-20 h-20 object-contain rounded-2xl mix-blend-multiply dark:mix-blend-screen shadow-sm"
           />
-          <p className="text-[11px] font-extrabold tracking-widest text-amber-600 dark:text-amber-400 uppercase">
-            GRAINS TODAY • A STRONGER TOMORROW
-          </p>
+          <div>
+            <h1 className="text-xl font-extrabold text-slate-900 dark:text-white tracking-tight font-outfit">
+              NAWAZ TRADERS
+            </h1>
+            <p className="text-[10px] font-bold tracking-widest text-emerald-600 dark:text-emerald-400 uppercase font-outfit mt-0.5">
+              GRAINS TODAY • A STRONGER TOMORROW
+            </p>
+          </div>
         </div>
 
         {/* Login Card */}
-        <div className="glass-card p-6 sm:p-8 rounded-3xl border border-slate-200 dark:border-emerald-500/20 shadow-2xl space-y-6">
+        <div className="glass-card p-6 sm:p-8 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xl space-y-6">
           <div className="space-y-1">
             <h2 className="text-lg font-bold text-slate-900 dark:text-white">Sign In to Your Account</h2>
             <p className="text-xs text-slate-500 dark:text-slate-400">Enter your credentials to access the ERP dashboard</p>
           </div>
 
           {/* Quick Demo Credentials Banner */}
-          <div className="p-3 bg-emerald-500/10 dark:bg-emerald-950/60 border border-emerald-500/20 dark:border-emerald-800/40 rounded-xl flex items-center justify-between text-xs">
-            <div className="flex items-center gap-2 text-emerald-700 dark:text-emerald-300">
-              <ShieldCheck className="w-4 h-4 text-amber-500 dark:text-amber-400" />
+          <div className="p-3 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800/60 rounded-xl flex items-center justify-between text-xs">
+            <div className="flex items-center gap-2 text-emerald-800 dark:text-emerald-300 font-medium">
+              <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
               <span>Demo Account Loaded</span>
             </div>
-            <span className="text-[11px] font-mono text-amber-700 dark:text-amber-300 font-bold bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20">
+            <span className="text-[11px] font-mono text-emerald-900 dark:text-emerald-200 font-bold bg-emerald-100 dark:bg-emerald-900/60 px-2 py-0.5 rounded border border-emerald-300 dark:border-emerald-700">
               admin / admin123
             </span>
           </div>
@@ -134,7 +135,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white font-bold text-sm rounded-xl shadow-lg shadow-emerald-950/20 transition flex items-center justify-center gap-2 disabled:opacity-50 mt-2"
+              className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-bold text-sm rounded-xl shadow-sm transition flex items-center justify-center gap-2 disabled:opacity-50 mt-2 cursor-pointer"
             >
               {loading ? (
                 'Signing in...'

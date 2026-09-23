@@ -81,8 +81,8 @@ export default function WholesaleWorkflowSection() {
       </div>
 
       {/* Callout Banner */}
-      <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-emerald-500/10 via-emerald-500/5 to-amber-500/10 border border-emerald-500/20 text-center flex flex-col sm:flex-row items-center justify-between gap-3">
-        <span className="text-xs sm:text-sm font-semibold text-slate-800 dark:text-slate-200 font-outfit">
+      <div className="p-4 sm:p-5 rounded-xl bg-emerald-50/80 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 text-center flex flex-col sm:flex-row items-center justify-between gap-3 shadow-sm">
+        <span className="text-xs sm:text-sm font-semibold text-emerald-950 dark:text-emerald-100 font-outfit">
           Onboarding managed for you. Create a free trade slip or manage party Khatas now.
         </span>
         <Link href="/farmers" className="bahi-btn-primary shrink-0 py-2 px-4 text-xs">

@@ -171,37 +171,37 @@
     @apply w-full px-4 py-2.5 bg-slate-50/90 dark:bg-slate-950/90 backdrop-blur-md border border-slate-200 dark:border-slate-800 rounded-2xl text-xs sm:text-sm font-medium text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 outline-none transition-all hover:border-slate-400 dark:hover:border-slate-700 shadow-sm font-outfit;
   }
 
-  /* Standardized Button System */
+  /* Standardized Professional Button System */
   .bahi-btn-primary {
-    @apply inline-flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-600 via-emerald-500 to-amber-500 hover:from-emerald-500 hover:to-amber-400 text-white font-extrabold px-5 py-2.5 rounded-2xl text-xs sm:text-sm shadow-md shadow-emerald-950/20 transition-all duration-200 transform hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] font-outfit tracking-wide cursor-pointer;
+    @apply inline-flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-bold px-5 py-2.5 rounded-xl text-xs sm:text-sm shadow-sm transition-all duration-150 transform active:scale-[0.98] font-outfit tracking-wide cursor-pointer;
   }
 
   .bahi-btn-secondary {
-    @apply inline-flex items-center justify-center gap-2 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-800 dark:text-slate-100 font-bold px-4 py-2.5 rounded-2xl text-xs sm:text-sm border border-slate-200 dark:border-slate-700/80 transition-all duration-200 shadow-sm font-outfit hover:border-slate-300 dark:hover:border-slate-600 active:scale-[0.98] cursor-pointer;
+    @apply inline-flex items-center justify-center gap-2 bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-800 dark:text-slate-100 font-semibold px-4 py-2.5 rounded-xl text-xs sm:text-sm border border-slate-300 dark:border-slate-700 transition-all duration-150 shadow-sm font-outfit active:scale-[0.98] cursor-pointer;
   }
 
   .bahi-btn-emerald {
-    @apply inline-flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold px-5 py-2.5 rounded-2xl text-xs sm:text-sm shadow-md transition-all duration-200 transform hover:-translate-y-0.5 active:translate-y-0 font-outfit tracking-wide active:scale-[0.98] cursor-pointer;
+    @apply inline-flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-5 py-2.5 rounded-xl text-xs sm:text-sm shadow-sm transition-all duration-150 font-outfit tracking-wide active:scale-[0.98] cursor-pointer;
   }
 
   .bahi-btn-purple {
-    @apply inline-flex items-center justify-center gap-2 bg-purple-600 hover:bg-purple-500 text-white font-extrabold px-5 py-2.5 rounded-2xl text-xs sm:text-sm shadow-md transition-all duration-200 transform hover:-translate-y-0.5 active:translate-y-0 font-outfit tracking-wide active:scale-[0.98] cursor-pointer;
+    @apply inline-flex items-center justify-center gap-2 bg-purple-600 hover:bg-purple-700 text-white font-bold px-5 py-2.5 rounded-xl text-xs sm:text-sm shadow-sm transition-all duration-150 font-outfit tracking-wide active:scale-[0.98] cursor-pointer;
   }
 
   .bahi-btn-rose {
-    @apply inline-flex items-center justify-center gap-2 bg-rose-600 hover:bg-rose-500 text-white font-extrabold px-5 py-2.5 rounded-2xl text-xs sm:text-sm shadow-md transition-all duration-200 transform hover:-translate-y-0.5 active:translate-y-0 font-outfit tracking-wide active:scale-[0.98] cursor-pointer;
+    @apply inline-flex items-center justify-center gap-2 bg-rose-600 hover:bg-rose-700 text-white font-bold px-5 py-2.5 rounded-xl text-xs sm:text-sm shadow-sm transition-all duration-150 font-outfit tracking-wide active:scale-[0.98] cursor-pointer;
   }
 
   .bahi-btn-white {
-    @apply inline-flex items-center justify-center gap-2 bg-white hover:bg-emerald-50 text-emerald-800 dark:text-emerald-700 font-extrabold px-5 py-2.5 rounded-2xl text-xs sm:text-sm shadow-md transition-all duration-200 transform hover:-translate-y-0.5 active:translate-y-0 font-outfit tracking-wide active:scale-[0.98] cursor-pointer;
+    @apply inline-flex items-center justify-center gap-2 bg-white hover:bg-slate-50 text-slate-800 font-bold px-5 py-2.5 rounded-xl text-xs sm:text-sm shadow-sm border border-slate-200 transition-all duration-150 font-outfit tracking-wide active:scale-[0.98] cursor-pointer;
   }
 
   .bahi-btn-glass {
-    @apply inline-flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 text-white font-semibold border border-white/25 hover:border-white/40 px-5 py-2.5 rounded-2xl text-xs sm:text-sm transition-all duration-200 backdrop-blur-md font-outfit tracking-wide active:scale-[0.98] cursor-pointer;
+    @apply inline-flex items-center justify-center gap-2 bg-slate-800/80 hover:bg-slate-800 text-white font-semibold border border-slate-700 px-5 py-2.5 rounded-xl text-xs sm:text-sm transition-all duration-150 font-outfit tracking-wide active:scale-[0.98] cursor-pointer;
   }
 
   .bahi-badge {
-    @apply inline-flex items-center gap-1.5 px-3 py-1 rounded-2xl text-[11px] font-extrabold uppercase tracking-wider bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 border border-emerald-200/60 dark:border-emerald-800/50 font-outfit;
+    @apply inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-[11px] font-bold uppercase tracking-wider bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 border border-emerald-300/50 dark:border-emerald-800/60 font-outfit;
   }
 }
 

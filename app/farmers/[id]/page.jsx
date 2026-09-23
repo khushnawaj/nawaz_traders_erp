@@ -29,6 +29,7 @@ import {
 import FarmerPaymentModal from '@/components/farmers/FarmerPaymentModal';
 import FarmerPurchaseModal from '@/components/farmers/FarmerPurchaseModal';
 import FarmerFormModal from '@/components/farmers/FarmerFormModal';
+import FarmerAdvanceProceedModal from '@/components/farmers/FarmerAdvanceProceedModal';
 import ProfileAvatarModal from '@/components/common/ProfileAvatarModal';
 import DocumentPreviewModal from '@/components/common/DocumentPreviewModal';
 import Loader from '@/components/common/Loader';
@@ -41,6 +42,9 @@ export default function FarmerProfilePage() {
   const id = params?.id;
 
   const [farmer, setFarmer] = useState(null);
+  const [advanceRequests, setAdvanceRequests] = useState([]);
+  const [selectedAdvance, setSelectedAdvance] = useState(null);
+  const [isAdvanceModalOpen, setIsAdvanceModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('overview');
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
@@ -67,6 +71,12 @@ export default function FarmerProfilePage() {
       const json = await res.json();
       if (json.success) {
         setFarmer(json.data);
+      }
+
+      const resAdv = await fetch(`/api/farmer/advance-requests?partyId=${id}`);
+      const jsonAdv = await resAdv.json();
+      if (jsonAdv.success) {
+        setAdvanceRequests(jsonAdv.data || []);
       }
     } catch (err) {
       console.error('Error fetching farmer profile:', err);
@@ -282,6 +292,7 @@ export default function FarmerProfilePage() {
           { id: 'purchases', label: 'Crop Procurement Logs', icon: Wheat },
           { id: 'ledger', label: 'Farmer Khaata Ledger', icon: Receipt },
           { id: 'payments', label: 'Payment Vouchers', icon: CreditCard },
+          { id: 'advances', label: `Khet Advance Requests (${advanceRequests.length})`, icon: Landmark },
         ].map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
@@ -640,6 +651,75 @@ export default function FarmerProfilePage() {
           )}
         </div>
       )}
+      {activeTab === 'advances' && (
+        <div className="glass-card rounded-3xl border border-slate-200/60 dark:border-slate-800/60 shadow-xl overflow-hidden">
+          <div className="p-4 border-b border-slate-200/60 dark:border-slate-800/60 bg-emerald-500/10 flex items-center justify-between">
+            <h3 className="font-semibold text-slate-900 dark:text-white text-sm flex items-center gap-2">
+              <Landmark className="w-4 h-4 text-emerald-500" /> Khet Advance Requests & Disbursement Status
+            </h3>
+          </div>
+          {advanceRequests.length === 0 ? (
+            <div className="p-8 text-center text-slate-500 dark:text-slate-400 text-xs font-normal">
+              No advance requests logged by this farmer yet.
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead className="bg-slate-100/80 dark:bg-slate-900/80 text-slate-700 dark:text-slate-300 font-semibold uppercase border-b border-slate-200/60 dark:border-slate-800/60">
+                  <tr>
+                    <th className="p-3">Request No</th>
+                    <th className="p-3">Request Date</th>
+                    <th className="p-3">Crop / Reason</th>
+                    <th className="p-3 text-right">Requested Amount</th>
+                    <th className="p-3 text-center">Status</th>
+                    <th className="p-3">Disbursed Mode</th>
+                    <th className="p-3 text-center">Action</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-200/60 dark:divide-slate-800/60 font-medium">
+                  {advanceRequests.map((req) => (
+                    <tr key={req.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition">
+                      <td className="p-3 font-mono font-semibold text-slate-900 dark:text-white">{req.requestNo}</td>
+                      <td className="p-3 text-slate-600 dark:text-slate-400">{new Date(req.createdAt).toLocaleDateString('en-IN')}</td>
+                      <td className="p-3 text-slate-700 dark:text-slate-300 font-semibold">{req.reason}</td>
+                      <td className="p-3 text-right font-extrabold text-amber-500 font-bahi">{formatCurrency(req.amount)}</td>
+                      <td className="p-3 text-center">
+                        <span
+                          className={`px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase border ${
+                            req.status === 'APPROVED'
+                              ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30'
+                              : req.status === 'REJECTED'
+                              ? 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/30'
+                              : 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30'
+                          }`}
+                        >
+                          {req.status === 'APPROVED' ? '✓ Approved' : req.status === 'REJECTED' ? '✕ Rejected' : '⏳ Pending'}
+                        </span>
+                      </td>
+                      <td className="p-3 text-slate-600 dark:text-slate-400 font-semibold uppercase">{req.disbursedMode || 'CASH'}</td>
+                      <td className="p-3 text-center">
+                        <button
+                          onClick={() => {
+                            setSelectedAdvance(req);
+                            setIsAdvanceModalOpen(true);
+                          }}
+                          className={`px-3 py-1.5 rounded-xl text-[11px] font-extrabold shadow-sm transition ${
+                            req.status === 'PENDING'
+                              ? 'bg-emerald-600 hover:bg-emerald-500 text-white'
+                              : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200'
+                          }`}
+                        >
+                          {req.status === 'PENDING' ? 'Proceed Request ➔' : 'View Record Details'}
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Modals */}
       <FarmerPaymentModal
@@ -654,6 +734,16 @@ export default function FarmerProfilePage() {
         isOpen={isPurchaseModalOpen}
         onClose={() => setIsPurchaseModalOpen(false)}
         defaultFarmer={farmer}
+        onSuccess={() => fetchProfile()}
+      />
+
+      <FarmerAdvanceProceedModal
+        request={selectedAdvance}
+        isOpen={isAdvanceModalOpen}
+        onClose={() => {
+          setIsAdvanceModalOpen(false);
+          setSelectedAdvance(null);
+        }}
         onSuccess={() => fetchProfile()}
       />
 

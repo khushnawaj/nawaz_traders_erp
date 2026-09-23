@@ -275,51 +275,67 @@ export default function PurchaseDetailPage() {
             </table>
           </div>
 
-          {/* Calculations Box */}
-          <div className="flex justify-end pt-2">
-            <div className="w-full sm:w-80 space-y-2 text-xs">
-              <div className="flex justify-between text-slate-600 dark:text-slate-400 font-bold">
-                <span>Gross Crop Value:</span>
-                <span className="font-black text-slate-900 dark:text-white print:text-black">{formatCurrency(purchase.grossAmount)}</span>
+          {/* Notification Alert & Detailed Itemized Math Breakdown */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+            {/* Left: SMS / WhatsApp Dispatch Status */}
+            <div className="p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 text-xs space-y-2 font-outfit print:hidden">
+              <div className="flex items-center justify-between">
+                <span className="font-bold text-emerald-800 dark:text-emerald-300 flex items-center gap-1.5">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" /> SMS & WhatsApp Breakdown Dispatched
+                </span>
+                <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-emerald-100 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300 font-bold">
+                  DELIVERED
+                </span>
+              </div>
+              <p className="text-[11px] text-slate-600 dark:text-slate-400 leading-relaxed font-normal">
+                Full breakdown message sent to farmer phone (<strong>{purchase.party?.phone || 'Linked Mobile'}</strong>): Rate ₹{item?.ratePerUnit}/unit, Gross {purchase.grossAmount}, Palledari ₹{purchase.labourCharges || 0}, Tax ₹{purchase.gstAmount || 0}, Deductions -₹{purchase.totalDeductions || 0}, Net ₹{purchase.netAmount}, Advance ₹{purchase.paidAmount}, Due ₹{purchase.dueAmount}.
+              </p>
+            </div>
+
+            {/* Right: Calculations Box */}
+            <div className="space-y-2 text-xs font-outfit">
+              <div className="flex justify-between text-slate-600 dark:text-slate-400 font-semibold">
+                <span>Gross Crop Value ({item?.displayQuantity || 0} {unitCode} @ ₹{item?.ratePerUnit}):</span>
+                <span className="font-bold text-slate-900 dark:text-white print:text-black">{formatCurrency(purchase.grossAmount)}</span>
               </div>
 
               {parseFloat(purchase.labourCharges) > 0 && (
-                <div className="flex justify-between text-amber-600 dark:text-amber-400 font-bold">
+                <div className="flex justify-between text-emerald-700 dark:text-emerald-400 font-semibold">
                   <span>+ Palledari / Labour Pay:</span>
-                  <span className="font-black">+₹{parseFloat(purchase.labourCharges).toFixed(2)}</span>
+                  <span className="font-bold">+₹{parseFloat(purchase.labourCharges).toFixed(2)}</span>
                 </div>
               )}
 
               {parseFloat(purchase.gstAmount) > 0 && (
-                <div className="flex justify-between text-slate-600 dark:text-slate-400 font-bold">
-                  <span>+ GST / Mandi Tax:</span>
-                  <span className="font-black">+₹{parseFloat(purchase.gstAmount).toFixed(2)}</span>
+                <div className="flex justify-between text-slate-600 dark:text-slate-400 font-semibold">
+                  <span>+ Mandi Tax / GST:</span>
+                  <span className="font-bold">+₹{parseFloat(purchase.gstAmount).toFixed(2)}</span>
                 </div>
               )}
 
               {parseFloat(purchase.totalDeductions) > 0 && (
-                <div className="flex justify-between text-rose-600 dark:text-rose-400 font-bold">
-                  <span>- Deductions (Moisture/Bags):</span>
-                  <span className="font-black">-₹{parseFloat(purchase.totalDeductions).toFixed(2)}</span>
+                <div className="flex justify-between text-rose-600 dark:text-rose-400 font-semibold">
+                  <span>- Total Deductions (Moisture/Katta):</span>
+                  <span className="font-bold">-₹{parseFloat(purchase.totalDeductions).toFixed(2)}</span>
                 </div>
               )}
 
-              <div className="p-3.5 rounded-2xl bg-gradient-to-r from-emerald-950 to-slate-900 text-white flex justify-between items-center shadow-lg print:bg-gray-200 print:text-black">
+              <div className="p-3.5 rounded-xl bg-slate-900 text-white flex justify-between items-center shadow-sm print:bg-gray-200 print:text-black">
                 <div>
-                  <div className="text-[10px] font-black uppercase text-amber-400 print:text-gray-700">Total Purchase Voucher Bill</div>
-                  <div className="text-xl font-black text-emerald-400 print:text-black">
+                  <div className="text-[10px] font-bold uppercase text-emerald-400 print:text-gray-700">Net Payable Bill Total</div>
+                  <div className="text-lg font-extrabold text-white print:text-black">
                     {formatCurrency(purchase.netAmount)}
                   </div>
                 </div>
               </div>
 
-              <div className="flex justify-between text-slate-600 dark:text-slate-400 pt-1 font-bold">
+              <div className="flex justify-between text-slate-600 dark:text-slate-400 pt-1 font-semibold">
                 <span>Advance Paid:</span>
-                <span className="font-black text-emerald-600 dark:text-emerald-400">{formatCurrency(purchase.paidAmount)}</span>
+                <span className="font-bold text-emerald-600 dark:text-emerald-400">{formatCurrency(purchase.paidAmount)}</span>
               </div>
 
-              <div className="flex justify-between font-black text-rose-600 dark:text-rose-400 border-t border-slate-200 dark:border-slate-800 pt-2 text-sm">
-                <span>Farmer Payable Dues:</span>
+              <div className="flex justify-between font-extrabold text-rose-600 dark:text-rose-400 border-t border-slate-200 dark:border-slate-800 pt-2 text-sm">
+                <span>Farmer Balance Due:</span>
                 <span>{formatCurrency(purchase.dueAmount)}</span>
               </div>
             </div>

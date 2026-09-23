@@ -32,14 +32,14 @@ export default function Footer() {
           {/* Brand Info */}
           <div className="sm:col-span-2 space-y-3">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-amber-500 via-amber-400 to-emerald-500 flex items-center justify-center shadow-lg text-slate-950">
-                <Wheat className="w-5 h-5 text-slate-950" />
+              <div className="w-10 h-10 rounded-xl bg-emerald-600 flex items-center justify-center text-white shadow-sm">
+                <Wheat className="w-5 h-5 text-white" />
               </div>
               <div>
-                <span className="font-bold text-slate-900 dark:text-white tracking-wider text-base uppercase block font-outfit">
+                <span className="font-extrabold text-slate-900 dark:text-white tracking-wider text-base uppercase block font-outfit">
                   NAWAZ TRADERS ERP
                 </span>
-                <span className="text-[10px] text-amber-500 font-semibold uppercase tracking-widest block font-outfit">
+                <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold uppercase tracking-widest block font-outfit">
                   GRAINS TODAY • A STRONGER TOMORROW
                 </span>
               </div>

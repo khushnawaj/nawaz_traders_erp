@@ -18,12 +18,17 @@ import {
   Share2,
   ExternalLink,
   Eye,
-  CheckCircle2
+  CheckCircle2,
+  Landmark,
+  CheckCircle,
+  XCircle,
+  Clock
 } from 'lucide-react';
 import { CardGridSkeleton } from '@/components/common/SkeletonLoader';
 import Loader from '@/components/common/Loader';
 import FarmerFormModal from '@/components/farmers/FarmerFormModal';
 import FarmerPurchaseModal from '@/components/farmers/FarmerPurchaseModal';
+import FarmerAdvanceProceedModal from '@/components/farmers/FarmerAdvanceProceedModal';
 import Breadcrumb from '@/components/layout/Breadcrumb';
 import { formatCurrency } from '@/lib/utils';
 import toast from 'react-hot-toast';
@@ -54,8 +59,27 @@ export default function FarmersPage() {
     selectedFarmerForPurchase,
   } = useAppSelector((state) => state.farmers);
 
+  // Farmer Khet Advance Requests State
+  const [advanceRequests, setAdvanceRequests] = useState([]);
+  const [selectedAdvance, setSelectedAdvance] = useState(null);
+  const [isAdvanceModalOpen, setIsAdvanceModalOpen] = useState(false);
+  const [showAdvanceSection, setShowAdvanceSection] = useState(false);
+
+  const fetchAdvanceRequests = async () => {
+    try {
+      const res = await fetch('/api/farmer/advance-requests');
+      const json = await res.json();
+      if (json.success) {
+        setAdvanceRequests(json.data || []);
+      }
+    } catch (err) {
+      console.error('Error fetching farmer advance requests:', err);
+    }
+  };
+
   useEffect(() => {
     dispatch(fetchFarmers({ search }));
+    fetchAdvanceRequests();
   }, [dispatch]);
 
   useEffect(() => {
@@ -119,6 +143,19 @@ export default function FarmersPage() {
 
         <div className="flex flex-wrap items-center gap-2.5 relative z-10">
           <button
+            onClick={() => setShowAdvanceSection(!showAdvanceSection)}
+            className="inline-flex items-center gap-2 bg-emerald-700 hover:bg-emerald-600 text-white font-semibold px-4 py-2.5 rounded-2xl text-xs shadow-md transition transform hover:-translate-y-0.5 relative"
+          >
+            <Landmark className="w-4 h-4 text-amber-300" />
+            <span>Khet Advances</span>
+            {advanceRequests.filter((r) => r.status === 'PENDING').length > 0 && (
+              <span className="px-1.5 py-0.5 rounded-full text-[10px] font-extrabold bg-amber-400 text-slate-950 animate-pulse">
+                {advanceRequests.filter((r) => r.status === 'PENDING').length} Pending
+              </span>
+            )}
+          </button>
+
+          <button
             onClick={() => {
               dispatch(setSelectedFarmerForPurchase(null));
               dispatch(setIsPurchaseModalOpen(true));
@@ -136,6 +173,90 @@ export default function FarmersPage() {
           </button>
         </div>
       </div>
+
+      {/* FARMER KHET ADVANCE REQUESTS & APPROVALS MANAGEMENT SECTION */}
+      {showAdvanceSection && (
+        <div className="glass-card p-6 rounded-3xl border border-slate-200/60 dark:border-slate-800/60 shadow-xl space-y-4 animate-in fade-in duration-200">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-slate-200/60 dark:border-slate-800/60 pb-4">
+            <div>
+              <h2 className="font-extrabold text-base text-slate-900 dark:text-white flex items-center gap-2 font-outfit">
+                <Landmark className="w-5 h-5 text-emerald-500" /> Farmer Khet Advance Requests & Approvals
+              </h2>
+              <p className="text-xs text-slate-500 font-normal">Review farmer advance requests, enter disbursement mode & track records</p>
+            </div>
+            <button
+              onClick={() => setShowAdvanceSection(false)}
+              className="text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 font-semibold"
+            >
+              Close Panel ✕
+            </button>
+          </div>
+
+          {advanceRequests.length === 0 ? (
+            <div className="p-8 text-center text-xs text-slate-500">
+              No farmer advance requests recorded in the system yet.
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead className="bg-slate-100/80 dark:bg-slate-900/80 text-slate-700 dark:text-slate-300 font-semibold uppercase border-b border-slate-200/60 dark:border-slate-800/60">
+                  <tr>
+                    <th className="p-3">Request No</th>
+                    <th className="p-3">Farmer Name</th>
+                    <th className="p-3">Crop / Reason</th>
+                    <th className="p-3 text-right">Requested Amount</th>
+                    <th className="p-3 text-center">Status</th>
+                    <th className="p-3">Disbursed Mode</th>
+                    <th className="p-3 text-center">Action</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-200/60 dark:divide-slate-800/60 font-medium">
+                  {advanceRequests.map((req) => (
+                    <tr key={req.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition">
+                      <td className="p-3 font-mono font-bold text-slate-900 dark:text-white">{req.requestNo}</td>
+                      <td className="p-3">
+                        <strong className="text-slate-900 dark:text-white block">{req.party?.name || 'Farmer'}</strong>
+                        <span className="text-[10px] text-slate-400 font-mono">{req.party?.partyCode}</span>
+                      </td>
+                      <td className="p-3 text-slate-600 dark:text-slate-400">{req.reason}</td>
+                      <td className="p-3 text-right font-extrabold text-amber-500 font-bahi">{formatCurrency(req.amount)}</td>
+                      <td className="p-3 text-center">
+                        <span
+                          className={`px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase border ${
+                            req.status === 'APPROVED'
+                              ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30'
+                              : req.status === 'REJECTED'
+                              ? 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/30'
+                              : 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30'
+                          }`}
+                        >
+                          {req.status === 'APPROVED' ? '✓ Approved' : req.status === 'REJECTED' ? '✕ Rejected' : '⏳ Pending'}
+                        </span>
+                      </td>
+                      <td className="p-3 text-slate-600 dark:text-slate-400 font-semibold uppercase">{req.disbursedMode || 'CASH'}</td>
+                      <td className="p-3 text-center">
+                        <button
+                          onClick={() => {
+                            setSelectedAdvance(req);
+                            setIsAdvanceModalOpen(true);
+                          }}
+                          className={`px-3 py-1.5 rounded-xl text-[11px] font-extrabold shadow-sm transition ${
+                            req.status === 'PENDING'
+                              ? 'bg-emerald-600 hover:bg-emerald-500 text-white'
+                              : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200'
+                          }`}
+                        >
+                          {req.status === 'PENDING' ? 'Proceed Request ➔' : 'View Record Details'}
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Summary Statistics Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -447,7 +568,7 @@ export default function FarmersPage() {
         )}
       </div>
 
-      {/* Form & Purchase Modals */}
+      {/* Form, Purchase & Advance Modals */}
       <FarmerFormModal
         isOpen={isModalOpen}
         onClose={() => dispatch(setIsFarmerModalOpen(false))}
@@ -462,6 +583,19 @@ export default function FarmersPage() {
         }}
         defaultFarmer={selectedFarmerForPurchase}
         onSuccess={() => dispatch(fetchFarmers({ search }))}
+      />
+
+      <FarmerAdvanceProceedModal
+        request={selectedAdvance}
+        isOpen={isAdvanceModalOpen}
+        onClose={() => {
+          setIsAdvanceModalOpen(false);
+          setSelectedAdvance(null);
+        }}
+        onSuccess={() => {
+          fetchAdvanceRequests();
+          dispatch(fetchFarmers({ search }));
+        }}
       />
     </main>
   );
