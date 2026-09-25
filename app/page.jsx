@@ -21,7 +21,9 @@ import {
   Clock,
   CheckCircle,
   Layers,
-  FileSpreadsheet
+  FileSpreadsheet,
+  Store,
+  ShieldAlert
 } from 'lucide-react';
 import DashboardSlider from '@/components/dashboard/DashboardSlider';
 import GrainCommodityShowcase from '@/components/dashboard/GrainCommodityShowcase';
@@ -101,7 +103,7 @@ export default function HomePage() {
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             {stats.pendingAdvances > 0 && ['OWNER', 'CO_OWNER', 'ADMIN', 'MANAGER', 'ACCOUNTANT'].includes(role) && (
               <Link
                 href="/employees"

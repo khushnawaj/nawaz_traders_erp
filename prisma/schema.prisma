@@ -125,6 +125,8 @@ model Party {
   advanceRequests AdvanceRequest[]
   fuelExpenses    FuelExpense[]    @relation("VendorFuelExpenses")
   vehicleExpenses VehicleExpense[] @relation("VendorVehicleExpenses")
+  kiranaSales     KiranaSale[]
+  kiranaPurchases KiranaPurchase[]
 
   @@index([name])
   @@index([phone])
@@ -659,3 +661,135 @@ model Notification {
   @@index([targetRole])
   @@map("notifications")
 }
+
+// 24. KIRANA STORE PRODUCT ENTITY
+model KiranaProduct {
+  id             String    @id @default(uuid())
+  sku            String    @unique // e.g. KRN-PRD-001 or Barcode
+  barcode        String?   @unique
+  name           String    // e.g. Tata Salt 1kg, Fortune Soyabean Oil 1L
+  localName      String?   // e.g. टाटा नमक, फॉर्च्यून तेल
+  category       String    // Groceries & Spices, Snacks & Drinks, Personal Care, Dairy & Bakery, Household Items
+  mrp            Decimal   @db.Decimal(10, 2)
+  purchasePrice  Decimal   @db.Decimal(10, 2)
+  sellingPrice   Decimal   @db.Decimal(10, 2)
+  unit           String    @default("Pcs") // Pcs, Pkt, Kg, Ltr, Bottle, Box
+  currentStock   Decimal   @default(0.00) @db.Decimal(10, 2)
+  minStockLevel  Decimal   @default(5.00) @db.Decimal(10, 2)
+  status         Status    @default(ACTIVE)
+  imageUrl       String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  saleItems      KiranaSaleItem[]
+  purchaseItems  KiranaPurchaseItem[]
+
+  @@map("kirana_products")
+}
+
+// 25. KIRANA STORE SALE / POS BILL ENTITY
+model KiranaSale {
+  id             String            @id @default(uuid())
+  billNo         String            @unique // e.g. KRN-2026-0001
+  date           DateTime          @default(now())
+  partyId        String?
+  party          Party?            @relation(fields: [partyId], references: [id])
+  customerName   String            @default("Counter Customer")
+  customerPhone  String?
+  totalAmount    Decimal           @db.Decimal(15, 2)
+  discountAmount Decimal           @default(0.00) @db.Decimal(15, 2)
+  taxAmount      Decimal           @default(0.00) @db.Decimal(15, 2)
+  netAmount      Decimal           @db.Decimal(15, 2)
+  paidAmount     Decimal           @default(0.00) @db.Decimal(15, 2)
+  dueAmount      Decimal           @default(0.00) @db.Decimal(15, 2)
+  paymentMode    String            @default("CASH") // CASH, UPI, CREDIT (UDHAAR), MIXED
+  paymentStatus  String            @default("PAID") // PAID, UNPAID, PARTIAL
+  status         TransactionStatus @default(POSTED)
+  notes          String?
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+
+  items          KiranaSaleItem[]
+
+  @@map("kirana_sales")
+}
+
+// 26. KIRANA SALE ITEM ENTITY
+model KiranaSaleItem {
+  id           String        @id @default(uuid())
+  saleId       String
+  sale         KiranaSale    @relation(fields: [saleId], references: [id], onDelete: Cascade)
+  productId    String
+  product      KiranaProduct @relation(fields: [productId], references: [id])
+  unit         String        @default("Pcs")
+  quantity     Decimal       @db.Decimal(10, 2)
+  sellingPrice Decimal       @db.Decimal(10, 2)
+  totalAmount  Decimal       @db.Decimal(10, 2)
+
+  @@map("kirana_sale_items")
+}
+
+// 27. COMPLIANCE, LICENSES & TAX RENEWAL REMINDER ENTITY
+model ComplianceLicense {
+  id               String   @id @default(uuid())
+  title            String   // e.g. "Weighing Scale Annual Stamping & Tax", "FSSAI Food License"
+  category         String   // WEIGHT_MACHINE, FSSAI, MANDI_LICENSE, TRADE_LICENSE, VEHICLE_TAX, GST, FIRE_SAFETY
+  licenseNumber    String?  // e.g. WMT/2026/8892
+  issuingAuthority String?  // e.g. Legal Metrology Department, MP
+  issueDate        DateTime?
+  expiryDate       DateTime // Next due date for renewal / tax payment
+  reminderDays     Int      @default(30) // Show alert N days before expiry
+  renewalFee       Decimal  @default(0.00) @db.Decimal(15, 2)
+  status           String   @default("VALID") // VALID, EXPIRING_SOON, EXPIRED, RENEWAL_IN_PROGRESS
+  documentUrl      String?  // Scan of License Certificate
+  notes            String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@map("compliance_licenses")
+}
+
+// 28. KIRANA STORE INWARD PURCHASE / STOCK RECEIPT ENTITY
+model KiranaPurchase {
+  id             String            @id @default(uuid())
+  purchaseNo     String            @unique // e.g. KRN-INW-2026-0001
+  date           DateTime          @default(now()) // Stock arrival date
+  supplierName   String            // Supplier / Mandi Trader (e.g. Sonebhadra Veg Mandi Trader)
+  supplierPhone  String?
+  invoiceNo      String?           // Supplier Bill / Mandi Receipt No.
+  partyId        String?
+  party          Party?            @relation(fields: [partyId], references: [id])
+  totalItemCost  Decimal           @db.Decimal(15, 2) // Gross item cost (e.g. 10000)
+  taxCharges     Decimal           @default(0.00) @db.Decimal(15, 2) // Mandi Shulk, Freight, Palledari, Taxes
+  netAmount      Decimal           @db.Decimal(15, 2) // Grand total cost
+  paidAmount     Decimal           @default(0.00) @db.Decimal(15, 2) // Paid amount
+  dueAmount      Decimal           @default(0.00) @db.Decimal(15, 2) // Remaining left / Have to pay
+  paymentMode    String            @default("CASH") // CASH, UPI, CREDIT, BANK_TRANSFER
+  paymentStatus  String            @default("PAID") // PAID, UNPAID, PARTIAL
+  parchiDocUrl   String?           // Parchi / Receipt photo upload URL
+  status         TransactionStatus @default(POSTED)
+  notes          String?
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+
+  items          KiranaPurchaseItem[]
+
+  @@map("kirana_purchases")
+}
+
+// 29. KIRANA PURCHASE ITEM ENTITY
+model KiranaPurchaseItem {
+  id            String         @id @default(uuid())
+  purchaseId    String
+  purchase      KiranaPurchase @relation(fields: [purchaseId], references: [id], onDelete: Cascade)
+  productId     String?
+  product       KiranaProduct? @relation(fields: [productId], references: [id])
+  itemName      String         // e.g. Aaloo (Potato), Pyaj (Onion), Adrak, Lahsun
+  unit          String         @default("Kg")
+  quantity      Decimal        @db.Decimal(10, 2)
+  purchasePrice Decimal        @db.Decimal(10, 2)
+  totalAmount   Decimal        @db.Decimal(10, 2)
+
+  @@map("kirana_purchase_items")
+}
+

@@ -181,6 +181,80 @@ export async function createPurchase(data) {
       });
     }
 
+    // 4b. Auto-Settle pending Kirana Store Udhaar for Farmer (Inter-Entity Reimbursement Settlement)
+    const pendingKiranaSales = await tx.kiranaSale.findMany({
+      where: { partyId, dueAmount: { gt: 0 } },
+      orderBy: { createdAt: 'asc' },
+    });
+
+    if (pendingKiranaSales.length > 0) {
+      const totalKiranaDue = pendingKiranaSales.reduce((sum, s) => sum + parseFloat(s.dueAmount), 0);
+      const userSpecifiedDeduction = data.storeUdhaarDeducted !== undefined ? parseFloat(data.storeUdhaarDeducted) : undefined;
+      const settleAmt = userSpecifiedDeduction !== undefined 
+        ? Math.min(userSpecifiedDeduction, totalKiranaDue)
+        : Math.min(totalKiranaDue, netAmount.toNumber());
+
+      if (settleAmt > 0) {
+        let remainingToSettle = settleAmt;
+        for (const sale of pendingKiranaSales) {
+          if (remainingToSettle <= 0) break;
+
+          const saleDue = parseFloat(sale.dueAmount);
+          const applyAmt = Math.min(saleDue, remainingToSettle);
+          const newPaid = parseFloat(sale.paidAmount) + applyAmt;
+          const newDue = saleDue - applyAmt;
+
+          await tx.kiranaSale.update({
+            where: { id: sale.id },
+            data: {
+              paidAmount: newPaid,
+              dueAmount: newDue,
+              paymentStatus: newDue <= 0 ? 'PAID' : 'PARTIAL',
+            },
+          });
+
+          remainingToSettle -= applyAmt;
+        }
+
+        // Post Jama transaction to PaymentTransaction for Kirana Store Passbook
+        const jamaTxnNo = `JAMA-ERP-${Date.now().toString().slice(-6)}`;
+        await tx.paymentTransaction.create({
+          data: {
+            txnNo: jamaTxnNo,
+            partyId,
+            amount: settleAmt,
+            type: 'PAYMENT_RECEIVED',
+            paymentMode: 'ERP_GRAIN_SETTLEMENT',
+            paymentType: 'KIRANA_JAMA',
+            remarks: `Reimbursed to Kirana Store via Grain ERP Settlement against Crop Purchase #${purchaseNo}`,
+            status: 'POSTED',
+          },
+        });
+
+        // Mark corresponding AdvanceRequests as SETTLED
+        await tx.advanceRequest.updateMany({
+          where: { partyId, requestType: 'FARMER', disbursedMode: 'KIRANA_STORE_CREDIT', status: 'APPROVED' },
+          data: { status: 'SETTLED', notes: `Settled against Crop Purchase #${purchaseNo}` },
+        });
+
+        // Add PartyLedger entry showing Store Udhaar Reimbursement Settlement
+        const finalBalAfterSettle = newBalAfterPurchase.minus(advancePaid).minus(settleAmt);
+        await tx.partyLedger.create({
+          data: {
+            partyId,
+            voucherNo: jamaTxnNo,
+            voucherType: 'STORE_ADVANCE_SETTLEMENT',
+            debit: settleAmt,
+            credit: 0.0,
+            runningBalance: finalBalAfterSettle.toNumber(),
+            balanceType: finalBalAfterSettle.greaterThanOrEqualTo(0) ? 'PAYABLE' : 'RECEIVABLE',
+            narration: `Kirana Store Udhaar Advance settled & reimbursed against Crop Purchase #${purchaseNo}`,
+            referenceId: purchase.id,
+          },
+        });
+      }
+    }
+
     // 5. Create Stock Movement Entry (Stock IN to Godown)
     await tx.stockMovement.create({
       data: {

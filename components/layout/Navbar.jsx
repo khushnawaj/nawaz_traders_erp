@@ -24,7 +24,9 @@ import {
   PieChart,
   Settings,
   User,
-  Landmark
+  Store,
+  ShieldAlert,
+  Landmark,
 } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import toast from 'react-hot-toast';
@@ -163,6 +165,17 @@ export default function Navbar() {
                   }`}
                 >
                   <Home className="w-3.5 h-3.5" /> Dashboard
+                </Link>
+
+                <Link
+                  href="/kirana"
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs transition ${
+                    pathname.startsWith('/kirana') || pathname.startsWith('/compliance')
+                      ? 'bg-[#70161E] text-white shadow-md font-extrabold'
+                      : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200/50 dark:hover:bg-slate-800/50 font-semibold'
+                  }`}
+                >
+                  <Store className={`w-3.5 h-3.5 ${pathname.startsWith('/kirana') || pathname.startsWith('/compliance') ? 'text-amber-300' : 'text-[#70161E] dark:text-rose-400'}`} /> Store
                 </Link>
 
                 {CATEGORIZED_NAV.map((cat) => {

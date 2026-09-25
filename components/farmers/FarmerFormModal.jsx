@@ -11,7 +11,7 @@ export default function FarmerFormModal({ isOpen, onClose, onSuccess, initialDat
     alternatePhone: '',
     address: '', // Village
     city: '', // Tehsil / City
-    state: 'Madhya Pradesh',
+    state: 'Uttar Pradesh',
     roles: ['FARMER'],
     openingBalance: 0,
     balanceType: 'PAYABLE',
@@ -220,7 +220,7 @@ export default function FarmerFormModal({ isOpen, onClose, onSuccess, initialDat
                 <label className="app-label">Tehsil / District</label>
                 <input
                   type="text"
-                  placeholder="e.g. Sehore / Ashta"
+                  placeholder="e.g. Robertsganj / Ghorawal (Sonebhadra)"
                   value={formData.city}
                   onChange={(e) => setFormData({ ...formData, city: e.target.value })}
                   className="app-input"
