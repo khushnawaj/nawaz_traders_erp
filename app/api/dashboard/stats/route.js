@@ -1,9 +1,15 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db/prisma';
 import { getPartySummaryStats } from '@/server/services/partyService';
+import { requireApiAuth } from '@/lib/auth/apiAuth';
+
+export const dynamic = 'force-dynamic';
 
 export async function GET(req) {
   try {
+    const { errorResponse } = await requireApiAuth(req);
+    if (errorResponse) return errorResponse;
+
     const todayStart = new Date();
     todayStart.setHours(0, 0, 0, 0);
 

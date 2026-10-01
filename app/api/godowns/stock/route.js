@@ -1,8 +1,14 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db/prisma';
+import { requireApiAuth } from '@/lib/auth/apiAuth';
+
+export const dynamic = 'force-dynamic';
 
 export async function GET(request) {
   try {
+    const { errorResponse } = await requireApiAuth(request);
+    if (errorResponse) return errorResponse;
+
     const { searchParams } = new URL(request.url);
     const godownId = searchParams.get('godownId');
     const commodityId = searchParams.get('commodityId');

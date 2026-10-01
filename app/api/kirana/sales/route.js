@@ -1,8 +1,12 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db/prisma';
+import { requireApiAuth } from '@/lib/auth/apiAuth';
 
 export async function GET(request) {
   try {
+    const { errorResponse } = await requireApiAuth(request);
+    if (errorResponse) return errorResponse;
+
     const { searchParams } = new URL(request.url);
     const search = searchParams.get('search');
     const paymentMode = searchParams.get('paymentMode');
@@ -44,6 +48,9 @@ export async function GET(request) {
 
 export async function POST(request) {
   try {
+    const { errorResponse } = await requireApiAuth(request);
+    if (errorResponse) return errorResponse;
+
     const body = await request.json();
     const { partyId, customerName, customerPhone, items, discountAmount, paymentMode, paidAmount } = body;
 

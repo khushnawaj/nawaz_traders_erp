@@ -882,44 +882,46 @@ export default function KiranaStoreERPPage() {
   });
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white font-sans pb-16 transition-colors duration-200">
-      {/* 🏢 STORE HEADER NAV BAR WITH RICH #70161E DEEP WINE BURGUNDY THEME */}
-      <header className="bg-gradient-to-r from-[#70161E] via-[#561117] to-[#420D12] text-white sticky top-0 z-40 border-b border-[#70161E]/80 shadow-md backdrop-blur-md">
-        <div className="max-w-[1650px] mx-auto px-4 sm:px-6 lg:px-8 py-2.5">
+    <div className="min-h-screen bg-slate-50/60 dark:bg-[#070B12] text-slate-900 dark:text-slate-100 font-sans pb-16 transition-colors duration-300">
+      {/* 🏢 MINIMALISTIC PREMIUM STORE HEADER NAV BAR */}
+      <header className="store-header-glass text-white sticky top-0 z-40 transition-colors duration-200">
+        <div className="max-w-[1680px] mx-auto px-4 sm:px-6 lg:px-8 py-3">
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
             {/* Store Brand Header */}
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-amber-400/20 text-amber-300 border border-amber-400/30 font-black flex items-center justify-center font-outfit shadow-sm shrink-0">
-                <Store className="w-5 h-5 text-amber-300" />
+            <div className="flex items-center gap-3.5">
+              <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-rose-600/30 via-amber-500/20 to-emerald-500/20 text-amber-300 border border-amber-400/30 font-black flex items-center justify-center font-outfit shadow-inner shrink-0 relative overflow-hidden group">
+                <Store className="w-5 h-5 text-amber-300 group-hover:scale-110 transition-transform duration-300" />
               </div>
               <div>
-                <h1 className="text-base font-extrabold tracking-tight text-white uppercase font-outfit flex items-center gap-2">
-                  NAWAZ TRADERS • RETAIL &amp; MANDI STORE
-                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase bg-amber-400/20 text-amber-300 border border-amber-400/30 font-outfit">
+                <div className="flex items-center gap-2">
+                  <h1 className="text-base font-black tracking-tight text-white uppercase font-outfit">
+                    NAWAZ TRADERS <span className="text-slate-500 font-normal">•</span> RETAIL &amp; MANDI STORE
+                  </h1>
+                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase bg-amber-400/10 text-amber-300 border border-amber-400/20 font-outfit tracking-wider">
                     <Building className="w-3 h-3 text-amber-300" /> ROBERTSGANJ (UP-64)
                   </span>
-                </h1>
-                <p className="text-[11px] text-rose-200/90 font-medium tracking-wide flex items-center gap-1.5 mt-0.5 font-outfit">
-                  <ShieldCheck className="w-3.5 h-3.5 shrink-0 text-amber-300" />
-                  <span>Robertsganj Mandi Yard • UP Mandi Tax 1.5% + Cess 0.5% • FSDA UP • Scale Tax Stamp</span>
+                </div>
+                <p className="text-[11px] text-slate-400 font-medium tracking-wide flex items-center gap-1.5 mt-0.5 font-outfit">
+                  <ShieldCheck className="w-3.5 h-3.5 shrink-0 text-emerald-400" />
+                  <span>Robertsganj Mandi Yard • UP Mandi Tax 1.5% + Cess 0.5% • FSDA UP</span>
                 </p>
               </div>
             </div>
 
             {/* Metrics & Theme Toggle & ERP Link */}
             <div className="flex flex-wrap items-center gap-2.5 text-xs font-outfit">
-              <div className="bg-black/30 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white/15 shadow-sm flex items-center gap-2 font-mono">
+              <div className="bg-slate-800/60 dark:bg-slate-900/60 backdrop-blur-md px-3.5 py-1.5 rounded-2xl border border-slate-700/50 shadow-inner flex items-center gap-2.5 font-mono hover:border-amber-400/40 transition">
                 <FileText className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-                <span className="text-rose-200/80 text-[10px] font-bold uppercase tracking-wider">STORE UDHAAR:</span>
+                <span className="text-slate-400 text-[10px] font-extrabold uppercase tracking-wider">STORE UDHAAR:</span>
                 <span className="text-amber-300 font-black text-sm font-bahi">
                   ₹{(parseFloat(khataData?.totalStoreUdhaar) || 0).toFixed(2)}
                 </span>
               </div>
 
-              <div className="bg-black/30 backdrop-blur-md px-3 py-1.5 rounded-xl border border-white/15 shadow-sm flex items-center gap-2 font-mono">
-                <Truck className="w-3.5 h-3.5 text-rose-300 shrink-0" />
-                <span className="text-rose-200/80 text-[10px] font-bold uppercase tracking-wider">SUPPLIER DUE:</span>
-                <span className="text-rose-200 font-black text-sm font-bahi">
+              <div className="bg-slate-800/60 dark:bg-slate-900/60 backdrop-blur-md px-3.5 py-1.5 rounded-2xl border border-slate-700/50 shadow-inner flex items-center gap-2.5 font-mono hover:border-rose-400/40 transition">
+                <Truck className="w-3.5 h-3.5 text-rose-400 shrink-0" />
+                <span className="text-slate-400 text-[10px] font-extrabold uppercase tracking-wider">SUPPLIER DUE:</span>
+                <span className="text-rose-300 font-black text-sm font-bahi">
                   ₹{(parseFloat(purchasesSummary?.totalSupplierDue) || 0).toFixed(2)}
                 </span>
               </div>
@@ -929,15 +931,15 @@ export default function KiranaStoreERPPage() {
                 <button
                   onClick={toggleTheme}
                   title="Toggle Light/Dark Theme"
-                  className="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-white border border-white/15 transition shadow-sm flex items-center justify-center"
+                  className="p-2.5 rounded-2xl bg-slate-800/60 hover:bg-slate-700/80 text-white border border-slate-700/50 transition shadow-sm flex items-center justify-center active:scale-95"
                 >
-                  {isDarkMode ? <Sun className="w-4 h-4 text-amber-300" /> : <Moon className="w-4 h-4 text-rose-200" />}
+                  {isDarkMode ? <Sun className="w-4 h-4 text-amber-300" /> : <Moon className="w-4 h-4 text-rose-300" />}
                 </button>
               )}
 
               <Link
                 href="/"
-                className="px-3.5 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black rounded-xl shadow-md transition text-xs font-outfit uppercase tracking-wider flex items-center gap-1.5"
+                className="px-4 py-2 bg-gradient-to-r from-amber-500 to-amber-400 hover:from-amber-400 hover:to-amber-300 text-slate-950 font-black rounded-2xl shadow-lg shadow-amber-950/20 transition text-xs font-outfit uppercase tracking-wider flex items-center gap-1.5 transform active:scale-95"
               >
                 <Wheat className="w-3.5 h-3.5 shrink-0 text-slate-950" />
                 <span>Main Grain ERP</span>
@@ -946,84 +948,84 @@ export default function KiranaStoreERPPage() {
             </div>
           </div>
 
-          {/* STORE SHORTCUT TABS BAR MATCHING ERP NAV PILLS */}
-          <div className="mt-2.5 pt-2 border-t border-white/15">
-            <nav className="flex items-center gap-1.5 bg-black/25 p-1 rounded-2xl border border-white/15 backdrop-blur-md overflow-x-auto text-xs font-outfit">
+          {/* STORE SHORTCUT TABS BAR MATCHING MINIMALIST ERP NAV PILLS */}
+          <div className="mt-3 pt-2.5 border-t border-slate-800/60">
+            <nav className="flex items-center gap-1.5 bg-slate-950/50 p-1.5 rounded-2xl border border-slate-800/80 backdrop-blur-xl overflow-x-auto text-xs font-outfit">
               <button
                 onClick={() => setActiveTab('billing')}
-                className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl transition ${
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all duration-200 ${
                   activeTab === 'billing'
-                    ? 'bg-white text-[#70161E] font-extrabold shadow-md'
-                    : 'text-rose-100 hover:text-white hover:bg-white/15 font-semibold'
+                    ? 'bg-gradient-to-r from-rose-600 to-rose-700 text-white font-extrabold shadow-lg shadow-rose-950/40 border border-rose-400/30'
+                    : 'text-slate-400 hover:text-white hover:bg-slate-800/50 font-semibold'
                 }`}
               >
-                <span className={`px-1.5 py-0.5 rounded text-[10px] font-mono font-bold ${activeTab === 'billing' ? 'bg-[#70161E]/15 text-[#70161E]' : 'bg-black/30 text-amber-300'}`}>F2</span>
+                <span className={`px-1.5 py-0.5 rounded text-[10px] font-mono font-black ${activeTab === 'billing' ? 'bg-white/20 text-white' : 'bg-slate-800 text-amber-300 border border-slate-700/60'}`}>F2</span>
                 <ShoppingCart className="w-3.5 h-3.5 shrink-0" />
                 <span>POS Billing Counter</span>
               </button>
 
               <button
                 onClick={() => setActiveTab('inward')}
-                className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl transition ${
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all duration-200 ${
                   activeTab === 'inward'
-                    ? 'bg-white text-[#70161E] font-extrabold shadow-md'
-                    : 'text-rose-100 hover:text-white hover:bg-white/15 font-semibold'
+                    ? 'bg-gradient-to-r from-rose-600 to-rose-700 text-white font-extrabold shadow-lg shadow-rose-950/40 border border-rose-400/30'
+                    : 'text-slate-400 hover:text-white hover:bg-slate-800/50 font-semibold'
                 }`}
               >
-                <span className={`px-1.5 py-0.5 rounded text-[10px] font-mono font-bold ${activeTab === 'inward' ? 'bg-[#70161E]/15 text-[#70161E]' : 'bg-black/30 text-amber-300'}`}>F3</span>
+                <span className={`px-1.5 py-0.5 rounded text-[10px] font-mono font-black ${activeTab === 'inward' ? 'bg-white/20 text-white' : 'bg-slate-800 text-amber-300 border border-slate-700/60'}`}>F3</span>
                 <Truck className="w-3.5 h-3.5 shrink-0" />
                 <span>Stock Inward &amp; Mandi Purchases ({purchasesHistory.length})</span>
               </button>
 
               <button
                 onClick={() => setActiveTab('khata')}
-                className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl transition ${
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all duration-200 ${
                   activeTab === 'khata'
-                    ? 'bg-white text-[#70161E] font-extrabold shadow-md'
-                    : 'text-rose-100 hover:text-white hover:bg-white/15 font-semibold'
+                    ? 'bg-gradient-to-r from-rose-600 to-rose-700 text-white font-extrabold shadow-lg shadow-rose-950/40 border border-rose-400/30'
+                    : 'text-slate-400 hover:text-white hover:bg-slate-800/50 font-semibold'
                 }`}
               >
-                <span className={`px-1.5 py-0.5 rounded text-[10px] font-mono font-bold ${activeTab === 'khata' ? 'bg-[#70161E]/15 text-[#70161E]' : 'bg-black/30 text-amber-300'}`}>F4</span>
+                <span className={`px-1.5 py-0.5 rounded text-[10px] font-mono font-black ${activeTab === 'khata' ? 'bg-white/20 text-white' : 'bg-slate-800 text-amber-300 border border-slate-700/60'}`}>F4</span>
                 <BookOpen className="w-3.5 h-3.5 shrink-0" />
                 <span>Store Udhaar Daily Register ({khataData.khataParties?.length || 0})</span>
               </button>
 
               <button
                 onClick={() => setActiveTab('employees')}
-                className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl transition ${
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all duration-200 ${
                   activeTab === 'employees'
-                    ? 'bg-white text-[#70161E] font-extrabold shadow-md'
-                    : 'text-rose-100 hover:text-white hover:bg-white/15 font-semibold'
+                    ? 'bg-gradient-to-r from-rose-600 to-rose-700 text-white font-extrabold shadow-lg shadow-rose-950/40 border border-rose-400/30'
+                    : 'text-slate-400 hover:text-white hover:bg-slate-800/50 font-semibold'
                 }`}
               >
-                <span className={`px-1.5 py-0.5 rounded text-[10px] font-mono font-bold ${activeTab === 'employees' ? 'bg-[#70161E]/15 text-[#70161E]' : 'bg-black/30 text-amber-300'}`}>F5</span>
+                <span className={`px-1.5 py-0.5 rounded text-[10px] font-mono font-black ${activeTab === 'employees' ? 'bg-white/20 text-white' : 'bg-slate-800 text-amber-300 border border-slate-700/60'}`}>F5</span>
                 <Users className="w-3.5 h-3.5 shrink-0" />
                 <span>Store Staff ({khataData.employees?.length || 0})</span>
               </button>
 
               <button
                 onClick={() => setActiveTab('inventory')}
-                className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl transition ${
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all duration-200 ${
                   activeTab === 'inventory'
-                    ? 'bg-white text-[#70161E] font-extrabold shadow-md'
-                    : 'text-rose-100 hover:text-white hover:bg-white/15 font-semibold'
+                    ? 'bg-gradient-to-r from-rose-600 to-rose-700 text-white font-extrabold shadow-lg shadow-rose-950/40 border border-rose-400/30'
+                    : 'text-slate-400 hover:text-white hover:bg-slate-800/50 font-semibold'
                 }`}
               >
-                <span className={`px-1.5 py-0.5 rounded text-[10px] font-mono font-bold ${activeTab === 'inventory' ? 'bg-[#70161E]/15 text-[#70161E]' : 'bg-black/30 text-amber-300'}`}>F8</span>
+                <span className={`px-1.5 py-0.5 rounded text-[10px] font-mono font-black ${activeTab === 'inventory' ? 'bg-white/20 text-white' : 'bg-slate-800 text-amber-300 border border-slate-700/60'}`}>F8</span>
                 <Package className="w-3.5 h-3.5 shrink-0" />
                 <span>Stock Master ({products.length})</span>
               </button>
 
               <button
                 onClick={() => setActiveTab('licenses')}
-                className={`flex items-center gap-2 px-3.5 py-1.5 rounded-xl transition ${
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all duration-200 ${
                   activeTab === 'licenses'
-                    ? 'bg-amber-400 text-slate-950 font-extrabold shadow-md'
-                    : 'text-rose-100 hover:text-white hover:bg-white/15 font-semibold'
+                    ? 'bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 font-black shadow-lg shadow-amber-950/40 border border-amber-300/40'
+                    : 'text-slate-400 hover:text-white hover:bg-slate-800/50 font-semibold'
                 }`}
               >
-                <span className={`px-1.5 py-0.5 rounded text-[10px] font-mono font-bold ${activeTab === 'licenses' ? 'bg-slate-950/20 text-slate-950' : 'bg-black/30 text-amber-300'}`}>F9</span>
-                <ShieldAlert className="w-3.5 h-3.5 shrink-0 text-amber-300" />
+                <span className={`px-1.5 py-0.5 rounded text-[10px] font-mono font-black ${activeTab === 'licenses' ? 'bg-slate-950/20 text-slate-950' : 'bg-slate-800 text-amber-300 border border-slate-700/60'}`}>F9</span>
+                <ShieldAlert className="w-3.5 h-3.5 shrink-0" />
                 <span>UP Sonebhadra Compliance ({licenses.length})</span>
               </button>
             </nav>
@@ -1039,24 +1041,28 @@ export default function KiranaStoreERPPage() {
             {/* LEFT 7 COLS: CATALOG & CATEGORIES */}
             <div className="lg:col-span-7 space-y-4">
               {/* Search Bar & Category Filter Pills */}
-              <div className="glass-card p-4 rounded-2xl border border-slate-200/80 dark:border-slate-800/80 shadow-sm space-y-3">
+              <div className="store-card-premium p-4 rounded-3xl space-y-3.5">
                 <div className="relative">
-                  <Search className="w-4 h-4 text-[#70161E] dark:text-[#A8323E] absolute left-3.5 top-3.5" />
+                  <Search className="w-4 h-4 text-rose-500 absolute left-4 top-3.5" />
                   <input
                     ref={searchInputRef}
                     type="text"
                     placeholder="Search grocery item, barcode, or Hindi name (e.g. Kurkure, Atta, Mustard Oil, Aaloo)..."
                     value={itemSearchText}
                     onChange={(e) => setItemSearchText(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-bold text-slate-900 dark:text-white focus:border-[#70161E] dark:focus:border-[#A8323E] transition-all shadow-inner font-outfit"
+                    className="w-full pl-11 pr-10 py-3 bg-slate-50/80 dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-800/80 rounded-2xl text-xs font-bold text-slate-900 dark:text-white focus:border-rose-500 dark:focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 transition-all shadow-inner font-outfit"
                   />
-                  {itemSearchText && (
+                  {itemSearchText ? (
                     <button
                       onClick={() => setItemSearchText('')}
-                      className="absolute right-3 top-3 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                      className="absolute right-3.5 top-3.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
                     >
                       <X className="w-4 h-4" />
                     </button>
+                  ) : (
+                    <span className="absolute right-3.5 top-3.5 text-[10px] font-mono text-slate-400 font-bold bg-slate-200/60 dark:bg-slate-800/60 px-1.5 py-0.5 rounded border border-slate-300/40 dark:border-slate-700/40">
+                      /
+                    </span>
                   )}
                 </div>
 
@@ -1066,10 +1072,10 @@ export default function KiranaStoreERPPage() {
                     <button
                       key={cat}
                       onClick={() => setSelectedCategory(cat)}
-                      className={`px-3 py-1.5 rounded-xl font-semibold whitespace-nowrap transition ${
+                      className={`px-3.5 py-2 rounded-xl font-bold whitespace-nowrap transition-all duration-200 ${
                         selectedCategory === cat
-                          ? 'bg-[#70161E] text-white font-extrabold shadow-md'
-                          : 'bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800 border border-slate-200/60 dark:border-slate-800/60'
+                          ? 'bg-gradient-to-r from-rose-600 to-rose-700 text-white font-black shadow-md shadow-rose-950/20'
+                          : 'bg-slate-100 dark:bg-slate-900/80 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-800 border border-slate-200/60 dark:border-slate-800/60'
                       }`}
                     >
                       {cat}
@@ -1086,11 +1092,11 @@ export default function KiranaStoreERPPage() {
                     <div
                       key={p.id}
                       onClick={() => handleAddToCart(p, 1)}
-                      className="glass-card p-4 rounded-2xl border border-slate-200/80 dark:border-slate-800/80 hover:border-[#70161E] dark:hover:border-[#A8323E] transition-all duration-200 cursor-pointer group flex flex-col justify-between shadow-sm hover:shadow-md"
+                      className="store-card-premium p-4 rounded-2xl cursor-pointer group flex flex-col justify-between hover:scale-[1.01] active:scale-[0.99]"
                     >
                       <div>
-                        <div className="flex justify-between items-start gap-1 mb-2">
-                          <span className="text-[10px] font-mono text-[#70161E] dark:text-[#A8323E] font-bold bg-[#70161E]/10 px-2 py-0.5 rounded-md border border-[#70161E]/20">
+                        <div className="flex justify-between items-start gap-1 mb-2.5">
+                          <span className="text-[10px] font-mono text-rose-600 dark:text-rose-400 font-extrabold bg-rose-500/10 px-2.5 py-0.5 rounded-lg border border-rose-500/20">
                             {p.sku}
                           </span>
                           <span
@@ -1104,15 +1110,15 @@ export default function KiranaStoreERPPage() {
                           </span>
                         </div>
 
-                        <div className="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800/60 flex items-center justify-center text-[#70161E] dark:text-[#A8323E] mb-2 group-hover:scale-105 transition-transform">
+                        <div className="w-10 h-10 rounded-2xl bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20 flex items-center justify-center font-bold mb-2.5 group-hover:scale-110 transition-transform">
                           <Package className="w-5 h-5" />
                         </div>
 
-                        <h3 className="font-extrabold text-xs text-slate-900 dark:text-white group-hover:text-[#70161E] dark:group-hover:text-rose-400 transition font-outfit line-clamp-1">
+                        <h3 className="font-extrabold text-xs text-slate-900 dark:text-white group-hover:text-rose-600 dark:group-hover:text-rose-400 transition font-outfit line-clamp-1">
                           {p.name}
                         </h3>
                         {p.localName && (
-                          <div className="text-[11px] text-slate-500 dark:text-slate-400 font-medium italic mt-0.5 font-outfit">
+                          <div className="text-[11px] text-slate-400 font-medium italic mt-0.5 font-outfit">
                             {p.localName}
                           </div>
                         )}
@@ -1127,7 +1133,7 @@ export default function KiranaStoreERPPage() {
                           </div>
                         </div>
 
-                        <button className="w-8 h-8 rounded-xl bg-[#70161E] text-white hover:bg-[#561117] flex items-center justify-center font-black transition group-hover:scale-105 shadow-sm">
+                        <button className="w-8 h-8 rounded-xl bg-gradient-to-br from-rose-600 to-rose-700 hover:from-rose-500 hover:to-rose-600 text-white flex items-center justify-center font-black transition group-hover:scale-110 shadow-md">
                           <Plus className="w-4 h-4 shrink-0" />
                         </button>
                       </div>
@@ -1139,16 +1145,16 @@ export default function KiranaStoreERPPage() {
 
             {/* RIGHT 5 COLS: POS CART & CHECKOUT DRAWER */}
             <div className="lg:col-span-5 space-y-4">
-              <div className="glass-card p-5 rounded-2xl border border-slate-200/80 dark:border-slate-800/80 shadow-xl space-y-4">
+              <div className="glass-card p-5 rounded-3xl border border-slate-200/80 dark:border-slate-800/80 shadow-2xl space-y-4 font-outfit">
                 {/* Header */}
-                <div className="flex items-center justify-between border-b border-slate-200/80 dark:border-slate-800/80 pb-3">
+                <div className="flex items-center justify-between border-b border-slate-200/80 dark:border-slate-800/80 pb-3.5">
                   <div className="flex items-center gap-2">
-                    <Receipt className="w-5 h-5 text-[#70161E] dark:text-[#A8323E] shrink-0" />
-                    <h2 className="font-extrabold text-sm text-slate-900 dark:text-white font-outfit uppercase tracking-tight">
+                    <Receipt className="w-5 h-5 text-rose-500 shrink-0" />
+                    <h2 className="font-black text-sm text-slate-900 dark:text-white font-outfit uppercase tracking-tight">
                       Active POS Bill Cart
                     </h2>
                   </div>
-                  <span className="text-xs font-mono font-bold text-[#70161E] dark:text-[#A8323E] bg-[#70161E]/10 px-2.5 py-1 rounded-lg border border-[#70161E]/20">
+                  <span className="text-xs font-mono font-bold text-rose-600 dark:text-rose-400 bg-rose-500/10 px-3 py-1 rounded-xl border border-rose-500/20">
                     KRN-2026-{String(salesHistory.length + 1).padStart(4, '0')}
                   </span>
                 </div>
@@ -1165,7 +1171,7 @@ export default function KiranaStoreERPPage() {
                         value={customerName}
                         onChange={(e) => setCustomerName(e.target.value)}
                         placeholder="e.g. Ramesh Patel"
-                        className="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-semibold text-slate-900 dark:text-white focus:border-[#70161E] dark:focus:border-[#A8323E]"
+                        className="w-full px-3 py-2.5 bg-slate-50/80 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-semibold text-slate-900 dark:text-white focus:border-rose-500 dark:focus:border-rose-500 transition"
                       />
                     </div>
 
@@ -1178,7 +1184,7 @@ export default function KiranaStoreERPPage() {
                         value={customerPhone}
                         onChange={(e) => setCustomerPhone(e.target.value)}
                         placeholder="e.g. 9876543210"
-                        className="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-semibold text-slate-900 dark:text-white focus:border-[#70161E] dark:focus:border-[#A8323E]"
+                        className="w-full px-3 py-2.5 bg-slate-50/80 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-semibold text-slate-900 dark:text-white focus:border-rose-500 dark:focus:border-rose-500 transition"
                       />
                     </div>
                   </div>
@@ -1194,7 +1200,7 @@ export default function KiranaStoreERPPage() {
                         const found = parties.find((p) => p.id === e.target.value);
                         if (found) setCustomerName(found.name);
                       }}
-                      className="w-full px-3 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-semibold text-slate-900 dark:text-white focus:border-[#70161E] dark:focus:border-[#A8323E]"
+                      className="w-full px-3 py-2.5 bg-slate-50/80 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 rounded-xl text-xs font-semibold text-slate-900 dark:text-white focus:border-rose-500 dark:focus:border-rose-500 transition cursor-pointer"
                     >
                       <option value="">-- Counter Walk-In (No Udhaar Link) --</option>
                       {parties.map((p) => (
@@ -1214,9 +1220,9 @@ export default function KiranaStoreERPPage() {
                       <button
                         type="button"
                         onClick={() => setPaymentMode('CASH')}
-                        className={`py-2.5 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 ${
+                        className={`py-2.5 rounded-xl text-xs font-extrabold transition flex items-center justify-center gap-1.5 ${
                           paymentMode === 'CASH'
-                            ? 'bg-[#70161E] text-white font-extrabold shadow-sm'
+                            ? 'bg-gradient-to-r from-rose-600 to-rose-700 text-white shadow-md'
                             : 'bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-800'
                         }`}
                       >
@@ -1227,9 +1233,9 @@ export default function KiranaStoreERPPage() {
                       <button
                         type="button"
                         onClick={() => setPaymentMode('UPI')}
-                        className={`py-2.5 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 ${
+                        className={`py-2.5 rounded-xl text-xs font-extrabold transition flex items-center justify-center gap-1.5 ${
                           paymentMode === 'UPI'
-                            ? 'bg-[#70161E] text-white font-extrabold shadow-sm'
+                            ? 'bg-gradient-to-r from-rose-600 to-rose-700 text-white shadow-md'
                             : 'bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-800'
                         }`}
                       >
@@ -1240,9 +1246,9 @@ export default function KiranaStoreERPPage() {
                       <button
                         type="button"
                         onClick={() => setPaymentMode('CREDIT')}
-                        className={`py-2.5 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 ${
+                        className={`py-2.5 rounded-xl text-xs font-black transition flex items-center justify-center gap-1.5 ${
                           paymentMode === 'CREDIT'
-                            ? 'bg-amber-500 text-slate-950 font-black shadow-sm'
+                            ? 'bg-amber-500 text-slate-950 shadow-md'
                             : 'bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-800'
                         }`}
                       >
@@ -1263,9 +1269,9 @@ export default function KiranaStoreERPPage() {
                 </div>
 
                 {/* Cart Table */}
-                <div className="border border-slate-200/80 dark:border-slate-800/80 rounded-xl overflow-hidden max-h-60 overflow-y-auto">
+                <div className="border border-slate-200/80 dark:border-slate-800/80 rounded-2xl overflow-hidden max-h-60 overflow-y-auto shadow-inner">
                   <table className="w-full text-left text-xs">
-                    <thead className="bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-300 text-[10px] font-bold uppercase tracking-wider border-b border-slate-200/80 dark:border-slate-800/80">
+                    <thead className="bg-slate-100/80 dark:bg-slate-900/80 text-slate-700 dark:text-slate-300 text-[10px] font-extrabold uppercase tracking-wider border-b border-slate-200/80 dark:border-slate-800/80">
                       <tr>
                         <th className="p-2.5">Item</th>
                         <th className="p-2.5 text-right">Price</th>
@@ -1286,33 +1292,33 @@ export default function KiranaStoreERPPage() {
                           <tr key={row.productId} className="hover:bg-slate-50 dark:hover:bg-slate-900/50 transition">
                             <td className="p-2.5 font-bold text-slate-900 dark:text-white">
                               {row.name}
-                              {row.localName && <div className="text-[10px] text-slate-500 dark:text-slate-400">{row.localName}</div>}
+                              {row.localName && <div className="text-[10px] text-slate-400 font-normal">{row.localName}</div>}
                             </td>
                             <td className="p-2.5 text-right font-bahi font-bold">₹{row.sellingPrice}</td>
                             <td className="p-2.5 text-center">
                               <div className="flex items-center justify-center gap-1">
                                 <button
                                   onClick={() => handleUpdateRowQty(index, row.quantity - 1)}
-                                  className="w-5 h-5 rounded bg-slate-200 dark:bg-slate-800 font-bold hover:bg-slate-300 flex items-center justify-center"
+                                  className="w-5 h-5 rounded-lg bg-slate-200 dark:bg-slate-800 font-bold hover:bg-slate-300 dark:hover:bg-slate-700 flex items-center justify-center transition"
                                 >
                                   -
                                 </button>
                                 <span className="font-bold font-bahi px-1">{row.quantity}</span>
                                 <button
                                   onClick={() => handleUpdateRowQty(index, row.quantity + 1)}
-                                  className="w-5 h-5 rounded bg-slate-200 dark:bg-slate-800 font-bold hover:bg-slate-300 flex items-center justify-center"
+                                  className="w-5 h-5 rounded-lg bg-slate-200 dark:bg-slate-800 font-bold hover:bg-slate-300 dark:hover:bg-slate-700 flex items-center justify-center transition"
                                 >
                                   +
                                 </button>
                               </div>
                             </td>
-                            <td className="p-2.5 text-right font-bahi font-extrabold text-[#70161E] dark:text-[#A8323E]">
+                            <td className="p-2.5 text-right font-bahi font-extrabold text-rose-600 dark:text-rose-400">
                               ₹{(parseFloat(row.totalAmount) || 0).toFixed(2)}
                             </td>
                             <td className="p-2.5 text-center">
                               <button
                                 onClick={() => handleRemoveRow(index)}
-                                className="text-rose-500 hover:text-rose-700 p-1 inline-flex items-center justify-center"
+                                className="text-rose-500 hover:text-rose-700 p-1 inline-flex items-center justify-center transition"
                               >
                                 <Trash2 className="w-3.5 h-3.5 shrink-0" />
                               </button>
@@ -1327,27 +1333,27 @@ export default function KiranaStoreERPPage() {
                 {/* Totals & Submit */}
                 <div className="pt-2 space-y-3 border-t border-slate-200/80 dark:border-slate-800/80 font-outfit">
                   <div className="flex justify-between items-center text-xs">
-                    <span className="text-slate-500 dark:text-slate-400">Subtotal ({totalQtyCount} items):</span>
+                    <span className="text-slate-500 dark:text-slate-400 font-medium">Subtotal ({totalQtyCount} items):</span>
                     <span className="font-bold font-bahi text-slate-900 dark:text-white">₹{(parseFloat(subtotal) || 0).toFixed(2)}</span>
                   </div>
 
                   <div className="flex justify-between items-center text-xs">
-                    <span className="text-slate-500 dark:text-slate-400">Overall Discount (₹):</span>
+                    <span className="text-slate-500 dark:text-slate-400 font-medium">Overall Discount (₹):</span>
                     <input
                       type="number"
                       value={overallDiscount}
                       onChange={(e) => setOverallDiscount(e.target.value)}
-                      className="w-20 px-2 py-1 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded text-right font-bold text-slate-900 dark:text-white font-bahi text-xs"
+                      className="w-20 px-2.5 py-1 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl text-right font-bold text-slate-900 dark:text-white font-bahi text-xs"
                     />
                   </div>
 
-                  <div className="flex justify-between items-center p-3.5 rounded-xl bg-gradient-to-br from-[#70161E]/10 to-amber-500/10 border border-[#70161E]/20 dark:border-[#70161E]/20">
+                  <div className="flex justify-between items-center p-4 rounded-2xl bg-gradient-to-r from-rose-500/10 via-amber-500/5 to-emerald-500/10 border border-rose-500/20">
                     <span className="font-black text-xs text-slate-900 dark:text-white font-outfit uppercase">GRAND TOTAL:</span>
-                    <span className="font-black text-2xl text-[#70161E] dark:text-[#A8323E] font-bahi">₹{(parseFloat(netTotal) || 0).toFixed(2)}</span>
+                    <span className="font-black text-2xl text-rose-600 dark:text-rose-400 font-bahi">₹{(parseFloat(netTotal) || 0).toFixed(2)}</span>
                   </div>
 
                   {paymentMode === 'CASH' && (
-                    <div className="p-3 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 space-y-2 text-xs font-outfit">
+                    <div className="p-3 rounded-2xl bg-slate-50/80 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 space-y-2 text-xs font-outfit">
                       <div className="flex justify-between items-center">
                         <label className="font-bold text-slate-700 dark:text-slate-300">Cash Given by Customer (₹):</label>
                         <input
@@ -1355,7 +1361,7 @@ export default function KiranaStoreERPPage() {
                           placeholder="e.g. 500"
                           value={cashTendered}
                           onChange={(e) => setCashTendered(e.target.value)}
-                          className="w-24 px-2 py-1 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded text-right font-bold text-slate-900 dark:text-white font-bahi"
+                          className="w-24 px-2.5 py-1 bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 rounded-xl text-right font-bold text-slate-900 dark:text-white font-bahi"
                         />
                       </div>
 
@@ -1363,28 +1369,28 @@ export default function KiranaStoreERPPage() {
                         <button
                           type="button"
                           onClick={() => setCashTendered(String(netTotal))}
-                          className="px-2 py-0.5 rounded bg-slate-200 dark:bg-slate-800 text-[10px] font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-300"
+                          className="px-2.5 py-1 rounded-lg bg-slate-200 dark:bg-slate-800 text-[10px] font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-300 dark:hover:bg-slate-700 transition"
                         >
                           Exact (₹{netTotal.toFixed(0)})
                         </button>
                         <button
                           type="button"
                           onClick={() => setCashTendered('500')}
-                          className="px-2 py-0.5 rounded bg-slate-200 dark:bg-slate-800 text-[10px] font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-300"
+                          className="px-2.5 py-1 rounded-lg bg-slate-200 dark:bg-slate-800 text-[10px] font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-300 dark:hover:bg-slate-700 transition"
                         >
                           ₹500
                         </button>
                         <button
                           type="button"
                           onClick={() => setCashTendered('1000')}
-                          className="px-2 py-0.5 rounded bg-slate-200 dark:bg-slate-800 text-[10px] font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-300"
+                          className="px-2.5 py-1 rounded-lg bg-slate-200 dark:bg-slate-800 text-[10px] font-bold text-slate-700 dark:text-slate-300 hover:bg-slate-300 dark:hover:bg-slate-700 transition"
                         >
                           ₹1000
                         </button>
                       </div>
 
                       {parseFloat(cashTendered) >= netTotal && (
-                        <div className="flex justify-between items-center p-2 rounded-lg bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 font-extrabold border border-emerald-500/20 text-xs">
+                        <div className="flex justify-between items-center p-2.5 rounded-xl bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 font-extrabold border border-emerald-500/20 text-xs">
                           <span>CHANGE RETURN TO CUSTOMER:</span>
                           <span className="text-sm font-black font-bahi">₹{(parseFloat(cashTendered) - netTotal).toFixed(2)}</span>
                         </div>
@@ -1396,7 +1402,7 @@ export default function KiranaStoreERPPage() {
                     <button
                       disabled={isSubmitting || invoiceRows.length === 0}
                       onClick={() => handleSaveInvoice(false)}
-                      className="py-3 rounded-xl bg-slate-800 hover:bg-slate-900 active:scale-95 text-white font-extrabold text-xs uppercase tracking-wider transition shadow-md flex items-center justify-center gap-1.5 font-outfit disabled:opacity-50"
+                      className="py-3 rounded-2xl bg-slate-800 hover:bg-slate-900 active:scale-95 text-white font-extrabold text-xs uppercase tracking-wider transition shadow-md flex items-center justify-center gap-1.5 font-outfit disabled:opacity-50"
                       title="Save sale and update stock/udhaar ledger without opening print modal"
                     >
                       <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
@@ -1406,7 +1412,7 @@ export default function KiranaStoreERPPage() {
                     <button
                       disabled={isSubmitting || invoiceRows.length === 0}
                       onClick={() => handleSaveInvoice(true)}
-                      className="py-3 rounded-xl bg-[#70161E] hover:bg-[#561117] active:scale-95 text-white font-extrabold text-xs uppercase tracking-wider transition shadow-md flex items-center justify-center gap-1.5 font-outfit disabled:opacity-50"
+                      className="py-3 rounded-2xl bg-gradient-to-r from-rose-600 to-rose-700 hover:from-rose-500 hover:to-rose-600 active:scale-95 text-white font-black text-xs uppercase tracking-wider transition shadow-lg shadow-rose-950/30 flex items-center justify-center gap-1.5 font-outfit disabled:opacity-50"
                       title="Save sale and view thermal print receipt"
                     >
                       <Printer className="w-4 h-4 text-amber-300 shrink-0" />

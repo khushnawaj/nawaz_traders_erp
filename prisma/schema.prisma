@@ -151,6 +151,7 @@ model PartyLedger {
   createdAt     DateTime          @default(now())
 
   @@index([partyId, date])
+  @@index([partyId, createdAt])
   @@map("party_ledgers")
 }
 
@@ -351,6 +352,7 @@ model EmployeeLedger {
   createdAt      DateTime          @default(now())
 
   @@index([employeeId, date])
+  @@index([employeeId, createdAt])
   @@map("employee_ledgers")
 }
 
@@ -414,6 +416,8 @@ model Purchase {
   items          PurchaseItem[]
   stockMovements StockMovement[]
 
+  @@index([partyId, date])
+  @@index([date])
   @@map("purchases")
 }
 
@@ -464,6 +468,8 @@ model Sale {
   items          SaleItem[]
   stockMovements StockMovement[]
 
+  @@index([partyId, date])
+  @@index([date])
   @@map("sales")
 }
 

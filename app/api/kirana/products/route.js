@@ -1,10 +1,12 @@
 import { NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { prisma } from '@/lib/db/prisma';
+import { requireApiAuth } from '@/lib/auth/apiAuth';
 
 export async function GET(request) {
   try {
+    const { errorResponse } = await requireApiAuth(request);
+    if (errorResponse) return errorResponse;
+
     const { searchParams } = new URL(request.url);
     const category = searchParams.get('category');
     const search = searchParams.get('search');
@@ -38,6 +40,9 @@ export async function GET(request) {
 
 export async function POST(request) {
   try {
+    const { errorResponse } = await requireApiAuth(request);
+    if (errorResponse) return errorResponse;
+
     const body = await request.json();
 
     // 1. Bulk Batch Product & Stock Import
@@ -147,6 +152,9 @@ export async function POST(request) {
 
 export async function PUT(request) {
   try {
+    const { errorResponse } = await requireApiAuth(request);
+    if (errorResponse) return errorResponse;
+
     const body = await request.json();
     const { id, name, localName, category, mrp, purchasePrice, sellingPrice, unit, currentStock, minStockLevel, barcode } = body;
 

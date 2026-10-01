@@ -1,9 +1,13 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db/prisma';
 import Decimal from 'decimal.js';
+import { requireApiAuth } from '@/lib/auth/apiAuth';
 
 export async function POST(request) {
   try {
+    const { errorResponse } = await requireApiAuth(request);
+    if (errorResponse) return errorResponse;
+
     const body = await request.json();
     const { partyId, amount, paymentType, paymentMode, accountName, referenceNo, notes, date } = body;
 

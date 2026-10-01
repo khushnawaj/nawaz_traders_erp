@@ -4,6 +4,7 @@ import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import { ThemeProvider } from '@/components/theme/ThemeProvider';
 import ReduxProvider from '@/components/providers/ReduxProvider';
+import ChatbotWidget from '@/components/common/ChatbotWidget';
 
 export const metadata = {
   title: 'Nawaz Traders — GRAINS TODAY • A STRONGER TOMORROW',
@@ -58,6 +59,7 @@ export default function RootLayout({ children }) {
               {children}
             </div>
             <Footer />
+            <ChatbotWidget />
           </ThemeProvider>
         </ReduxProvider>
       </body>

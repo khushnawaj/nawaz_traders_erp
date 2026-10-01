@@ -1,9 +1,13 @@
 import { NextResponse } from 'next/server';
 import { getAllParties, createParty, getPartySummaryStats } from '@/server/services/partyService';
 import { partySchema } from '@/validations/partySchema';
+import { requireApiAuth } from '@/lib/auth/apiAuth';
 
 export async function GET(request) {
   try {
+    const { errorResponse } = await requireApiAuth(request);
+    if (errorResponse) return errorResponse;
+
     const { searchParams } = new URL(request.url);
     const search = searchParams.get('search') || '';
     const role = searchParams.get('role') || '';
@@ -35,6 +39,9 @@ export async function GET(request) {
 
 export async function POST(request) {
   try {
+    const { errorResponse } = await requireApiAuth(request);
+    if (errorResponse) return errorResponse;
+
     const body = await request.json();
     const validatedData = partySchema.parse(body);
 

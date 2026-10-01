@@ -268,7 +268,7 @@ export default function CompliancePage() {
                     </div>
                   </div>
 
-                  {lic.notes && <p className="text-[11px] text-slate-400 italic mb-3">"{lic.notes}"</p>}
+                  {lic.notes && <p className="text-[11px] text-slate-400 italic mb-3">&quot;{lic.notes}&quot;</p>}
                 </div>
 
                 <button

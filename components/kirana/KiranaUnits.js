@@ -1,0 +1,16 @@
+export const KRN_UNITS = [
+  { code: 'Kg', label: 'Kg (Kilogram / किलो)' },
+  { code: 'Quintal', label: 'Quintal / Qtl (100 Kg / क्विंटल)' },
+  { code: '1/2 Kg', label: '1/2 Kg (500g / आधा किलो)' },
+  { code: '1/4 Kg', label: '1/4 Kg (250g / पाव 250g)' },
+  { code: '100g', label: '100g (100 Grams / 100 ग्राम)' },
+  { code: '50g', label: '50g (50 Grams / 50 ग्राम)' },
+  { code: 'Ton', label: 'Ton (Metric Ton / 1000 Kg)' },
+  { code: 'Pkt', label: 'Packet (Pkt / पैकेट)' },
+  { code: 'Pcs', label: 'Piece (Pcs / पीस)' },
+  { code: 'Ltr', label: 'Litre (Ltr / लीटर)' },
+  { code: '500ml', label: '500ml (1/2 Litre / आधा लीटर)' },
+  { code: 'Bag', label: 'Bori / Bag (50 Kg / बोरी)' },
+  { code: 'Box', label: 'Box / Dabba (डिब्बा)' },
+  { code: 'Dozen', label: 'Dozen (12 Pcs / दर्जन)' },
+];
