@@ -1,0 +1,13 @@
+Dockerfile
+docker-compose*.yml
+.dockerignore
+node_modules
+.next
+.git
+.gitignore
+.env
+.env.local
+.env.development
+.env.production
+ scratch
+*.log

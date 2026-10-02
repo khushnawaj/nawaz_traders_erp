@@ -56,6 +56,24 @@ Application will be live at `http://localhost:3000`.
 
 ---
 
+## 🐳 Docker Deployment (Recommended for Production)
+
+You can run the entire ERP system (Next.js App + PostgreSQL Database) in isolated containers using Docker:
+
+```bash
+# Build & start containers in detached mode
+docker-compose up -d --build
+
+# Push database schema & seed initial data inside container
+docker exec -it nawaz_traders_erp npx prisma db push
+docker exec -it nawaz_traders_erp node prisma/seed.js
+```
+
+- **App URL:** `http://localhost:3000`
+- **PostgreSQL Database:** Port `5432` with volume persistence (`postgres_data`).
+
+---
+
 ## 📋 Initial Seed Credentials
 
 * **Company**: Nawaz Traders
