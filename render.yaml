@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: nawaz-traders-erp
+    env: node
+    plan: free
+    buildCommand: npm install && npx prisma db push && npm run build
+    startCommand: npm run start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: nawaz-traders-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+
+databases:
+  - name: nawaz-traders-db
+    databaseName: nawaz_traders
+    user: nawaz_user
+    plan: free
