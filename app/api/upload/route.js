@@ -19,13 +19,12 @@ export async function POST(request) {
 
     // Create unique filename
     const timestamp = Date.now();
-    const cleanFileName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
+    const cleanFileName = (file.name || 'upload.jpg').replace(/[^a-zA-Z0-9.-]/g, '_');
     const filename = `${timestamp}_${cleanFileName}`;
 
     // Target upload directory: public/uploads/
     const uploadDir = path.join(process.cwd(), 'public', 'uploads');
 
-    // Ensure uploads directory exists
     try {
       await mkdir(uploadDir, { recursive: true });
     } catch (err) {
@@ -37,10 +36,20 @@ export async function POST(request) {
 
     const publicUrl = `/uploads/${filename}`;
 
+    // If it's an image under 2MB, generate Data URL for database persistence across container restarts
+    const isImage = file.type?.startsWith('image/') || /\.(jpg|jpeg|png|webp|gif)$/i.test(filename);
+    let dataUrl = null;
+    if (isImage && buffer.length <= 2 * 1024 * 1024) {
+      const mime = file.type || 'image/jpeg';
+      dataUrl = `data:${mime};base64,${buffer.toString('base64')}`;
+    }
+
     return NextResponse.json({
       success: true,
       message: 'File uploaded successfully!',
-      url: publicUrl,
+      url: dataUrl || publicUrl,
+      publicUrl,
+      dataUrl,
     });
   } catch (error) {
     console.error('Error in file upload API:', error);

@@ -24,8 +24,11 @@ import {
 import { useTheme } from 'next-themes';
 import toast from 'react-hot-toast';
 import UserManagementSection from '@/components/settings/UserManagementSection';
+import { useAppDispatch } from '@/lib/redux/hooks';
+import { fetchCurrentUser } from '@/lib/redux/slices/authSlice';
 
 export default function SettingsPage() {
+  const dispatch = useAppDispatch();
   const searchParams = useSearchParams();
   const initialTab = searchParams.get('tab') || 'theme';
 
@@ -71,8 +74,21 @@ export default function SettingsPage() {
         throw new Error(data.error || 'Upload failed');
       }
 
-      setProfileForm((prev) => ({ ...prev, avatarUrl: data.url }));
-      toast.success('🎉 Profile photo uploaded from device!');
+      const avatarUrl = data.url;
+      setProfileForm((prev) => ({ ...prev, avatarUrl }));
+
+      // Immediately save to database & update Redux navbar state
+      if (user?.id) {
+        await fetch(`/api/users/${user.id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ avatarUrl }),
+        });
+        await fetchUserProfile();
+        dispatch(fetchCurrentUser());
+      }
+
+      toast.success('🎉 Profile photo updated successfully!');
     } catch (err) {
       toast.error(err.message);
     } finally {
@@ -148,6 +164,7 @@ export default function SettingsPage() {
       toast.success('🎉 Profile & password updated successfully!');
       setProfileForm((prev) => ({ ...prev, password: '', confirmPassword: '' }));
       fetchUserProfile();
+      dispatch(fetchCurrentUser());
     } catch (err) {
       toast.error(err.message);
     } finally {
@@ -348,7 +365,19 @@ export default function SettingsPage() {
                       {profileForm.avatarUrl && (
                         <button
                           type="button"
-                          onClick={() => setProfileForm({ ...profileForm, avatarUrl: '' })}
+                          onClick={async () => {
+                            setProfileForm((prev) => ({ ...prev, avatarUrl: '' }));
+                            if (user?.id) {
+                              await fetch(`/api/users/${user.id}`, {
+                                method: 'PATCH',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ avatarUrl: '' }),
+                              });
+                              await fetchUserProfile();
+                              dispatch(fetchCurrentUser());
+                              toast.success('Profile photo removed');
+                            }
+                          }}
                           className="px-3.5 py-3 rounded-2xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 dark:text-rose-400 border border-rose-500/20 text-xs font-bold flex items-center justify-center gap-1.5 transition"
                           title="Remove Photo"
                         >
