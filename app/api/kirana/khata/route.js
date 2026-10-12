@@ -23,12 +23,12 @@ export async function GET(request) {
     });
 
     // 3. Fetch all Payment Transactions linked to Party / Kirana Khata
-    const paymentTxns = await prisma.paymentTransaction.findMany({
+    const paymentTxns = await prisma.payment.findMany({
       where: {
         OR: [
           { paymentType: 'KIRANA_JAMA' },
-          { remarks: { contains: 'Kirana', mode: 'insensitive' } },
-          { remarks: { contains: 'Store Jama', mode: 'insensitive' } },
+          { notes: { contains: 'Kirana', mode: 'insensitive' } },
+          { notes: { contains: 'Store Jama', mode: 'insensitive' } },
         ],
       },
       include: {
@@ -133,8 +133,8 @@ export async function GET(request) {
           id: tx.id,
           date: tx.createdAt,
           type: 'JAMA_PAYMENT',
-          billNo: tx.txnNo || `JAMA-${tx.id.substring(0, 6)}`,
-          particulars: tx.remarks || `Udhaar Recovery Payment via ${tx.paymentMode}`,
+          billNo: tx.paymentNo || `JAMA-${tx.id.substring(0, 6)}`,
+          particulars: tx.notes || `Udhaar Recovery Payment via ${tx.paymentMode}`,
           debitAmount: 0,
           creditAmount: jamaAmt,
           dueAdded: -jamaAmt,
@@ -190,16 +190,15 @@ export async function POST(request) {
     if (partyId) {
       const party = await prisma.party.findUnique({ where: { id: partyId } });
       if (party) {
-        const txnNo = `JAMA-${Date.now().toString().slice(-6)}`;
-        createdTxn = await prisma.paymentTransaction.create({
+        const paymentNo = `JAMA-${Date.now().toString().slice(-6)}`;
+        createdTxn = await prisma.payment.create({
           data: {
-            txnNo,
+            paymentNo,
             partyId,
             amount: parsedAmount,
-            type: 'PAYMENT_RECEIVED',
+            paymentType: 'PAYMENT_RECEIVED',
             paymentMode: paymentMode || 'CASH',
-            paymentType: 'KIRANA_JAMA',
-            remarks: notes ? `Kirana Store Udhaar Jama: ${notes}` : 'Kirana Store Udhaar Recovery Jama Payment',
+            notes: notes ? `Kirana Store Udhaar Jama: ${notes}` : 'Kirana Store Udhaar Recovery Jama Payment',
             status: 'POSTED',
           },
         });

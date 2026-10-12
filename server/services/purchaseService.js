@@ -216,17 +216,16 @@ export async function createPurchase(data) {
           remainingToSettle -= applyAmt;
         }
 
-        // Post Jama transaction to PaymentTransaction for Kirana Store Passbook
-        const jamaTxnNo = `JAMA-ERP-${Date.now().toString().slice(-6)}`;
-        await tx.paymentTransaction.create({
+        // Post Jama transaction to Payment for Kirana Store Passbook
+        const jamaPaymentNo = `JAMA-ERP-${Date.now().toString().slice(-6)}`;
+        await tx.payment.create({
           data: {
-            txnNo: jamaTxnNo,
+            paymentNo: jamaPaymentNo,
             partyId,
             amount: settleAmt,
-            type: 'PAYMENT_RECEIVED',
+            paymentType: 'PAYMENT_RECEIVED',
             paymentMode: 'ERP_GRAIN_SETTLEMENT',
-            paymentType: 'KIRANA_JAMA',
-            remarks: `Reimbursed to Kirana Store via Grain ERP Settlement against Crop Purchase #${purchaseNo}`,
+            notes: `Reimbursed to Kirana Store via Grain ERP Settlement against Crop Purchase #${purchaseNo}`,
             status: 'POSTED',
           },
         });
