@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db/prisma';
-import { comparePassword, signSessionToken } from '@/lib/auth/session';
+import { comparePassword } from '@/lib/auth/password';
+import { signSessionToken } from '@/lib/auth/session';
 import { loginSchema } from '@/validations/authSchema';
 
 export const dynamic = 'force-dynamic';

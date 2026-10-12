@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db/prisma';
-import { hashPassword, verifySessionToken } from '@/lib/auth/session';
+import { hashPassword } from '@/lib/auth/password';
+import { verifySessionToken } from '@/lib/auth/session';
 import { registerSchema } from '@/validations/authSchema';
 
 // GET /api/users — List all system users (Owner, Co-Owner, Admin access)

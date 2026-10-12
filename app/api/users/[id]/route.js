@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/db/prisma';
-import { hashPassword, verifySessionToken } from '@/lib/auth/session';
+import { hashPassword } from '@/lib/auth/password';
+import { verifySessionToken } from '@/lib/auth/session';
 
 // PATCH /api/users/[id] — Update role, status, profile link, or password
 export async function PATCH(request, { params }) {
