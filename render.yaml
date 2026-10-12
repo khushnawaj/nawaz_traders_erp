@@ -3,9 +3,11 @@ services:
     name: nawaz-traders-erp
     env: node
     plan: free
-    buildCommand: npm install && npx prisma db push && npm run build
-    startCommand: npm run start
+    buildCommand: npm install && npm run build
+    startCommand: npx prisma db push && npm run start
     envVars:
+      - key: NODE_VERSION
+        value: 20.18.0
       - key: NODE_ENV
         value: production
       - key: DATABASE_URL
