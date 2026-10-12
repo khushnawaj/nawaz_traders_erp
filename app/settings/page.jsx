@@ -155,6 +155,30 @@ export default function SettingsPage() {
     }
   };
 
+  const [cleaningDemo, setCleaningDemo] = useState(false);
+
+  const handleCleanDemoData = async () => {
+    if (!confirm('⚠️ KYA AAP SURE HAIN?\\n\\nYeh sample demo transactions, demo parties, aur demo vehicles ko delete kar dega taaki aap bilkul fresh data entry kar sakein.\\n\\nAapka Owner login aur Commodities/Units safe rahenge.')) {
+      return;
+    }
+
+    setCleaningDemo(true);
+    try {
+      const res = await fetch('/api/admin/clean-demo-data', {
+        method: 'POST',
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || 'Failed to clean demo data');
+      }
+      toast.success('🎉 Sample demo data successfully cleared! System is now fresh.');
+    } catch (err) {
+      toast.error(err.message);
+    } finally {
+      setCleaningDemo(false);
+    }
+  };
+
   const currentTheme = resolvedTheme || theme;
 
   const isOwnerOrAdmin = user && ['OWNER', 'CO_OWNER', 'ADMIN'].includes(user.role);
@@ -472,6 +496,29 @@ export default function SettingsPage() {
               <span className="font-bold text-amber-500 text-sm uppercase">{user?.role || 'Guest'}</span>
             </div>
           </div>
+
+          {user?.role === 'OWNER' && (
+            <div className="pt-6 border-t border-slate-200/60 dark:border-slate-800/60 space-y-3">
+              <div className="flex items-center gap-2">
+                <Trash2 className="w-4 h-4 text-rose-500" />
+                <h4 className="font-bold text-xs uppercase tracking-wider text-rose-500 font-outfit">
+                  Owner Maintenance: Clean Sample Demo Data
+                </h4>
+              </div>
+              <p className="text-xs text-slate-500 dark:text-slate-400">
+                Agar aap naye client ke liye sample records (Ramesh Patel, demo purchases/sales, demo tractors) ko ek click me hatana chahte hain, toh yahan click karein. Aapka Owner account aur Master Commodities/Units surakshit rahenge.
+              </p>
+              <button
+                type="button"
+                onClick={handleCleanDemoData}
+                disabled={cleaningDemo}
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 dark:text-rose-400 border border-rose-500/30 text-xs font-bold transition shadow-sm"
+              >
+                <RefreshCw className={`w-3.5 h-3.5 ${cleaningDemo ? 'animate-spin' : ''}`} />
+                {cleaningDemo ? 'Cleaning Data...' : 'Reset & Clear Demo Data (Start Fresh)'}
+              </button>
+            </div>
+          )}
         </div>
       )}
     </main>

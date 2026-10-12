@@ -51,6 +51,37 @@ export async function GET(request, { params }) {
   }
 }
 
+export async function PUT(request, { params }) {
+  try {
+    const { id } = params;
+    const body = await request.json();
+
+    const updatedVehicle = await prisma.vehicle.update({
+      where: { id },
+      data: {
+        vehicleNumber: body.vehicleNumber ? body.vehicleNumber.trim().toUpperCase() : undefined,
+        vehicleType: body.vehicleType,
+        model: body.model,
+        ownership: body.ownership,
+        currentKm: body.currentKm ? parseFloat(body.currentKm) : undefined,
+        status: body.status,
+      },
+    });
+
+    return NextResponse.json({
+      success: true,
+      message: 'Vehicle updated successfully',
+      data: updatedVehicle,
+    });
+  } catch (error) {
+    console.error('Error updating vehicle:', error);
+    return NextResponse.json(
+      { success: false, error: error.message || 'Failed to update vehicle' },
+      { status: 500 }
+    );
+  }
+}
+
 export async function DELETE(request, { params }) {
   try {
     const { id } = params;

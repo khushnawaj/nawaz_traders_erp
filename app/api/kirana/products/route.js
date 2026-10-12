@@ -184,3 +184,26 @@ export async function PUT(request) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 }
+
+export async function DELETE(request) {
+  try {
+    const { errorResponse } = await requireApiAuth(request);
+    if (errorResponse) return errorResponse;
+
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get('id');
+
+    if (!id) {
+      return NextResponse.json({ success: false, error: 'Product ID is required' }, { status: 400 });
+    }
+
+    await prisma.kiranaProduct.delete({
+      where: { id },
+    });
+
+    return NextResponse.json({ success: true, message: 'Kirana product deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting Kirana product:', error);
+    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+  }
+}

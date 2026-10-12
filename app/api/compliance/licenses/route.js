@@ -122,3 +122,22 @@ export async function PUT(request) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 }
+
+export async function DELETE(request) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get('id');
+
+    if (!id) {
+      return NextResponse.json({ success: false, error: 'License ID is required' }, { status: 400 });
+    }
+
+    await prisma.complianceLicense.delete({ where: { id } });
+
+    return NextResponse.json({ success: true, message: 'License deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting compliance license:', error);
+    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+  }
+}
+
