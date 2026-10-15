@@ -5,6 +5,7 @@ import Footer from '@/components/layout/Footer';
 import { ThemeProvider } from '@/components/theme/ThemeProvider';
 import ReduxProvider from '@/components/providers/ReduxProvider';
 import ChatbotWidget from '@/components/common/ChatbotWidget';
+import ServerWarmupLoader from '@/components/common/ServerWarmupLoader';
 
 export const metadata = {
   title: 'Nawaz Traders — GRAINS TODAY • A STRONGER TOMORROW',
@@ -54,6 +55,7 @@ export default function RootLayout({ children }) {
                 },
               }}
             />
+            <ServerWarmupLoader />
             <Navbar />
             <div className="flex-1 pb-20 md:pb-6 bg-slate-50 dark:bg-gradient-to-b dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 transition-colors duration-300">
               {children}
