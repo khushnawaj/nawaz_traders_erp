@@ -27,7 +27,6 @@ import {
   Store,
   ShieldAlert,
   Landmark,
-  Briefcase,
 } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import toast from 'react-hot-toast';
@@ -165,18 +164,7 @@ export default function Navbar() {
                       : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
                   }`}
                 >
-                  <Briefcase className="w-3.5 h-3.5" /> Projects
-                </Link>
-
-                <Link
-                  href="/dashboard"
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition ${
-                    pathname.startsWith('/dashboard')
-                      ? 'bg-emerald-600 text-white shadow-sm'
-                      : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white'
-                  }`}
-                >
-                  <PieChart className="w-3.5 h-3.5" /> Dashboard
+                  <Home className="w-3.5 h-3.5" /> Dashboard
                 </Link>
 
                 <Link
@@ -419,36 +407,7 @@ export default function Navbar() {
                     </Link>
                   </div>
                 ) : (
-                  <>
-                    <div className="grid grid-cols-2 gap-2 pb-2 border-b border-slate-200 dark:border-slate-800">
-                      <Link
-                        href="/"
-                        onClick={() => setMobileMenuOpen(false)}
-                        className={`flex items-center gap-2 p-2.5 rounded-xl text-xs font-bold transition ${
-                          pathname === '/'
-                            ? 'bg-emerald-600 text-white shadow-sm'
-                            : 'bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-300'
-                        }`}
-                      >
-                        <Briefcase className="w-4 h-4 text-emerald-400 shrink-0" />
-                        <span>Projects</span>
-                      </Link>
-
-                      <Link
-                        href="/dashboard"
-                        onClick={() => setMobileMenuOpen(false)}
-                        className={`flex items-center gap-2 p-2.5 rounded-xl text-xs font-bold transition ${
-                          pathname.startsWith('/dashboard')
-                            ? 'bg-emerald-600 text-white shadow-sm'
-                            : 'bg-slate-100 dark:bg-slate-900 text-slate-700 dark:text-slate-300'
-                        }`}
-                      >
-                        <PieChart className="w-4 h-4 text-amber-400 shrink-0" />
-                        <span>Dashboard</span>
-                      </Link>
-                    </div>
-
-                    {CATEGORIZED_NAV.map((cat) => (
+                  CATEGORIZED_NAV.map((cat) => (
                     <div key={cat.category} className="space-y-1">
                       <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider px-2">{cat.category}</div>
                       {cat.items.map((item) => {
@@ -471,8 +430,7 @@ export default function Navbar() {
                         );
                       })}
                     </div>
-                  ))}
-                  </>
+                  ))
                 )}
               </div>
             </div>
@@ -516,11 +474,11 @@ export default function Navbar() {
         ) : (
           <>
             <Link href="/" className="flex flex-col items-center justify-center gap-1 text-[11px] font-medium text-slate-600 dark:text-slate-400">
-              <Briefcase className="w-5 h-5 text-emerald-600 dark:text-emerald-400" /> Projects
+              <Home className="w-5 h-5 text-emerald-600 dark:text-emerald-400" /> Home
             </Link>
 
-            <Link href="/dashboard" className="flex flex-col items-center justify-center gap-1 text-[11px] font-medium text-slate-600 dark:text-slate-400">
-              <PieChart className="w-5 h-5 text-amber-500" /> Dashboard
+            <Link href="/farmers" className="flex flex-col items-center justify-center gap-1 text-[11px] font-medium text-slate-600 dark:text-slate-400">
+              <Wheat className="w-5 h-5 text-amber-500" /> Farmers
             </Link>
 
             {/* FAB Quick Action Trigger */}
